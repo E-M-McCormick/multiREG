@@ -1,13 +1,75 @@
-network_reg <- function(data = '',
-                        sep = '',
-                        header = TRUE,
-                        group_cutoff = .75,
-                        out = '',
-                        alpha = .5,
-                        ar = TRUE,
-                        penalties = NULL,
-                        exogenous = NULL,
-                        lag_exogenous = FALSE){
+#' @name netreg
+#' @aliases network_reg netreg
+#' @title Network Regularization Model Search
+#' @description This function utilizes regression with regularization to build models for individuals 
+#' consisting of individual and group-level paths.
+#' @usage 
+#' network_reg(data          = '',
+#'             sep           = '',
+#'             header        = TRUE,
+#'             ar            = TRUE,
+#'             group_cutoff  = .75,
+#'             out           = '',
+#'             alpha         = .5,
+#'             penalties     = NULL,
+#'             exogenous     = NULL,
+#'             lag_exogenous = FALSE)
+#'             
+#' @param data The path to the directory where individual data files are located,
+#' or the name of the list containing individual data. Each file or matrix within the list
+#' must contain a single matrix containing the a T (time) by p (number of variables) matrix,
+#' where the rows represent time and columns represent individual variables. Individuals may
+#' have different numbers of observations (T), but must have the same number of variables (p).
+#' 
+#' @param sep Spacing scheme for input files. 
+#' '' indicates space-separated; ',' indicates comma separated; '/t' indicates tab-separated
+#' Only necessary when reading in files from physical directory.
+#' 
+#' @param header (Logical) Indicate TRUE if variable names incluced in input file, FALSE otherwise.
+#' Only necessary when reading in files from physical directory.
+#' 
+#' @param ar (Logical) If TRUE, begin model search with all autoregressive pathways estimated
+#' with no shrinkage (i.e., penalty = 0).
+#' 
+#' @param group_cutoff Cutoff value for inclusion of a given path at the group-level.
+#' For instance, group_cutoff = .75 indicates that a path needs to be estimated for 75% of
+#' individuals to be included as a group-level path.
+#' 
+#' @param out (Optional) The path to directory where results will be stored. If specified,
+#' a copy of output data will be saved into the directory. If the specified directory does
+#' not exist, it will be created.
+#' 
+#' @param alpha Elastic-net parameter for the regularization approach. Values close to 0 mimic 
+#' the ridge penalty, which tends to shrink correlated parameters towards one another. Values 
+#' close to 1 mimic the lasso penalty, which tends to select one parameter and shrink
+#' the others. The default value (alpha=.5) balances these two considerations, and tends to select
+#' groups of correlated parameters and shrink other groups towards zero.
+#' 
+#' @param penalties (Optional) A matrix of user-provided penalties to initialize group-model search. 
+#' Should contain a column for all variables (including lagged versions) that will be included
+#' in the model search. Values of 1 (the default) will initilize a variable to be normally
+#' considered in the regularization, values of 0 will initilize a variable to be estimated
+#' (i.e., no shrinkage), and values of Inf will exlcude variables from the model. 
+#' 
+#' @param exogenous (Optional) A list of user-specified variables to consider as exogenous
+#' (e.g., cannot be predicted) in the model search procedure. If variable names are supplied,
+#' variables should be referred to by name. If not, then variables should be referenced by
+#' the pattern 'V#', where # represents the column number in the original data file (e.g., 'V5').
+#' 
+#' @param lag_exogenous (Optional, Logical) If TRUE, a lagged version of the exogenous variable 
+#' will be created. If set to TRUE, but exogenous variables are not indicated in the arguement
+#' above, the function will not run properly.
+#'
+network_reg <- netreg <- function(data = '',
+                                  sep = '',
+                                  header = TRUE,
+                                  ar = TRUE,
+                                  group_cutoff = .75,
+                                  out = NULL,
+                                  alpha = .5,
+                                  penalties = NULL,
+                                  exogenous = NULL,
+                                  lag_exogenous = FALSE){
   
   library(tools); library(glmnet) 
   refpath = getwd()
@@ -59,10 +121,17 @@ network_reg <- function(data = '',
                      dimnames = list(c(colnames(subdata[[1]])),
                                      c(colnames(subdata[[1]])),
                                      c(names(subdata))))
-  initial_penalties = array(data = rep(1, numvars*numvars), 
-                            dim = c(numvars,numvars),
-                            dimnames = list(c(colnames(subdata[[1]])),
-                                            c(colnames(subdata[[1]]))))
+  if (is.null(penalties)){
+    initial_penalties = array(data = rep(1, numvars*numvars), 
+                              dim = c(numvars,numvars),
+                              dimnames = list(c(colnames(subdata[[1]])),
+                                              c(colnames(subdata[[1]]))))
+  } else {
+    initial_penalties = penalties
+    colnames(initial_penalties) = colnames(subdata[[1]])
+    rownames(initial_penalties) = colnames(subdata[[1]])
+  }
+  
   # Free AR Paths if Desired
   for (varname in yvarnames){
     if (ar == TRUE){
@@ -132,7 +201,7 @@ network_reg <- function(data = '',
   }
   
   # Save Output to Files
-  if (out != ''){
+  if (!is.null(out)){
     print('Writing output to file.')
     if (!dir.exists(out)){
       print('Creating output directories')
