@@ -202,11 +202,11 @@ network_reg <- netreg <- function(data = '',
   
   # Save Output to Files
   if (!is.null(out)){
-    print('Writing output to file.')
     if (!dir.exists(out)){
       print('Creating output directories')
       dir.create(out);
     }
+    print('Writing output to file.')
     write.csv(output$group$group_paths_counts[, colnames(output$group$group_paths_counts) %in% yvarnames],
               file = paste(out, 'GroupLevel_PathCountsMatrix.csv', sep=.Platform$file.sep))
     write.csv(output$group$group_paths_present[, colnames(output$group$group_paths_present) %in% yvarnames],
