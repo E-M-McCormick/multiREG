@@ -206,12 +206,12 @@ network_reg <- netreg <- function(data = '',
     if (!dir.exists(out)){
       print('Creating output directories')
       dir.create(out);
-      dir.create(paste(out, 'individual', sep=.Platform$file.sep))
     }
     write.csv(output$group$group_paths_counts[, colnames(output$group$group_paths_counts) %in% yvarnames],
               file = paste(out, 'GroupLevel_PathCountsMatrix.csv', sep=.Platform$file.sep))
     write.csv(output$group$group_paths_present[, colnames(output$group$group_paths_present) %in% yvarnames],
               file = paste(out, 'GroupLevel_PathsPresent.csv', sep=.Platform$file.sep))
+    dir.create(paste(out, 'individual', sep=.Platform$file.sep))
     for (sub in names(subdata)){
       write.csv(output[[sub]]$regression_matrix[, colnames(output$group$group_paths_counts) %in% yvarnames],
                 file = paste(out, 'individual', paste0(sub,'_Betas.csv'), sep=.Platform$file.sep))
