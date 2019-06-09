@@ -49,7 +49,11 @@
 #' Should contain a column for all variables (including lagged versions and interactions) that will 
 #' be included in the model search. Values of 1 (the default) will initilize a variable to be 
 #' normally considered in the regularization, values of 0 will initilize a variable to be estimated
-#' (i.e., no shrinkage), and values of Inf will exlcude variables from the model. 
+#' (i.e., no shrinkage), and values of Inf will exlcude variables from the model.
+#' 
+#'  @param test_penalties (Optional, Logical) Optional argument to output a sample penalty matrix
+#'  based on function parameters. Helpful for specifying a matrix to use in the penalties arguement.
+#'  Function will exit gracefully before running anything if test_penalties = TRUE.
 #' 
 #' @param exogenous (Optional) A list of user-specified variables to consider as exogenous
 #' (e.g., cannot be predicted) in the model search procedure. If variable names are supplied,
@@ -60,17 +64,21 @@
 #' will be created. If set to TRUE, but exogenous variables are not indicated in the arguement
 #' above, the function will not run properly.
 #'
-#' @param interact_exogenous (Optional) Choose which exogenous variables are used to create
+#' @param interact_exogenous (Optional) Select which exogenous variables are used to create
 #' interaction terms with other predictors (excluding other exogenous variables). If 
 #' lag_exogenous = TRUE, then can specify both contemporaneous and lagged versions of exogenous
 #' variables (e.g., c('V5', 'V4Lag')). Specify as 'all' to create interactions using all exogenous 
 #' variables (contemporaneous or lagged) present in the data. Interactions between exogenous variables 
 #' should be created manually and included as separate columns in the input file or list.
 #' 
-#' @param interact_with_exogenous (Optional) Choose which endogenous variables are combined
+#' @param interact_with_exogenous (Optional) Select which endogenous variables are combined
 #' with the exogenous variables specified with interact_exogenous to create interaction variables
 #' (e.g., c('V1','V2','V2Lag')). Specify as 'all' to create interaction using all endogenous variables
 #' in the data.
+#' 
+#' @param predict_with_exogenous (Optional) Select which endogenous variables should be predicted
+#' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
+#' are NULL. 
 network_reg <- netreg <- function(data                    = '',
                                   sep                     = '',
                                   header                  = TRUE,
@@ -79,10 +87,12 @@ network_reg <- netreg <- function(data                    = '',
                                   out                     = NULL,
                                   alpha                   = .5,
                                   penalties               = NULL,
+                                  test_penalties          = FALSE,
                                   exogenous               = NULL,
                                   lag_exogenous           = FALSE,
                                   interact_exogenous      = NULL,
-                                  interact_with_exogenous = NULL){
+                                  interact_with_exogenous = NULL,
+                                  predict_with_exogenous  = NULL){
   
   library(tools); library(glmnet) 
   refpath = getwd()
@@ -208,6 +218,12 @@ network_reg <- netreg <- function(data                    = '',
     }
   }
   
+  # Return Sample Penalty Matrix and Exit if Needed
+  if (test_penalties == TRUE){
+    return(initial_penalties)
+    stop('Returning sample penatly matrix and exiting.')
+  }
+  
   # Loop through Subjects Data to Build Individual Models
   for (sub in names(subdata)){
     print(paste0('Building group-level model for ', sub, '.'))
@@ -215,6 +231,9 @@ network_reg <- netreg <- function(data                    = '',
     for (varname in yvarnames){
       subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars))])
+      if (!is.null(predict_with_exogenous) & !varname %in% predict_with_exogenous){
+          subset_predictors = subset_predictors[,!colnames(subset_predictors) %in% interactnames]
+      }
       cvfit = cv.glmnet(x = subset_predictors,
                         y =  tempdata[,colnames(tempdata) %in% varname],
                         type.measure = 'mse',
@@ -250,8 +269,14 @@ network_reg <- netreg <- function(data                    = '',
     for (varname in yvarnames){
       subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars))])
+      if (!is.null(predict_with_exogenous) & !varname %in% predict_with_exogenous){
+        subset_predictors = subset_predictors[,!colnames(subset_predictors) %in% interactnames]
+      }
       subset_penalties = group_penalties[!(colnames(tempdata) %in% varname |
                                               colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars)), varname]
+      if (!is.null(predict_with_exogenous) & !varname %in% predict_with_exogenous){
+        subset_penalties = subset_penalties[!names(subset_penalties) %in% interactnames]
+      }
       cvfit = cv.glmnet(x = subset_predictors,
                         y = tempdata[,colnames(tempdata) %in% varname],
                         type.measure = 'mse',
