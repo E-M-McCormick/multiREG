@@ -46,9 +46,9 @@
 #' groups of correlated parameters and shrink other groups towards zero.
 #' 
 #' @param penalties (Optional) A matrix of user-provided penalties to initialize group-model search. 
-#' Should contain a column for all variables (including lagged versions) that will be included
-#' in the model search. Values of 1 (the default) will initilize a variable to be normally
-#' considered in the regularization, values of 0 will initilize a variable to be estimated
+#' Should contain a column for all variables (including lagged versions and interactions) that will 
+#' be included in the model search. Values of 1 (the default) will initilize a variable to be 
+#' normally considered in the regularization, values of 0 will initilize a variable to be estimated
 #' (i.e., no shrinkage), and values of Inf will exlcude variables from the model. 
 #' 
 #' @param exogenous (Optional) A list of user-specified variables to consider as exogenous
@@ -60,16 +60,29 @@
 #' will be created. If set to TRUE, but exogenous variables are not indicated in the arguement
 #' above, the function will not run properly.
 #'
-network_reg <- netreg <- function(data = '',
-                                  sep = '',
-                                  header = TRUE,
-                                  ar = TRUE,
-                                  group_cutoff = .75,
-                                  out = NULL,
-                                  alpha = .5,
-                                  penalties = NULL,
-                                  exogenous = NULL,
-                                  lag_exogenous = FALSE){
+#' @param interact_exogenous (Optional) Choose which exogenous variables are used to create
+#' interaction terms with other predictors (excluding other exogenous variables). If 
+#' lag_exogenous = TRUE, then can specify both contemporaneous and lagged versions of exogenous
+#' variables (e.g., c('V5', 'V4Lag')). Specify as 'all' to create interactions using all exogenous 
+#' variables (contemporaneous or lagged) present in the data. Interactions between exogenous variables 
+#' should be created manually and included as separate columns in the input file or list.
+#' 
+#' @param interact_with_exogenous (Optional) Choose which endogenous variables are combined
+#' with the exogenous variables specified with interact_exogenous to create interaction variables
+#' (e.g., c('V1','V2','V2Lag')). Specify as 'all' to create interaction using all endogenous variables
+#' in the data.
+network_reg <- netreg <- function(data                    = '',
+                                  sep                     = '',
+                                  header                  = TRUE,
+                                  ar                      = TRUE,
+                                  group_cutoff            = .75,
+                                  out                     = NULL,
+                                  alpha                   = .5,
+                                  penalties               = NULL,
+                                  exogenous               = NULL,
+                                  lag_exogenous           = FALSE,
+                                  interact_exogenous      = NULL,
+                                  interact_with_exogenous = NULL){
   
   library(tools); library(glmnet) 
   refpath = getwd()
@@ -92,18 +105,74 @@ network_reg <- netreg <- function(data = '',
   }
   
   # Categorize Variables. & Omit NaN Rows
+  interact_with_all_flag = FALSE
+  if (interact_with_exogenous == 'all'){
+    interact_with_all_flag = TRUE
+  }
   for (i in 1:length(subdata)){
     yvar = subdata[[i]][,!colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
     yvarnames = colnames(yvar)
     lagvar = rbind(rep(NA, ncol(yvar)), yvar[1:(nrow(yvar)-1),])
     colnames(lagvar) = paste(colnames(lagvar), 'Lag', sep='')
     exogvar = subdata[[i]][,colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
+    
+    
+    # Lag Exogenous Variables if Needed
     if (lag_exogenous == TRUE){
       lagexogvar = rbind(rep(NA, ncol(exogvar)), exogvar[1:(nrow(exogvar)-1), , drop=FALSE])
       colnames(lagexogvar) = paste(colnames(exogvar), 'Lag', sep='')
-      subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,lagexogvar))
+      if (interact_exogenous == 'all'){
+        interact_exogvars = c(colnames(exogvar),colnames(lagexogvar))
+      }
+      if (!is.null(interact_exogenous)){
+        
+        # Create Interaction Variables As Needed
+        if (interact_with_all_flag == TRUE){
+          interact_var = sapply(cbind(yvar,lagvar), 
+                                function(x){ x*cbind(exogvar[colnames(exogvar) %in% interact_exogvars],lagexogvar[colnames(lagexogvar) %in% interact_exogvars]) })
+          newnames = as.vector(sapply(cbind(colnames(yvar),colnames(lagvar)), 
+                                      function(x){ paste0(x,'_x_',cbind(colnames(exogvar[colnames(exogvar) %in% interact_exogvars]),colnames(lagexogvar[colnames(lagexogvar) %in% interact_exogvars]))) }))
+        } else {
+          interact_var = sapply(cbind(yvar[colnames(yvar) %in% interact_with_exogenous],lagvar[colnames(lagvar) %in% interact_with_exogenous]), 
+                                function(x){ x*cbind(exogvar[colnames(exogvar) %in% interact_exogvars],lagexogvar[colnames(lagexogvar) %in% interact_exogvars]) })
+          newnames = unique(as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
+                                             function(x){ paste0(x,'_x_',cbind(colnames(exogvar[colnames(exogvar) %in% interact_exogvars]),colnames(lagexogvar[colnames(lagexogvar) %in% interact_exogvars]))) })))
+        }
+        interact_var = matrix(unlist(interact_var), ncol=length(interact_var))
+        colnames(interact_var) = newnames
+        interactnames = newnames
+        subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,lagexogvar,interact_var))
+      } else {
+        interact_exogvars = ''
+        interactnames = ''
+        subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,lagexogvar))
+      }    
     } else if (lag_exogenous == FALSE){
-      subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar))
+      if (interact_exogenous == 'all'){
+        interact_exogvars = colnames(exogvar)
+      }
+      # Create Interaction Variables As Needed
+      if (!is.null(interact_exogenous)){
+        if (interact_with_all_flag == TRUE){
+          interact_var = sapply(cbind(yvar,lagvar), 
+                                function(x,y){ x*exogvar[colnames(exogvar) %in% interact_exogvars] })
+          newnames = as.vector(sapply(cbind(colnames(yvar),colnames(lagvar)), 
+                                      function(x){ paste0(x,'_x_',colnames(exogvar[colnames(exogvar) %in% interact_exogvars])) }))
+        } else {
+          interact_var = sapply(cbind(yvar[colnames(yvar) %in% interact_with_exogenous],lagvar[colnames(lagvar) %in% interact_with_exogenous]), 
+                                function(x){ x*exogvar[colnames(exogvar) %in% interact_exogvars] })
+          newnames = unique(as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
+                                             function(x){ paste0(x,'_x_',colnames(exogvar[colnames(exogvar) %in% interact_exogvars])) })))
+        }
+        interact_var = matrix(unlist(interact_var), ncol=length(interact_var))
+        colnames(interact_var) = newnames
+        interactnames = newnames
+        subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,interact_var))
+      } else {
+        interact_exogvars = ''
+        interactnames = ''
+        subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar))
+      }
     }
   }
   print('Data successfully read in.')
@@ -144,7 +213,9 @@ network_reg <- netreg <- function(data = '',
     print(paste0('Building group-level model for ', sub, '.'))
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
-      cvfit = cv.glmnet(x = as.matrix(tempdata[,!colnames(tempdata) %in% varname]),
+      subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
+                                                  colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars))])
+      cvfit = cv.glmnet(x = subset_predictors,
                         y =  tempdata[,colnames(tempdata) %in% varname],
                         type.measure = 'mse',
                         nfolds = round(nrow(tempdata)/10),
@@ -167,6 +238,7 @@ network_reg <- netreg <- function(data = '',
   output[['group']][['group_paths_counts']] = group_thresh_mat
   
   group_thresh_mat = group_thresh_mat/nsubs
+  output[['group']][['group_paths_proportions']] = group_thresh_mat
   group_thresh_mat[group_thresh_mat < group_cutoff] = 0
   group_thresh_mat[group_thresh_mat >= group_cutoff] = 1
   group_penalties = abs(group_thresh_mat - 1)
@@ -176,12 +248,16 @@ network_reg <- netreg <- function(data = '',
     print(paste0('Building individual-level model for ', sub, '.'))
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
-      cvfit = cv.glmnet(x = as.matrix(tempdata[,!colnames(tempdata) %in% varname]),
+      subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
+                                                  colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars))])
+      subset_penalties = group_penalties[!(colnames(tempdata) %in% varname |
+                                              colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars)), varname]
+      cvfit = cv.glmnet(x = subset_predictors,
                         y = tempdata[,colnames(tempdata) %in% varname],
                         type.measure = 'mse',
                         nfolds = round(nrow(tempdata)/10),
                         alpha = alpha,
-                        penalty.factor = group_penalties[!colnames(tempdata) %in% varname, varname])
+                        penalty.factor = subset_penalties)
       temp = coef(cvfit, s = 'lambda.1se')
       for (predictor in rownames(temp)[!rownames(temp) %in% '(Intercept)']){
         if (temp[predictor,] != 0){
@@ -199,6 +275,9 @@ network_reg <- netreg <- function(data = '',
     output[[sub]][['data']] = subdata[[sub]]
     output[[sub]][['regression_matrix']] = finalpaths[, , sub]
   }
+  
+  # Add Visualization
+  output = add_vis(output)
   
   # Save Output to Files
   if (!is.null(out)){
