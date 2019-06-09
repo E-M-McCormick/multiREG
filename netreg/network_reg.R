@@ -106,7 +106,7 @@ network_reg <- netreg <- function(data                    = '',
   output[['function_parameters']][['out']]                         = ifelse(is.null(out),'NULL',out)
   output[['function_parameters']][['alpha']]                       = alpha
   if (is.null(initial_penalties)){
-    output[['function_parameters']][['penalties']]}                = 'NULL'
+    output[['function_parameters']][['penalties']]                = 'NULL'
   } else {
     output[['function_parameters']][['penalties']]                 = initial_penalties
   }
