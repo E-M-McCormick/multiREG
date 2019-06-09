@@ -76,7 +76,7 @@
 #' (e.g., c('V1','V2','V2Lag')). Specify as 'all' to create interaction using all endogenous variables
 #' in the data.
 #' 
-#' @param predict_with_exogenous (Optional) Select which endogenous variables should be predicted
+#' @param predict_with_interactions (Optional) Select which endogenous variables should be predicted
 #' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 #' are NULL. 
 network_reg <- netreg <- function(data                    = '',
@@ -92,10 +92,47 @@ network_reg <- netreg <- function(data                    = '',
                                   lag_exogenous           = FALSE,
                                   interact_exogenous      = NULL,
                                   interact_with_exogenous = NULL,
-                                  predict_with_exogenous  = NULL){
+                                  predict_with_interactions  = NULL){
   
   library(tools); library(glmnet) 
   refpath = getwd()
+  
+  # Add Function Parameters to Output
+  output[['function_parameters']]['data']                          = data
+  output[['function_parameters']][['sep']]                         = sep
+  output[['function_parameters']][['header']]                      = header
+  output[['function_parameters']][['ar']]                          = ar
+  output[['function_parameters']][['group_cutoff']]                = group_cutoff
+  output[['function_parameters']][['out']]                         = ifelse(is.null(out),'NULL',out)
+  output[['function_parameters']][['alpha']]                       = alpha
+  if (is.null(initial_penalties)){
+    output[['function_parameters']][['penalties']]}                = 'NULL'
+  } else {
+    output[['function_parameters']][['penalties']]                 = initial_penalties
+  }
+  if (is.null(exogenous)){
+    output[['function_parameters']][['exogenous']]                 = 'NULL'
+  } else {
+    output[['function_parameters']][['exogenous']]                 = exogenous
+  }
+  output[['function_parameters']][['lag_exogenous']]               = lag_exogenous
+  if (is.null(interact_exogenous)){
+    output[['function_parameters']][['interact_exogenous']]        = 'NULL'
+  } else {
+    output[['function_parameters']][['interact_exogenous']]        = interact_exogenous
+  }
+  if (is.null(interact_with_exogenous)){
+    output[['function_parameters']][['interact_with_exogenous']]   = 'NULL'
+  } else {
+    output[['function_parameters']][['interact_with_exogenous']]   = interact_with_exogenous
+  }
+  if (is.null(predict_with_interactions)){
+    output[['function_parameters']][['predict_with_interactions']] = 'NULL'
+  } else {
+    output[['function_parameters']][['predict_with_interactions']] = predict_with_interactions
+  }
+  
+  
   # Wrangle Data into List
   if (!is.list(data)){
     subdata = list(); setwd(data)
@@ -231,7 +268,7 @@ network_reg <- netreg <- function(data                    = '',
     for (varname in yvarnames){
       subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars))])
-      if (!is.null(predict_with_exogenous) & !varname %in% predict_with_exogenous){
+      if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
           subset_predictors = subset_predictors[,!colnames(subset_predictors) %in% interactnames]
       }
       cvfit = cv.glmnet(x = subset_predictors,
@@ -269,12 +306,12 @@ network_reg <- netreg <- function(data                    = '',
     for (varname in yvarnames){
       subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars))])
-      if (!is.null(predict_with_exogenous) & !varname %in% predict_with_exogenous){
+      if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
         subset_predictors = subset_predictors[,!colnames(subset_predictors) %in% interactnames]
       }
       subset_penalties = group_penalties[!(colnames(tempdata) %in% varname |
                                               colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars)), varname]
-      if (!is.null(predict_with_exogenous) & !varname %in% predict_with_exogenous){
+      if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
         subset_penalties = subset_penalties[!names(subset_penalties) %in% interactnames]
       }
       cvfit = cv.glmnet(x = subset_predictors,
