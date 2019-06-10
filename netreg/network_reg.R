@@ -111,7 +111,7 @@ network_reg <- netreg <- function(data                    = '',
   
   library(tools); library(glmnet); library(gimme)
   refpath = getwd()
-  
+  output <- list() 
   # Add Function Parameters to Output
   output[['function_parameters']]['data']                          = data
   output[['function_parameters']][['sep']]                         = sep
@@ -120,7 +120,7 @@ network_reg <- netreg <- function(data                    = '',
   output[['function_parameters']][['group_cutoff']]                = group_cutoff
   output[['function_parameters']][['out']]                         = ifelse(is.null(out),'NULL',out)
   output[['function_parameters']][['alpha']]                       = alpha
-  if (is.null(initial_penalties)){
+  if (is.null(penalties)){
     output[['function_parameters']][['penalties']]                = 'NULL'
   } else {
     output[['function_parameters']][['penalties']]                 = initial_penalties
@@ -174,9 +174,9 @@ network_reg <- netreg <- function(data                    = '',
       coln = varnames   # all variable names
     )
     
-    subdata <- setupConvolve(
+    subdata <- gimme:::setupConvolve(
       ts_list       = subdata, 
-      varLabels     = varnames, 
+      varLabels     = varLabels, 
       conv_length   = conv_length, 
       conv_interval = conv_interval
     )
