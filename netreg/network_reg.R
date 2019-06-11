@@ -111,7 +111,7 @@ network_reg <- netreg <- function(data                    = '',
   
   library(tools); library(glmnet); library(gimme)
   refpath = getwd()
-  output <- list() 
+  output = list() 
   # Add Function Parameters to Output
   output = list()
   output[['function_parameters']]['data']                          = data
@@ -124,7 +124,7 @@ network_reg <- netreg <- function(data                    = '',
   if (is.null(penalties)){
     output[['function_parameters']][['penalties']]                = 'NULL'
   } else {
-    output[['function_parameters']][['penalties']]                 = initial_penalties
+    output[['function_parameters']][['penalties']]                 = penalties
   }
   if (is.null(exogenous)){
     output[['function_parameters']][['exogenous']]                 = 'NULL'
