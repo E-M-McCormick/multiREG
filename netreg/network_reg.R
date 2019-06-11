@@ -98,6 +98,7 @@ network_reg <- netreg <- function(data                    = '',
   refpath = getwd()
   
   # Add Function Parameters to Output
+  output = list()
   output[['function_parameters']]['data']                          = data
   output[['function_parameters']][['sep']]                         = sep
   output[['function_parameters']][['header']]                      = header
@@ -170,6 +171,8 @@ network_reg <- netreg <- function(data                    = '',
       colnames(lagexogvar) = paste(colnames(exogvar), 'Lag', sep='')
       if (interact_exogenous == 'all'){
         interact_exogvars = c(colnames(exogvar),colnames(lagexogvar))
+      } else {
+        interact_exogvars = interact_exogenous
       }
       if (!is.null(interact_exogenous)){
         
@@ -193,10 +196,13 @@ network_reg <- netreg <- function(data                    = '',
         interact_exogvars = ''
         interactnames = ''
         subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,lagexogvar))
-      }    
+      }
+      exognames = c(colnames(exogvar),colnames(lagexogvar))
     } else if (lag_exogenous == FALSE){
       if (interact_exogenous == 'all'){
         interact_exogvars = colnames(exogvar)
+      } else {
+        interact_exogvars = interact_exogenous
       }
       # Create Interaction Variables As Needed
       if (!is.null(interact_exogenous)){
@@ -220,6 +226,7 @@ network_reg <- netreg <- function(data                    = '',
         interactnames = ''
         subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar))
       }
+      exognames = colnames(exogvar)
     }
   }
   print('Data successfully read in.')
@@ -289,7 +296,6 @@ network_reg <- netreg <- function(data                    = '',
   }
   
   # Calculate Paths that Should Appear in the Group (Non-Penalized) Model
-  output = list()
   group_thresh_mat = rowSums(pathpresent, dims = 2)
   output[['group']][['group_paths_counts']] = group_thresh_mat
   
@@ -330,6 +336,9 @@ network_reg <- netreg <- function(data                    = '',
   }
   
   # Organize Output
+  output[['variablenames']][['y_vars']] = yvarnames
+  output[['variablenames']][['exogenous_vars']] = exognames
+  output[['variablenames']][['interaction_vars']] = interactnames
   group_thresh_mat[is.na(group_thresh_mat)] = 0
   output[['group']][['group_paths_present']] = group_thresh_mat
   output[['group']][['group_penalties']] = group_penalties
