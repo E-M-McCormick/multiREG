@@ -79,6 +79,18 @@
 #' @param predict_with_interactions (Optional) Select which endogenous variables should be predicted
 #' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 #' are NULL. 
+#' @param conv_vars Vector of variable names to be convolved via smoothed Finite Impulse 
+#' Response (sFIR). Note, conv_vars are not not automatically considered exogenous variables.
+#' To treat conv_vars as exogenous use the exogenous argument. Variables listed in conv_vars 
+#' must be binary variables. If there is missing data in the endogenous variables their values 
+#' will be imputed for the convolution operation only. Defaults to NULL. ### If there are multiple 
+#' variables listed in conv_vars they are not used in the convolution of additional conv_vars.## 
+#' You can't do lagged variables.
+#' @param conv_length Expected response length in seconds. For functional MRI BOLD, 16 seconds (default) is typical
+#' for the hemodynamic response function. 
+#' @param conv_interval Interval between data acquisition. Currently must be a constant. For 
+#' fMRI studies, this is the repetition time. Defaults to 1. 
+
 network_reg <- netreg <- function(data                    = '',
                                   sep                     = '',
                                   header                  = TRUE,
@@ -92,11 +104,14 @@ network_reg <- netreg <- function(data                    = '',
                                   lag_exogenous           = FALSE,
                                   interact_exogenous      = NULL,
                                   interact_with_exogenous = NULL,
-                                  predict_with_interactions  = NULL){
+                                  predict_with_interactions  = NULL,
+                                  conv_vars                = NULL, 
+                                  conv_length              = 16,
+                                  conv_interval            = 1){
   
-  library(tools); library(glmnet) 
+  library(tools); library(glmnet); library(gimme)
   refpath = getwd()
-  
+  output <- list() 
   # Add Function Parameters to Output
   output = list()
   output[['function_parameters']]['data']                          = data
@@ -106,7 +121,7 @@ network_reg <- netreg <- function(data                    = '',
   output[['function_parameters']][['group_cutoff']]                = group_cutoff
   output[['function_parameters']][['out']]                         = ifelse(is.null(out),'NULL',out)
   output[['function_parameters']][['alpha']]                       = alpha
-  if (is.null(initial_penalties)){
+  if (is.null(penalties)){
     output[['function_parameters']][['penalties']]                = 'NULL'
   } else {
     output[['function_parameters']][['penalties']]                 = initial_penalties
@@ -152,6 +167,22 @@ network_reg <- netreg <- function(data                    = '',
     subdata = lapply(subdata, function(x){ colnames(x) = varnames; x })
   }
   
+  # Convolve if indicated.
+  if(!is.null(conv_vars)){
+    varLabels <- list(
+      conv = conv_vars, # variables to be convolved
+      exog = exogenous, # user-specified exogenous variables
+      coln = varnames   # all variable names
+    )
+    
+    subdata <- gimme:::setupConvolve(
+      ts_list       = subdata, 
+      varLabels     = varLabels, 
+      conv_length   = conv_length, 
+      conv_interval = conv_interval
+    )
+    
+  }
   # Categorize Variables. & Omit NaN Rows
   interact_with_all_flag = FALSE
   if (interact_with_exogenous == 'all'){
