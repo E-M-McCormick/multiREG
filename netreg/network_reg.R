@@ -167,10 +167,8 @@ network_reg <- netreg <- function(data                    = NULL,
   }
   # Categorize Variables. & Omit NaN Rows
   interact_with_all_flag = FALSE
-  if (!is.null(interact_with_exogenous)){
-    if (interact_with_exogenous == 'all'){
+  if (!is.null(interact_with_exogenous) && interact_with_exogenous == 'all'){
       interact_with_all_flag = TRUE
-    }
   }
   for (i in 1:length(subdata)){
     yvar = subdata[[i]][,!colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
@@ -184,7 +182,7 @@ network_reg <- netreg <- function(data                    = NULL,
     if (lag_exogenous == TRUE){
       lagexogvar = rbind(rep(NA, ncol(exogvar)), exogvar[1:(nrow(exogvar)-1), , drop=FALSE])
       colnames(lagexogvar) = paste(colnames(exogvar), 'Lag', sep='')
-      if (interact_exogenous == 'all'){
+      if (!is.null(interact_exogenous) && interact_exogenous == 'all'){
         interact_exogvars = c(colnames(exogvar),colnames(lagexogvar))
       } else {
         interact_exogvars = interact_exogenous
@@ -214,7 +212,7 @@ network_reg <- netreg <- function(data                    = NULL,
       }
       exognames = c(colnames(exogvar),colnames(lagexogvar))
     } else if (lag_exogenous == FALSE){
-      if (interact_exogenous == 'all'){
+      if (!is.null(interact_exogenous) && interact_exogenous == 'all'){
         interact_exogvars = colnames(exogvar)
       } else {
         interact_exogvars = interact_exogenous
