@@ -79,6 +79,7 @@
 #' @param predict_with_interactions (Optional) Select which endogenous variables should be predicted
 #' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 #' are NULL. 
+#' 
 #' @param conv_vars Vector of variable names to be convolved via smoothed Finite Impulse 
 #' Response (sFIR). Note, conv_vars are not not automatically considered exogenous variables.
 #' To treat conv_vars as exogenous use the exogenous argument. Variables listed in conv_vars 
@@ -86,17 +87,33 @@
 #' will be imputed for the convolution operation only. Defaults to NULL. ### If there are multiple 
 #' variables listed in conv_vars they are not used in the convolution of additional conv_vars.## 
 #' You can't do lagged variables.
+#' 
 #' @param conv_length Expected response length in seconds. For functional MRI BOLD, 16 seconds (default) is typical
 #' for the hemodynamic response function. 
+#' 
 #' @param conv_interval Interval between data acquisition. Currently must be a constant. For 
 #' fMRI studies, this is the repetition time. Defaults to 1. 
 
-network_reg <- netreg <- function(data                    = '',
-                                  sep                     = '',
+network_reg <- netreg <- function(data                    = NULL,
+                                  out                     = NULL,
+                                  sep                     = NULL,
                                   header                  = TRUE,
                                   ar                      = TRUE,
-                                  group_cutoff            = .75,
-                                  out                     = NULL,
+                                  plot                    = TRUE,
+                                  # subgroup                = FALSE,                 I added these arguements to be consistent with the gimme code, but so far they are not supported.
+                                  # sub_feature             = 'lag & contemp',       
+                                  # sub_method              = 'walktrap',
+                                  # confrm_subgroup         = NULL,
+                                  # paths                   = NULL,
+                                  conv_vars               = NULL,
+                                  conv_length             = 16,
+                                  conv_interval           = 1,
+                                  # mult_vars               = NULL,
+                                  # mean_center_mult        = FALSE,
+                                  # standardize             = FALSE,
+                                  groupcutoff             = .75,
+                                  # subcutoff               = .5,
+                                  # diagnos                 = FALSE,
                                   alpha                   = .5,
                                   penalties               = NULL,
                                   test_penalties          = FALSE,
@@ -104,50 +121,15 @@ network_reg <- netreg <- function(data                    = '',
                                   lag_exogenous           = FALSE,
                                   interact_exogenous      = NULL,
                                   interact_with_exogenous = NULL,
-                                  predict_with_interactions  = NULL,
-                                  conv_vars                = NULL, 
-                                  conv_length              = 16,
-                                  conv_interval            = 1){
+                                  predict_with_interactions  = NULL){
+  
   
   library(tools); library(glmnet); library(gimme)
   refpath = getwd()
-  output = list() 
+
   # Add Function Parameters to Output
   output = list()
-  output[['function_parameters']]['data']                          = data
-  output[['function_parameters']][['sep']]                         = sep
-  output[['function_parameters']][['header']]                      = header
-  output[['function_parameters']][['ar']]                          = ar
-  output[['function_parameters']][['group_cutoff']]                = group_cutoff
-  output[['function_parameters']][['out']]                         = ifelse(is.null(out),'NULL',out)
-  output[['function_parameters']][['alpha']]                       = alpha
-  if (is.null(penalties)){
-    output[['function_parameters']][['penalties']]                = 'NULL'
-  } else {
-    output[['function_parameters']][['penalties']]                 = penalties
-  }
-  if (is.null(exogenous)){
-    output[['function_parameters']][['exogenous']]                 = 'NULL'
-  } else {
-    output[['function_parameters']][['exogenous']]                 = exogenous
-  }
-  output[['function_parameters']][['lag_exogenous']]               = lag_exogenous
-  if (is.null(interact_exogenous)){
-    output[['function_parameters']][['interact_exogenous']]        = 'NULL'
-  } else {
-    output[['function_parameters']][['interact_exogenous']]        = interact_exogenous
-  }
-  if (is.null(interact_with_exogenous)){
-    output[['function_parameters']][['interact_with_exogenous']]   = 'NULL'
-  } else {
-    output[['function_parameters']][['interact_with_exogenous']]   = interact_with_exogenous
-  }
-  if (is.null(predict_with_interactions)){
-    output[['function_parameters']][['predict_with_interactions']] = 'NULL'
-  } else {
-    output[['function_parameters']][['predict_with_interactions']] = predict_with_interactions
-  }
-  
+  output[['function_parameters']] = as.list(sys.call())
   
   # Wrangle Data into List
   if (!is.list(data)){
@@ -185,8 +167,10 @@ network_reg <- netreg <- function(data                    = '',
   }
   # Categorize Variables. & Omit NaN Rows
   interact_with_all_flag = FALSE
-  if (interact_with_exogenous == 'all'){
-    interact_with_all_flag = TRUE
+  if (!is.null(interact_with_exogenous)){
+    if (interact_with_exogenous == 'all'){
+      interact_with_all_flag = TRUE
+    }
   }
   for (i in 1:length(subdata)){
     yvar = subdata[[i]][,!colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
@@ -379,7 +363,10 @@ network_reg <- netreg <- function(data                    = '',
   }
   
   # Add Visualization
-  output = add_vis(output)
+  if (plot == TRUE){
+    output = add_vis(output)
+  }
+  
   
   # Save Output to Files
   if (!is.null(out)){
