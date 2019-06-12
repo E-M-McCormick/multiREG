@@ -4,16 +4,34 @@
 #' @description This function utilizes regression with regularization to build models for individuals 
 #' consisting of individual and group-level paths.
 #' @usage 
-#' network_reg(data          = '',
-#'             sep           = '',
-#'             header        = TRUE,
-#'             ar            = TRUE,
-#'             group_cutoff  = .75,
-#'             out           = '',
-#'             alpha         = .5,
-#'             penalties     = NULL,
-#'             exogenous     = NULL,
-#'             lag_exogenous = FALSE)
+#' network_reg(data                    = NULL,
+#'             out                     = NULL,
+#'             sep                     = NULL,
+#'             header                  = TRUE,
+#'             ar                      = TRUE,
+#'             plot                    = TRUE,
+#'             subgroup                = FALSE,
+#'             sub_feature             = 'lag & contemp',       
+#'             sub_method              = 'walktrap',
+#'             confirm_subgroup        = NULL,
+#'             paths                   = NULL,
+#'             conv_vars               = NULL,
+#'             conv_length             = 16,
+#'             conv_interval           = 1,
+#'             mult_vars               = NULL,
+#'             mean_center_mult        = FALSE,
+#'             standardize             = FALSE,
+#'             groupcutoff             = .75,
+#'             subcutoff               = .5,
+#'             diagnos                 = FALSE,
+#'             alpha                   = .5,
+#'             penalties               = NULL,
+#'             test_penalties          = FALSE,
+#'             exogenous               = NULL,
+#'             lag_exogenous           = FALSE,
+#'             interact_exogenous      = NULL,
+#'             interact_with_exogenous = NULL,
+#'             predict_with_interactions  = NULL)
 #'             
 #' @param data The path to the directory where individual data files are located,
 #' or the name of the list containing individual data. Each file or matrix within the list
@@ -103,7 +121,7 @@ network_reg <- netreg <- function(data                    = NULL,
                                   # subgroup                = FALSE,                 I added these arguements to be consistent with the gimme code, but so far they are not supported.
                                   # sub_feature             = 'lag & contemp',       
                                   # sub_method              = 'walktrap',
-                                  # confrm_subgroup         = NULL,
+                                  # confirm_subgroup        = NULL,
                                   # paths                   = NULL,
                                   conv_vars               = NULL,
                                   conv_length             = 16,
@@ -113,7 +131,7 @@ network_reg <- netreg <- function(data                    = NULL,
                                   # standardize             = FALSE,
                                   groupcutoff             = .75,
                                   # subcutoff               = .5,
-                                  # diagnos                 = FALSE,
+                                  # diagnos                 = FALSE,                Might not include depending on what this does. Couldn't tell from the code I looked at.
                                   alpha                   = .5,
                                   penalties               = NULL,
                                   test_penalties          = FALSE,
@@ -148,6 +166,7 @@ network_reg <- netreg <- function(data                    = NULL,
     varnames = c(paste0('V', seq(1, length(subdata[[1]][1,]))))
     subdata = lapply(subdata, function(x){ colnames(x) = varnames; x })
   }
+
   
   # Convolve if indicated.
   if(!is.null(conv_vars)){
@@ -314,8 +333,8 @@ network_reg <- netreg <- function(data                    = NULL,
   
   group_thresh_mat = group_thresh_mat/nsubs
   output[['group']][['group_paths_proportions']] = group_thresh_mat
-  group_thresh_mat[group_thresh_mat < group_cutoff] = 0
-  group_thresh_mat[group_thresh_mat >= group_cutoff] = 1
+  group_thresh_mat[group_thresh_mat < groupcutoff] = 0
+  group_thresh_mat[group_thresh_mat >= groupcutoff] = 1
   group_penalties = abs(group_thresh_mat - 1)
   
   # Loop Through Subjects Again with the Group Level Information
@@ -381,6 +400,9 @@ network_reg <- netreg <- function(data                    = NULL,
     for (sub in names(subdata)){
       write.csv(output[[sub]]$regression_matrix[, colnames(output$group$group_paths_counts) %in% yvarnames],
                 file = paste(out, 'individual', paste0(sub,'_Betas.csv'), sep=.Platform$file.sep))
+      # if (plot) {
+      #   To be added
+      # }
     }
   }
   setwd(refpath)
