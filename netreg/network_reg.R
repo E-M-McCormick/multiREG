@@ -396,13 +396,28 @@ network_reg <- netreg <- function(data                    = NULL,
               file = paste(out, 'GroupLevel_PathCountsMatrix.csv', sep=.Platform$file.sep))
     write.csv(output$group$group_paths_present[, colnames(output$group$group_paths_present) %in% yvarnames],
               file = paste(out, 'GroupLevel_PathsPresent.csv', sep=.Platform$file.sep))
+    if (plot) {
+      pdf(file.path(getwd(), 'GroupLevel_main_effects_plot.pdf'))
+      plot(output[['group']][['main_effects_fig']])
+      dev.off()
+      pdf(file.path(getwd(), 'GroupLevel_interactions_plot.pdf'))
+      plot(output[['group']][['interaction_fig']])
+      dev.off()
+    }
+    
+    
     dir.create(paste(out, 'individual', sep=.Platform$file.sep))
     for (sub in names(subdata)){
       write.csv(output[[sub]]$regression_matrix[, colnames(output$group$group_paths_counts) %in% yvarnames],
                 file = paste(out, 'individual', paste0(sub,'_Betas.csv'), sep=.Platform$file.sep))
-      # if (plot) {
-      #   To be added
-      # }
+      if (plot) {
+        pdf(file.path(getwd(), 'individual', paste0(sub,'_main_effects_plot.pdf')))
+        plot(output[[sub]][['main_effects_fig']])
+        dev.off()
+        pdf(file.path(getwd(), 'individual', paste0(sub,'_interactions_plot.pdf')))
+        plot(output[[sub]][['interaction_fig']])
+        dev.off()
+      }
     }
   }
   setwd(refpath)
