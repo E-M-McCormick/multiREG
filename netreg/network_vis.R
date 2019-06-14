@@ -71,59 +71,8 @@ network_vis = function(output = NULL){
       }
     }
   }
+  # Create Group-Level Figure
+  temp_regmat = output[['group']][['regression_matrix']]
+  
 }
   
-  
-qgraph(edge.list,
-       layout='circle',
-       lty=ifelse(is_lagged,2,1),
-       edge.labels = moderators,
-       #edge.color = colors,
-       posCol='red',
-       negCol='blue',
-       esize = 5,
-       edge.label.position = ifelse(is_interact,label_pos,0),
-       edge.label.bg = F,
-       edge.label.cex = .5,
-       curveAll = F,
-       curveDefault = 1,
-       cut = .75,
-       parallelEdge = T,
-       fade = F,
-       labels = sub('_',' ', rownames(contemp)),
-       label.cex = 1,
-       shape = ifelse(is_exogenous,'square','circle'),
-       DoNotPlot=F)
-  
-  colors = ifelse(edge.list[,3] > 7,'black','grey')
-  pdf(file.path(getwd(), "summaryPathsPlot.pdf"))
-  plot(fig)
-  dev.off()
-
-  edge.list = rbind(con.list, lag.list, int.list)
-  
-  is_interact = grepl('_x_', rownames(edge.list))
-  is_exogenous = rownames(contemp) %in% output[['variablenames']][['exogenous_vars']]
-  
-  moderators = ifelse(is_interact,sub('.*_x_','',rownames(edge.list)),'')
-  rownames(edge.list)[is_interact] = sub('_x_.*','',rownames(edge.list)[is_interact])
-  edge.list[,1][is_interact] = edge.list[!is_interact,1][names(edge.list[,1][is_interact])]
-  is_lagged = grepl('Lag',rownames(edge.list)) & !grepl('_x_', rownames(edge.list))
-  rownames(edge.list)[is_lagged] = sub('Lag','',rownames(edge.list)[is_lagged])
-  label_pos = 0.5+(runif(length(edge.list))-0.5)/2
-  output[[sub]][['main_effects_fig']] = fig = qgraph(edge.list,
-                                                     layout='circle',
-                                                     lty=ifelse(is_lagged,2,1),
-                                                     posCol='red',
-                                                     negCol='blue',
-                                                     esize = 5,
-                                                     edge.labels = moderators,
-                                                     edge.label.position = ifelse(is_interact,label_pos,0),
-                                                     edge.label.bg = F,
-                                                     edge.label.cex = .5,
-                                                     parallelEdge = T,
-                                                     fade = F,
-                                                     labels = sub('_',' ', rownames(contemp)),
-                                                     label.cex = 1,
-                                                     shape = ifelse(is_exogenous,'square','circle'),
-                                                     DoNotPlot=F)
