@@ -262,6 +262,9 @@ network_reg <- netreg <- function(data                    = NULL,
     }
   }
   print('Data successfully read in.')
+  output[['variablenames']][['y_vars']] = yvarnames
+  output[['variablenames']][['exogenous_vars']] = exognames
+  output[['variablenames']][['interaction_vars']] = interactnames
   
   # Calculate Data Thresholds
   nsubs = length(subdata)
@@ -368,9 +371,6 @@ network_reg <- netreg <- function(data                    = NULL,
   }
   
   # Organize Output
-  output[['variablenames']][['y_vars']] = yvarnames
-  output[['variablenames']][['exogenous_vars']] = exognames
-  output[['variablenames']][['interaction_vars']] = interactnames
   group_thresh_mat[is.na(group_thresh_mat)] = 0
   output[['group']][['group_paths_present']] = group_thresh_mat
   output[['group']][['group_penalties']] = group_penalties
