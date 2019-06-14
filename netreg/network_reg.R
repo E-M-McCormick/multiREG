@@ -143,7 +143,6 @@ network_reg <- netreg <- function(data                    = NULL,
   
   
   library(tools); library(glmnet); library(gimme)
-  refpath = getwd()
 
   # Add Function Parameters to Output
   output = list()
