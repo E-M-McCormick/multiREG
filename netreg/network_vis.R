@@ -91,6 +91,7 @@ network_vis = function(output = NULL){
   
   
   # Create Group-Level Figure
+  groupcut = output[["function_parameters"]][["groupcutoff"]]
   temp_counts = output[["group"]][["group_paths_proportions"]]
   contemp = temp_counts[!grepl('Lag', rownames(temp_counts)) & !grepl('_x_', rownames(temp_counts)),]
   lagged = temp_counts[grepl('Lag', rownames(temp_counts)) & !grepl('_x_', rownames(temp_counts)),]
@@ -107,8 +108,7 @@ network_vis = function(output = NULL){
   is_group = edge.list[,3] >= groupcut
   #is_subgroup = TO BE ADDED
   rownames(edge.list)[is_lagged] = sub('Lag','',rownames(edge.list)[is_lagged])
-  groupcut = output[["function_parameters"]][["groupcutoff"]]
-  
+
   output[['group']][['main_effects_fig']]= qgraph(edge.list,
                                               layout='circle',
                                               lty=ifelse(is_lagged,2,1),
@@ -156,7 +156,7 @@ network_vis = function(output = NULL){
                                                 edge.color = ifelse(is_group, 'black', 'grey'),
                                                 #edge.color = ifelse(is_group,'black',ifelse(is_subgroup,'green','grey')),
                                                 knots = int.list.final[,4],
-                                                knot.size = 3,
+                                                knot.size = ifelse(is_group,3,1),
                                                 knot.color = ifelse(is_group, 'green', 'grey'),
                                                 knot.borders = TRUE,
                                                 knot.border.width = 1,
@@ -175,4 +175,5 @@ network_vis = function(output = NULL){
                                                 shape = ifelse(is_exogenous,'square','circle'),
                                                 DoNotPlot=TRUE)
   }
+  return(output)
 }
