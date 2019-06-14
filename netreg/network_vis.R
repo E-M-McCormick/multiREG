@@ -46,7 +46,15 @@ network_vis = function(output = NULL){
                                                  label.cex = 1,
                                                  shape = ifelse(is_exogenous,'square','circle'),
                                                  DoNotPlot=F)
-    
+    if (nrow(int.list) > 0){
+      split.names = strsplit(rownames(int.list),'_x_', fixed=TRUE)
+      int.list2 = 
+      for (i in length(split.names)){
+        for (j in length(split.names[[i]])){
+          
+        }
+      }
+    }
   }
 }
   
