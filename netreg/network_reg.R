@@ -380,8 +380,8 @@ network_reg <- netreg <- function(data                    = NULL,
   }
   
   # Add Visualization
-  if (plot == TRUE){
-    output = add_vis(output)
+  if (plot){
+    output = network_vis(output)
   }
   
   
