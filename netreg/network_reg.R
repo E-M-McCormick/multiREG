@@ -166,7 +166,6 @@ network_reg <- netreg <- function(data                    = NULL,
     subdata = lapply(subdata, function(x){ colnames(x) = varnames; x })
   }
 
-  
   # Convolve if indicated.
   if(!is.null(conv_vars)){
     varLabels <- list(
@@ -214,10 +213,16 @@ network_reg <- netreg <- function(data                    = NULL,
           newnames = as.vector(sapply(cbind(colnames(yvar),colnames(lagvar)), 
                                       function(x){ paste0(x,'_x_',cbind(colnames(exogvar[colnames(exogvar) %in% interact_exogvars]),colnames(lagexogvar[colnames(lagexogvar) %in% interact_exogvars]))) }))
         } else {
+          
+          #####
           interact_var = sapply(cbind(yvar[colnames(yvar) %in% interact_with_exogenous],lagvar[colnames(lagvar) %in% interact_with_exogenous]), 
                                 function(x){ x*cbind(exogvar[colnames(exogvar) %in% interact_exogvars],lagexogvar[colnames(lagexogvar) %in% interact_exogvars]) })
+          
+          
           newnames = unique(as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
                                              function(x){ paste0(x,'_x_',cbind(colnames(exogvar[colnames(exogvar) %in% interact_exogvars]),colnames(lagexogvar[colnames(lagexogvar) %in% interact_exogvars]))) })))
+          
+          #####
         }
         interact_var = matrix(unlist(interact_var), ncol=length(interact_var))
         colnames(interact_var) = newnames
