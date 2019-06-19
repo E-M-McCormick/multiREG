@@ -183,10 +183,6 @@ network_reg <- netreg <- function(data                    = NULL,
     
   }
   # Categorize Variables. & Omit NaN Rows
-  interact_with_all_flag = FALSE
-  if (!is.null(interact_with_exogenous) && interact_with_exogenous == 'all'){
-      interact_with_all_flag = TRUE
-  }
   for (i in 1:length(subdata)){
     yvar = subdata[[i]][,!colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
     yvarnames = colnames(yvar)
@@ -194,6 +190,10 @@ network_reg <- netreg <- function(data                    = NULL,
     colnames(lagvar) = paste(colnames(lagvar), 'Lag', sep='')
     exogvar = subdata[[i]][,colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
     
+    # Set Endogenous to be Interacted
+    if (!is.null(interact_with_exogenous) && interact_with_exogenous == 'all'){
+      interact_with_exogenous = c(colnames(yvar),colnames(lagvar))
+    }
     
     # Lag Exogenous Variables if Needed
     if (lag_exogenous == TRUE){
@@ -204,26 +204,19 @@ network_reg <- netreg <- function(data                    = NULL,
       } else {
         interact_exogvars = interact_exogenous
       }
+      # Create Interaction Variables As Needed
       if (!is.null(interact_exogenous)){
+      
+        interact_var = cbind(sapply(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous],lagvar[,colnames(lagvar) %in% interact_with_exogenous]), 
+                                    function(x){ x*exogvar[,colnames(exogvar) %in% interact_exogvars] }), 
+                             sapply(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous],lagvar[,colnames(lagvar) %in% interact_with_exogenous]), 
+                                    function(x){ x*lagexogvar[,colnames(lagexogvar) %in% interact_exogvars] }))
         
-        # Create Interaction Variables As Needed
-        if (interact_with_all_flag == TRUE){
-          interact_var = sapply(cbind(yvar,lagvar), 
-                                function(x){ x*cbind(exogvar[colnames(exogvar) %in% interact_exogvars],lagexogvar[colnames(lagexogvar) %in% interact_exogvars]) })
-          newnames = as.vector(sapply(cbind(colnames(yvar),colnames(lagvar)), 
-                                      function(x){ paste0(x,'_x_',cbind(colnames(exogvar[colnames(exogvar) %in% interact_exogvars]),colnames(lagexogvar[colnames(lagexogvar) %in% interact_exogvars]))) }))
-        } else {
-          
-          #####
-          interact_var = sapply(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous, drop=FALSE],lagvar[,colnames(lagvar) %in% interact_with_exogenous, drop=FALSE]), 
-                                function(x){ x*cbind(exogvar[,colnames(exogvar) %in% interact_exogvars, drop=FALSE],lagexogvar[,colnames(lagexogvar) %in% interact_exogvars, drop=FALSE]) })
-          
-          
-          newnames = unique(as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
-                                             function(x){ paste0(x,'_x_',cbind(colnames(exogvar[colnames(exogvar) %in% interact_exogvars]),colnames(lagexogvar[colnames(lagexogvar) %in% interact_exogvars]))) })))
-          
-          #####
-        }
+        newnames = c(as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
+                                    function(x){ paste0(x,'_x_',colnames(exogvar[colnames(exogvar) %in% interact_exogvars]))})),
+                     as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])),
+                                      function(x){ paste0(x,'_x_',colnames(lagexogvar[colnames(lagexogvar) %in% interact_exogvars]))})))
+        
         interact_var = matrix(unlist(interact_var), ncol=length(interact_var))
         colnames(interact_var) = newnames
         interactnames = newnames
@@ -242,17 +235,13 @@ network_reg <- netreg <- function(data                    = NULL,
       }
       # Create Interaction Variables As Needed
       if (!is.null(interact_exogenous)){
-        if (interact_with_all_flag == TRUE){
-          interact_var = sapply(cbind(yvar,lagvar), 
-                                function(x,y){ x*exogvar[colnames(exogvar) %in% interact_exogvars] })
-          newnames = as.vector(sapply(cbind(colnames(yvar),colnames(lagvar)), 
-                                      function(x){ paste0(x,'_x_',colnames(exogvar[colnames(exogvar) %in% interact_exogvars])) }))
-        } else {
-          interact_var = sapply(cbind(yvar[colnames(yvar) %in% interact_with_exogenous],lagvar[colnames(lagvar) %in% interact_with_exogenous]), 
-                                function(x){ x*exogvar[colnames(exogvar) %in% interact_exogvars] })
-          newnames = unique(as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
-                                             function(x){ paste0(x,'_x_',colnames(exogvar[colnames(exogvar) %in% interact_exogvars])) })))
-        }
+        
+        interact_var = sapply(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous],lagvar[,colnames(lagvar) %in% interact_with_exogenous]), 
+                              function(x){ x*exogvar[,colnames(exogvar) %in% interact_exogvars] })
+        
+        newnames = as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
+                                    function(x){ paste0(x,'_x_',colnames(exogvar[colnames(exogvar) %in% interact_exogvars]))}))
+        
         interact_var = matrix(unlist(interact_var), ncol=length(interact_var))
         colnames(interact_var) = newnames
         interactnames = newnames
