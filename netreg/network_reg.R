@@ -215,8 +215,8 @@ network_reg <- netreg <- function(data                    = NULL,
         } else {
           
           #####
-          interact_var = sapply(cbind(yvar[colnames(yvar) %in% interact_with_exogenous],lagvar[colnames(lagvar) %in% interact_with_exogenous]), 
-                                function(x){ x*cbind(exogvar[colnames(exogvar) %in% interact_exogvars],lagexogvar[colnames(lagexogvar) %in% interact_exogvars]) })
+          interact_var = sapply(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous, drop=FALSE],lagvar[,colnames(lagvar) %in% interact_with_exogenous, drop=FALSE]), 
+                                function(x){ x*cbind(exogvar[,colnames(exogvar) %in% interact_exogvars, drop=FALSE],lagexogvar[,colnames(lagexogvar) %in% interact_exogvars, drop=FALSE]) })
           
           
           newnames = unique(as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
