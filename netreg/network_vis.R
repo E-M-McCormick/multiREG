@@ -13,9 +13,9 @@ network_vis = function(output = NULL){
   subnames = names(output[!names(output) %in% c('group','function_parameters','variablenames')])
   for (sub in subnames){
     temp_regmat = output[[sub]][['regression_matrix']]
-    contemp = temp_regmat[!grepl('Lag', rownames(temp_regmat)) & !grepl('_x_', rownames(temp_regmat)),]
-    lagged = temp_regmat[grepl('Lag', rownames(temp_regmat)) & !grepl('_x_', rownames(temp_regmat)),]
-    interacted = temp_regmat[grepl('_x_', rownames(temp_regmat)),]
+    contemp = temp_regmat[!grepl('Lag', rownames(temp_regmat)) & !grepl('_by_', rownames(temp_regmat)),]
+    lagged = temp_regmat[grepl('Lag', rownames(temp_regmat)) & !grepl('_by_', rownames(temp_regmat)),]
+    interacted = temp_regmat[grepl('_by_', rownames(temp_regmat)),]
     
     con.list = cbind(which(contemp!=0 & !is.na(contemp), arr.ind=TRUE), contemp[contemp!=0 & !is.na(contemp)])
     lag.list = cbind(which(lagged!=0 & !is.na(lagged), arr.ind=TRUE), lagged[lagged!=0 & !is.na(lagged)])
@@ -23,7 +23,7 @@ network_vis = function(output = NULL){
     edge.list = rbind(con.list, lag.list)
     
     is_exogenous = rownames(contemp) %in% output[['variablenames']][['exogenous_vars']]
-    is_lagged = grepl('Lag',rownames(edge.list)) & !grepl('_x_', rownames(edge.list))
+    is_lagged = grepl('Lag',rownames(edge.list)) & !grepl('_by_', rownames(edge.list))
     rownames(edge.list)[is_lagged] = sub('Lag','',rownames(edge.list)[is_lagged])
     output[[sub]][['main_effects_fig']]= qgraph(edge.list,
                                                 layout='circle',
@@ -41,8 +41,8 @@ network_vis = function(output = NULL){
     if (nrow(int.list) > 0){
       int.list = cbind(int.list,seq.int(nrow(int.list)))
       int.list2 = int.list1 = int.list
-      rownames(int.list1) = sub('_x_.*','',rownames(int.list))
-      rownames(int.list2) = sub('.*_x_','',rownames(int.list))
+      rownames(int.list1) = sub('_by_.*','',rownames(int.list))
+      rownames(int.list2) = sub('.*_by_','',rownames(int.list))
       
       is_lagged1 = grepl('Lag',rownames(int.list1))
       is_lagged2 = grepl('Lag',rownames(int.list2))
@@ -93,10 +93,10 @@ network_vis = function(output = NULL){
   # Create Group-Level Figure
   groupcut = output[["function_parameters"]][["groupcutoff"]]
   temp_counts = output[["group"]][["group_paths_proportions"]]
-  contemp = temp_counts[!grepl('Lag', rownames(temp_counts)) & !grepl('_x_', rownames(temp_counts)),]
-  lagged = temp_counts[grepl('Lag', rownames(temp_counts)) & !grepl('_x_', rownames(temp_counts)),]
-  interacted = temp_counts[grepl('_x_', rownames(temp_counts)),]
-  present = output[["group"]][["group_paths_present"]][!grepl('Lag', rownames(temp_counts)) & !grepl('_x_', rownames(temp_counts)),]
+  contemp = temp_counts[!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
+  lagged = temp_counts[grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
+  interacted = temp_counts[grepl('_by_', rownames(temp_counts)),]
+  present = output[["group"]][["group_paths_present"]][!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
   
   con.list = cbind(which(contemp!=0 & !is.na(contemp), arr.ind=TRUE), contemp[contemp!=0 & !is.na(contemp)])
   lag.list = cbind(which(lagged!=0 & !is.na(lagged), arr.ind=TRUE), lagged[lagged!=0 & !is.na(lagged)])
@@ -104,7 +104,7 @@ network_vis = function(output = NULL){
   edge.list = rbind(con.list, lag.list)
   
   is_exogenous = rownames(contemp) %in% output[['variablenames']][['exogenous_vars']]
-  is_lagged = grepl('Lag',rownames(edge.list)) & !grepl('_x_', rownames(edge.list))
+  is_lagged = grepl('Lag',rownames(edge.list)) & !grepl('_by_', rownames(edge.list))
   is_group = edge.list[,3] >= groupcut
   #is_subgroup = TO BE ADDED
   rownames(edge.list)[is_lagged] = sub('Lag','',rownames(edge.list)[is_lagged])
@@ -126,8 +126,8 @@ network_vis = function(output = NULL){
   if (nrow(int.list) > 0){
     int.list = cbind(int.list,seq.int(nrow(int.list)))
     int.list2 = int.list1 = int.list
-    rownames(int.list1) = sub('_x_.*','',rownames(int.list))
-    rownames(int.list2) = sub('.*_x_','',rownames(int.list))
+    rownames(int.list1) = sub('_by_.*','',rownames(int.list))
+    rownames(int.list2) = sub('.*_by_','',rownames(int.list))
     
     is_lagged1 = grepl('Lag',rownames(int.list1))
     is_lagged2 = grepl('Lag',rownames(int.list2))

@@ -206,24 +206,21 @@ network_reg <- netreg <- function(data                    = NULL,
       }
       # Create Interaction Variables As Needed
       if (!is.null(interact_exogenous)){
-      
-        interact_var = cbind(sapply(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous],lagvar[,colnames(lagvar) %in% interact_with_exogenous]), 
-                                    function(x){ x*exogvar[,colnames(exogvar) %in% interact_exogvars] }), 
-                             sapply(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous],lagvar[,colnames(lagvar) %in% interact_with_exogenous]), 
-                                    function(x){ x*lagexogvar[,colnames(lagexogvar) %in% interact_exogvars] }))
         
-        newnames = c(as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
-                                    function(x){ paste0(x,'_x_',colnames(exogvar[colnames(exogvar) %in% interact_exogvars]))})),
-                     as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])),
-                                      function(x){ paste0(x,'_x_',colnames(lagexogvar[colnames(lagexogvar) %in% interact_exogvars]))})))
+        tempendo = as.matrix(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous, drop=FALSE], lagvar[,colnames(lagvar) %in% interact_with_exogenous, drop=FALSE]))
+        tempexo = as.matrix(cbind(exogvar[,colnames(exogvar) %in% interact_exogvars, drop=FALSE], lagexogvar[,colnames(lagexogvar) %in% interact_exogvars, drop=FALSE]))
         
-        interact_var = matrix(unlist(interact_var), ncol=length(interact_var))
-        colnames(interact_var) = newnames
-        interactnames = newnames
+        interact_var = t(sapply(1:nrow(yvar), function(i){ tcrossprod( tempendo[i,], tempexo[i,]) }))
+        
+        newnames = vector()
+        for (j in 1:ncol(tempexo)){ for (k in 1:ncol(tempendo)){
+          newnames = append(newnames, paste0(colnames(tempendo)[k],'_by_',colnames(tempexo)[j]), length(newnames))
+          } }
+        
+        colnames(interact_var) = interactnames = newnames
         subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,lagexogvar,interact_var))
       } else {
-        interact_exogvars = ''
-        interactnames = ''
+        interact_exogvars = interactnames = ''
         subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,lagexogvar))
       }
       exognames = c(colnames(exogvar),colnames(lagexogvar))
@@ -236,19 +233,20 @@ network_reg <- netreg <- function(data                    = NULL,
       # Create Interaction Variables As Needed
       if (!is.null(interact_exogenous)){
         
-        interact_var = sapply(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous],lagvar[,colnames(lagvar) %in% interact_with_exogenous]), 
-                              function(x){ x*exogvar[,colnames(exogvar) %in% interact_exogvars] })
+        tempendo = as.matrix(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous, drop=FALSE], lagvar[,colnames(lagvar) %in% interact_with_exogenous, drop=FALSE]))
+        tempexo = as.matrix(exogvar[,colnames(exogvar) %in% interact_exogvars, drop=FALSE])
         
-        newnames = as.vector(sapply(cbind(colnames(yvar[colnames(yvar) %in% interact_with_exogenous]),colnames(lagvar[colnames(lagvar) %in% interact_with_exogenous])), 
-                                    function(x){ paste0(x,'_x_',colnames(exogvar[colnames(exogvar) %in% interact_exogvars]))}))
+        interact_var = t(sapply(1:nrow(yvar), function(i){ tcrossprod( tempendo[i,], tempexo[i,]) }))
         
-        interact_var = matrix(unlist(interact_var), ncol=length(interact_var))
-        colnames(interact_var) = newnames
-        interactnames = newnames
+        newnames = vector()
+        for (j in 1:ncol(tempexo)){ for (k in 1:ncol(tempendo)){
+          newnames = append(newnames, paste0(colnames(tempendo)[k],'_by_',colnames(tempexo)[j]), length(newnames))
+        } }
+        
+        colnames(interact_var) = interactnames = newnames
         subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,interact_var))
       } else {
-        interact_exogvars = ''
-        interactnames = ''
+        interact_exogvars = interactnames = ''
         subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar))
       }
       exognames = colnames(exogvar)
@@ -302,7 +300,7 @@ network_reg <- netreg <- function(data                    = NULL,
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
       subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
-                                                  colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars))])
+                                                  colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
           subset_predictors = subset_predictors[,!colnames(subset_predictors) %in% interactnames]
       }
@@ -333,18 +331,21 @@ network_reg <- netreg <- function(data                    = NULL,
   group_thresh_mat[group_thresh_mat >= groupcutoff] = 1
   group_penalties = abs(group_thresh_mat - 1)
   
+  
+  # PLACE for SUBGROUPING & SUBGROUP MODEL SEARCH
+  
   # Loop Through Subjects Again with the Group Level Information
   for (sub in names(subdata)){
     print(paste0('Building individual-level model for ', sub, '.'))
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
       subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
-                                                  colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars))])
+                                                  colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
         subset_predictors = subset_predictors[,!colnames(subset_predictors) %in% interactnames]
       }
       subset_penalties = group_penalties[!(colnames(tempdata) %in% varname |
-                                              colnames(tempdata) %in% paste0(varname,'_x_',interact_exogvars)), varname]
+                                              colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars)), varname]
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
         subset_penalties = subset_penalties[!names(subset_penalties) %in% interactnames]
       }
