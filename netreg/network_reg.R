@@ -118,7 +118,7 @@ network_reg <- netreg <- function(data                       = NULL,
                                   header                     = TRUE,
                                   ar                         = TRUE,
                                   plot                       = TRUE,
-                                  # subgroup                  = FALSE,                 I added these arguements to be consistent with the gimme code, but so far they are not supported.
+                                  # subgroup                  = FALSE,
                                   # sub_feature               = 'lag & contemp',       
                                   # sub_method                = 'walktrap',
                                   # confirm_subgroup          = NULL,
@@ -131,7 +131,6 @@ network_reg <- netreg <- function(data                       = NULL,
                                   # standardize               = FALSE,
                                   groupcutoff                = .75,
                                   # subcutoff                 = .5,
-                                  # diagnos                   = FALSE,                Might not include depending on what this does. Couldn't tell from the code I looked at.
                                   alpha                      = .5,
                                   penalties                  = NULL,
                                   test_penalties             = FALSE,
@@ -184,15 +183,15 @@ network_reg <- netreg <- function(data                       = NULL,
   }
   # Categorize Variables. & Omit NaN Rows
   for (i in 1:length(subdata)){
-    yvar = subdata[[i]][,!colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
+    yvar = subdata[[i]][, !colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
     yvarnames = colnames(yvar)
     lagvar = rbind(rep(NA, ncol(yvar)), yvar[1:(nrow(yvar)-1),])
     colnames(lagvar) = paste(colnames(lagvar), 'Lag', sep='')
-    exogvar = subdata[[i]][,colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
+    exogvar = subdata[[i]][, colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
     
     # Set Endogenous to be Interacted
     if (!is.null(interact_with_exogenous) && interact_with_exogenous == 'all'){
-      interact_with_exogenous = c(colnames(yvar),colnames(lagvar))
+      interact_with_exogenous = c(colnames(yvar), colnames(lagvar))
     }
     
     # Lag Exogenous Variables if Needed
@@ -200,30 +199,30 @@ network_reg <- netreg <- function(data                       = NULL,
       lagexogvar = rbind(rep(NA, ncol(exogvar)), exogvar[1:(nrow(exogvar)-1), , drop=FALSE])
       colnames(lagexogvar) = paste(colnames(exogvar), 'Lag', sep='')
       if (!is.null(interact_exogenous) && interact_exogenous == 'all'){
-        interact_exogvars = c(colnames(exogvar),colnames(lagexogvar))
+        interact_exogvars = c(colnames(exogvar), colnames(lagexogvar))
       } else {
         interact_exogvars = interact_exogenous
       }
       # Create Interaction Variables As Needed
       if (!is.null(interact_exogenous)){
         
-        tempendo = as.matrix(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous, drop=FALSE], lagvar[,colnames(lagvar) %in% interact_with_exogenous, drop=FALSE]))
-        tempexo = as.matrix(cbind(exogvar[,colnames(exogvar) %in% interact_exogvars, drop=FALSE], lagexogvar[,colnames(lagexogvar) %in% interact_exogvars, drop=FALSE]))
+        tempendo = as.matrix(cbind(yvar[, colnames(yvar) %in% interact_with_exogenous, drop=FALSE], lagvar[,colnames(lagvar) %in% interact_with_exogenous, drop=FALSE]))
+        tempexo = as.matrix(cbind(exogvar[, colnames(exogvar) %in% interact_exogvars, drop=FALSE], lagexogvar[,colnames(lagexogvar) %in% interact_exogvars, drop=FALSE]))
         
         interact_var = t(sapply(1:nrow(yvar), function(i){ tcrossprod( tempendo[i,], tempexo[i,]) }))
         
         newnames = vector()
         for (j in 1:ncol(tempexo)){ for (k in 1:ncol(tempendo)){
-          newnames = append(newnames, paste0(colnames(tempendo)[k],'_by_',colnames(tempexo)[j]), length(newnames))
+          newnames = append(newnames, paste0(colnames(tempendo)[k], '_by_', colnames(tempexo)[j]), length(newnames))
           } }
         
         colnames(interact_var) = interactnames = newnames
-        subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,lagexogvar,interact_var))
+        subdata[[i]] = na.omit(cbind(yvar, lagvar, exogvar, lagexogvar, interact_var))
       } else {
         interact_exogvars = interactnames = ''
-        subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,lagexogvar))
+        subdata[[i]] = na.omit(cbind(yvar, lagvar, exogvar, lagexogvar))
       }
-      exognames = c(colnames(exogvar),colnames(lagexogvar))
+      exognames = c(colnames(exogvar), colnames(lagexogvar))
     } else if (lag_exogenous == FALSE){
       if (!is.null(interact_exogenous) && interact_exogenous == 'all'){
         interact_exogvars = colnames(exogvar)
@@ -233,21 +232,21 @@ network_reg <- netreg <- function(data                       = NULL,
       # Create Interaction Variables As Needed
       if (!is.null(interact_exogenous)){
         
-        tempendo = as.matrix(cbind(yvar[,colnames(yvar) %in% interact_with_exogenous, drop=FALSE], lagvar[,colnames(lagvar) %in% interact_with_exogenous, drop=FALSE]))
-        tempexo = as.matrix(exogvar[,colnames(exogvar) %in% interact_exogvars, drop=FALSE])
+        tempendo = as.matrix(cbind(yvar[, colnames(yvar) %in% interact_with_exogenous, drop=FALSE], lagvar[, colnames(lagvar) %in% interact_with_exogenous, drop=FALSE]))
+        tempexo = as.matrix(exogvar[, colnames(exogvar) %in% interact_exogvars, drop=FALSE])
         
         interact_var = t(sapply(1:nrow(yvar), function(i){ tcrossprod( tempendo[i,], tempexo[i,]) }))
         
         newnames = vector()
         for (j in 1:ncol(tempexo)){ for (k in 1:ncol(tempendo)){
-          newnames = append(newnames, paste0(colnames(tempendo)[k],'_by_',colnames(tempexo)[j]), length(newnames))
+          newnames = append(newnames, paste0(colnames(tempendo)[k], '_by_', colnames(tempexo)[j]), length(newnames))
         } }
         
         colnames(interact_var) = interactnames = newnames
-        subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar,interact_var))
+        subdata[[i]] = na.omit(cbind(yvar, lagvar, exogvar, interact_var))
       } else {
         interact_exogvars = interactnames = ''
-        subdata[[i]] = na.omit(cbind(yvar,lagvar,exogvar))
+        subdata[[i]] = na.omit(cbind(yvar, lagvar, exogvar))
       }
       exognames = colnames(exogvar)
     }
@@ -261,18 +260,18 @@ network_reg <- netreg <- function(data                       = NULL,
   nsubs = length(subdata)
   numvars = ncol(subdata[[1]])
   pathpresent = array(data = rep(NaN, numvars*numvars*length(subdata)), 
-                      dim = c(numvars,numvars,length(subdata)),
+                      dim = c(numvars, numvars, length(subdata)),
                       dimnames = list(c(colnames(subdata[[1]])),
                                       c(colnames(subdata[[1]])),
                                       c(names(subdata))))
   finalpaths = array(data = rep(0, numvars*numvars*length(subdata)), 
-                     dim = c(numvars,numvars,length(subdata)),
+                     dim = c(numvars, numvars, length(subdata)),
                      dimnames = list(c(colnames(subdata[[1]])),
                                      c(colnames(subdata[[1]])),
                                      c(names(subdata))))
   if (is.null(penalties)){
     initial_penalties = array(data = rep(1, numvars*numvars), 
-                              dim = c(numvars,numvars),
+                              dim = c(numvars, numvars),
                               dimnames = list(c(colnames(subdata[[1]])),
                                               c(colnames(subdata[[1]]))))
   } else {
@@ -284,7 +283,7 @@ network_reg <- netreg <- function(data                       = NULL,
   # Free AR Paths if Desired
   for (varname in yvarnames){
     if (ar == TRUE){
-      initial_penalties[paste0(varname,'Lag'),varname] = 0 
+      initial_penalties[paste0(varname,'Lag'), varname] = 0 
     }
   }
   
@@ -299,13 +298,13 @@ network_reg <- netreg <- function(data                       = NULL,
     print(paste0('Building group-level model for ', sub, '.'))
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
-      subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
+      subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
-          subset_predictors = subset_predictors[,!colnames(subset_predictors) %in% interactnames]
+          subset_predictors = subset_predictors[, !colnames(subset_predictors) %in% interactnames]
       }
       cvfit = cv.glmnet(x = subset_predictors,
-                        y =  tempdata[,colnames(tempdata) %in% varname],
+                        y =  tempdata[, colnames(tempdata) %in% varname],
                         type.measure = 'mse',
                         nfolds = round(nrow(tempdata)/10),
                         alpha = alpha,
@@ -313,9 +312,9 @@ network_reg <- netreg <- function(data                       = NULL,
       temp = coef(cvfit, s = 'lambda.1se')
       for (predictor in rownames(temp)[!rownames(temp) %in% '(Intercept)']){
         if (temp[predictor,] == 0){
-          pathpresent[predictor,varname,sub] = 0
+          pathpresent[predictor, varname, sub] = 0
         } else {
-          pathpresent[predictor,varname,sub] = 1
+          pathpresent[predictor, varname, sub] = 1
         }
       }
     }
@@ -339,10 +338,10 @@ network_reg <- netreg <- function(data                       = NULL,
     print(paste0('Building individual-level model for ', sub, '.'))
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
-      subset_predictors = as.matrix(tempdata[,!(colnames(tempdata) %in% varname |
+      subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
-        subset_predictors = subset_predictors[,!colnames(subset_predictors) %in% interactnames]
+        subset_predictors = subset_predictors[, !colnames(subset_predictors) %in% interactnames]
       }
       subset_penalties = group_penalties[!(colnames(tempdata) %in% varname |
                                               colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars)), varname]
@@ -350,7 +349,7 @@ network_reg <- netreg <- function(data                       = NULL,
         subset_penalties = subset_penalties[!names(subset_penalties) %in% interactnames]
       }
       cvfit = cv.glmnet(x = subset_predictors,
-                        y = tempdata[,colnames(tempdata) %in% varname],
+                        y = tempdata[, colnames(tempdata) %in% varname],
                         type.measure = 'mse',
                         nfolds = round(nrow(tempdata)/10),
                         alpha = alpha,
@@ -358,7 +357,7 @@ network_reg <- netreg <- function(data                       = NULL,
       temp = coef(cvfit, s = 'lambda.1se')
       for (predictor in rownames(temp)[!rownames(temp) %in% '(Intercept)']){
         if (temp[predictor,] != 0){
-          finalpaths[predictor,varname,sub] = temp[predictor,]
+          finalpaths[predictor, varname, sub] = temp[predictor,]
         }
       }
     }
