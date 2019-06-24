@@ -153,7 +153,7 @@ network_reg <- netreg <- function(data                       = NULL,
     subdata = list(); setwd(data)
     for (i in list.files(data)){
       tempname = file_path_sans_ext(i)
-      print(paste0('    Reading ', tempname, 'in...'))
+      print(paste0('    Reading ', tempname, ' in...'))
       subdata[[tempname]] = read.delim(i, sep=sep, header=header)
     } 
   } else if (is.list(data)){
