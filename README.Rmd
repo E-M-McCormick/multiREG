@@ -32,7 +32,8 @@ Program developers are invited to submit changes here at the GitHub repository.
   
   + If desired, subgroups of individuals with similar patterns of effects will be generated to aid the researcher in finding similar patterns among the varied individual models. 
   
-+ Supports a large number of observed variables (capable of estimating a whole-brain network map).
++ Supports a large number of observed variables (capable of estimating a whole-brain network map). 
+  + **NOTE:** Large numbers of variables will significantly increase run time.
 
   + Alternatively can support interaction effects between endogenous variables, or between exogenous and endogenous variables.
 

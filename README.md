@@ -26,6 +26,9 @@ repository.
   - Supports a large number of observed variables (capable of estimating
     a whole-brain network map).
     
+      - **NOTE:** Large numbers of variables will significantly increase
+        run time.
+    
       - Alternatively can support interaction effects between endogenous
         variables, or between exogenous and endogenous variables.
 
