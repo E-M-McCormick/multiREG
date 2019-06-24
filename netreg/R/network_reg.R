@@ -148,12 +148,12 @@ network_reg <- netreg <- function(data                       = NULL,
   output[['function_parameters']] = as.list(sys.call())
   
   # Wrangle Data into List
-  print('Reading data in.')
+  print('Reading data in.', quote = FALSE)
   if (!is.list(data)){
     subdata = list(); setwd(data)
     for (i in list.files(data)){
       tempname = file_path_sans_ext(i)
-      print(paste0('    Reading ', tempname, ' in...'))
+      print(paste0('   Reading ', tempname, ' in...'), quote = FALSE)
       subdata[[tempname]] = read.delim(i, sep=sep, header=header)
     } 
   } else if (is.list(data)){
@@ -253,7 +253,7 @@ network_reg <- netreg <- function(data                       = NULL,
       exognames = colnames(exogvar)
     }
   }
-  print('Data successfully read in.')
+  print('Data successfully read in.', quote = FALSE)
   output[['variablenames']][['y_vars']] = yvarnames
   output[['variablenames']][['exogenous_vars']] = exognames
   output[['variablenames']][['interaction_vars']] = interactnames
@@ -297,7 +297,7 @@ network_reg <- netreg <- function(data                       = NULL,
   
   # Loop through Subjects Data to Build Individual Models
   for (sub in names(subdata)){
-    print(paste0('Building group-level model for ', sub, '.'))
+    print(paste0('Building group-level model for ', sub, '.'), quote = FALSE)
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
       subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
@@ -337,7 +337,7 @@ network_reg <- netreg <- function(data                       = NULL,
   
   # Loop Through Subjects Again with the Group Level Information
   for (sub in names(subdata)){
-    print(paste0('Building individual-level model for ', sub, '.'))
+    print(paste0('Building individual-level model for ', sub, '.'), quote = FALSE)
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
       subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
@@ -382,11 +382,11 @@ network_reg <- netreg <- function(data                       = NULL,
   # Save Output to Files
   if (!is.null(out)){
     if (!dir.exists(out)){
-      print('Creating output directories')
+      print('Creating output directories', quote = FALSE)
       dir.create(out);
     }
-    print('Writing output to file.')
-    capture.output(print('Function Arguments'), print(output$function_parameters), print('Variable Names'), print(output$variablenames), file = "function_summary.txt")
+    print('Writing output to file.', quote = FALSE)
+    capture.output(print('Function Arguments', quote = FALSE), print(output$function_parameters), print('Variable Names', quote = FALSE), print(output$variablenames), file = "function_summary.txt")
     write.csv(output$group$group_paths_counts[, colnames(output$group$group_paths_counts) %in% yvarnames],
               file = paste(out, 'GroupLevel_PathCountsMatrix.csv', sep=.Platform$file.sep))
     write.csv(output$group$group_paths_present[, colnames(output$group$group_paths_present) %in% yvarnames],
@@ -432,6 +432,6 @@ network_reg <- netreg <- function(data                       = NULL,
               file = paste(out, 'indivPathEstimates.csv', sep=.Platform$file.sep))
     setwd(out)
   }
-  print('Algorithm successfully completed.')
+  print('Algorithm successfully completed.', quote = FALSE)
   return(output)
 }
