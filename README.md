@@ -92,7 +92,7 @@ output <- netreg(     # can use "netreg" or "network_reg"
   ar = TRUE,          # TRUE (default) or FALSE, start with autoregressive paths open
   plot = TRUE,        # TRUE (default) or FALSE, generate plots
   subgroup = FALSE,   # TRUE or FALSE (default), cluster individuals based on similarities in effects
-  alpha = .5,         # option to control the elasticnet mixing parameter; alpha = 1 is the lasso penalty, alpha = 0 is the ridge regression penalty
+  alpha = .5,         # option to control the elasticnet mixing parameter; alpha = .5 (default), alpha = 1 is the lasso penalty, alpha = 0 is the ridge regression penalty
   penalties = NULL,   # option to specify a matrix of shrinkage parameters that will control the initial search for a group-level network map
   groupcutoff = .75,  # the proportion that is considered the majority at the group level
   subcutoff = .5      # the proportion that is considered the majority at the subgroup level
@@ -101,3 +101,11 @@ output <- netreg(     # can use "netreg" or "network_reg"
 
 While *netreg* is running you will see information iterate in the
 command window. The algorithm will alert you when it is finished.
+
+**Output**
+==========
+
+-   The output directory will contain:
+
+    -   **indivPathEstimates**: Contains estimate, standard error,
+        p-value, and z-value for each path and each individual
