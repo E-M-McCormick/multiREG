@@ -49,6 +49,20 @@
 #' @param ar (Logical) If TRUE, begin model search with all autoregressive pathways estimated
 #' with no shrinkage (i.e., penalty = 0).
 #' 
+#' #' @param conv_vars Vector of variable names to be convolved via smoothed Finite Impulse 
+#' Response (sFIR). Note, conv_vars are not not automatically considered exogenous variables.
+#' To treat conv_vars as exogenous use the exogenous argument. Variables listed in conv_vars 
+#' must be binary variables. If there is missing data in the endogenous variables their values 
+#' will be imputed for the convolution operation only. Defaults to NULL. ### If there are multiple 
+#' variables listed in conv_vars they are not used in the convolution of additional conv_vars.## 
+#' You can't do lagged variables.
+#' 
+#' @param conv_length Expected response length in seconds. For functional MRI BOLD, 16 seconds (default) is typical
+#' for the hemodynamic response function. 
+#' 
+#' @param conv_interval Interval between data acquisition. Currently must be a constant. For 
+#' fMRI studies, this is the repetition time. Defaults to 1. 
+#' 
 #' @param group_cutoff Cutoff value for inclusion of a given path at the group-level.
 #' For instance, group_cutoff = .75 indicates that a path needs to be estimated for 75% of
 #' individuals to be included as a group-level path.
@@ -69,9 +83,9 @@
 #' normally considered in the regularization, values of 0 will initilize a variable to be estimated
 #' (i.e., no shrinkage), and values of Inf will exlcude variables from the model.
 #' 
-#'  @param test_penalties (Optional, Logical) Optional argument to output a sample penalty matrix
-#'  based on function parameters. Helpful for specifying a matrix to use in the penalties arguement.
-#'  Function will exit gracefully before running anything if test_penalties = TRUE.
+#' @param test_penalties (Optional, Logical) Optional argument to output a sample penalty matrix
+#' based on function parameters. Helpful for specifying a matrix to use in the penalties arguement.
+#' Function will exit gracefully before running anything if test_penalties = TRUE.
 #' 
 #' @param exogenous (Optional) A list of user-specified variables to consider as exogenous
 #' (e.g., cannot be predicted) in the model search procedure. If variable names are supplied,
@@ -97,20 +111,6 @@
 #' @param predict_with_interactions (Optional) Select which endogenous variables should be predicted
 #' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 #' are NULL. 
-#' 
-#' @param conv_vars Vector of variable names to be convolved via smoothed Finite Impulse 
-#' Response (sFIR). Note, conv_vars are not not automatically considered exogenous variables.
-#' To treat conv_vars as exogenous use the exogenous argument. Variables listed in conv_vars 
-#' must be binary variables. If there is missing data in the endogenous variables their values 
-#' will be imputed for the convolution operation only. Defaults to NULL. ### If there are multiple 
-#' variables listed in conv_vars they are not used in the convolution of additional conv_vars.## 
-#' You can't do lagged variables.
-#' 
-#' @param conv_length Expected response length in seconds. For functional MRI BOLD, 16 seconds (default) is typical
-#' for the hemodynamic response function. 
-#' 
-#' @param conv_interval Interval between data acquisition. Currently must be a constant. For 
-#' fMRI studies, this is the repetition time. Defaults to 1. 
 
 network_reg <- netreg <- function(data                       = NULL,
                                   out                        = NULL,
@@ -377,7 +377,6 @@ network_reg <- netreg <- function(data                       = NULL,
     output = network_vis(output)
   }
   
-  
   # Save Output to Files
   if (!is.null(out)){
     if (!dir.exists(out)){
@@ -385,6 +384,7 @@ network_reg <- netreg <- function(data                       = NULL,
       dir.create(out);
     }
     print('Writing output to file.')
+    capture.output(print('Function Arguments'), print(output$function_parameters), print('Variable Names'), print(output$variablenames), file = "function_summary.txt")
     write.csv(output$group$group_paths_counts[, colnames(output$group$group_paths_counts) %in% yvarnames],
               file = paste(out, 'GroupLevel_PathCountsMatrix.csv', sep=.Platform$file.sep))
     write.csv(output$group$group_paths_present[, colnames(output$group$group_paths_present) %in% yvarnames],
@@ -414,5 +414,6 @@ network_reg <- netreg <- function(data                       = NULL,
     }
     setwd(out)
   }
+  print('Algorithm successfully completed.')
   return(output)
 }

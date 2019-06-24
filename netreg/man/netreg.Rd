@@ -79,11 +79,11 @@ groups of correlated parameters and shrink other groups towards zero.}
 Should contain a column for all variables (including lagged versions and interactions) that will 
 be included in the model search. Values of 1 (the default) will initilize a variable to be 
 normally considered in the regularization, values of 0 will initilize a variable to be estimated
-(i.e., no shrinkage), and values of Inf will exlcude variables from the model.
+(i.e., no shrinkage), and values of Inf will exlcude variables from the model.}
 
- @param test_penalties (Optional, Logical) Optional argument to output a sample penalty matrix
- based on function parameters. Helpful for specifying a matrix to use in the penalties arguement.
- Function will exit gracefully before running anything if test_penalties = TRUE.}
+\item{test_penalties}{(Optional, Logical) Optional argument to output a sample penalty matrix
+based on function parameters. Helpful for specifying a matrix to use in the penalties arguement.
+Function will exit gracefully before running anything if test_penalties = TRUE.}
 
 \item{exogenous}{(Optional) A list of user-specified variables to consider as exogenous
 (e.g., cannot be predicted) in the model search procedure. If variable names are supplied,

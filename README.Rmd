@@ -38,8 +38,6 @@ Program developers are invited to submit changes here at the GitHub repository.
 
 + Can be freely downloaded by installing the package "netreg" in R.
 
-\newpage
-
 # **Running netreg**
 
 __1. Create two new folders (i.e., directories)__
@@ -101,4 +99,4 @@ While *netreg* is running you will see information iterate in the command window
 
 + The output directory will contain:
 
-  + __indivPathEstimates__: Contains estimate, standard error, p-value, and z-value for each path and each individual
+  + __GroupLevel_PathCountsMatrix__: 
