@@ -1,7 +1,7 @@
 ---
 output:
   md_document:
-    variant: markdown_github
+    variant: gfm
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -99,4 +99,41 @@ While *netreg* is running you will see information iterate in the command window
 
 + The output directory will contain:
 
-  + __GroupLevel_PathCountsMatrix__: 
+  + __function_summary__: Contains details of function arguments and variable names (grouped by variable type) used in the current run.
+  
+  + __indivPathEstimates__: Contains details (iv & dv), regression estimate, and level (e.g., group, individual) for each path and each individual.
+  
+  + __groupPathCountsMatrix__: Contains counts of total number of paths, including contemporaneous, lagged, and interactions, estimated for the sample. The row variable is the predictor and the column variable is the outcome variable.
+  
+  + __groupPathCountsPresent__: Contains matrix of group path identities (1 = group-level path, 0 = other). The row variable is the predictor and the column variable is the outcome variable.
+  
+  + __groupMainEffectsPlots__: Produced if plot = TRUE. Contains figure with group, subgroup (if subgroup = TRUE), and individual-level paths for the sample. Black paths are group-level, green paths are subgroup-level, and grey paths are individual-level, where the thickness of the line represents the count. Contemporaneous paths are solid and lagged paths are dashed.
+  
+  + __groupInteractionsPlots__: Produced if plot = TRUE. Contains figure with group, subgroup (if subgroup = TRUE), and individual-level interaction paths for the sample. Black paths are group-level, green paths are subgroup-level, and grey paths are individual-level, where the thickness of the line represents the count. Interactions are represented by a knot combining the relevant predictors, with an arrow from the knot indicating the relevant outcome variable.
+  
++ In individual output directory (*where id represents the original file name for each individual*):
+
+  + __*id*Betas__: Contains individual-level estimates of each path for each individual. Rows indicte predictors, columns indicate outcomes.
+  
+  + __*id*MainEffectsPlot__: Contains individual-level plots for main effects paths. Red paths represent positive weights and blue paths represent negative weights. Contemporaneous paths are solid and lagged paths are dashed.
+  
+  + __*id*InteractionsPlot__: Contains individual-level plots for interaction paths. Interactions are represented by a knot combining the relevant predictors, with an arrow from the knot indicating the relevant outcome variable. Red paths represent positive weights and blue paths represent negative weights. Contemporaneous paths are solid and lagged paths are dashed.
+  
+# **FAQ**
+
+**How many time points do I need?** NEED TO UPDATE
+This is a difficult question since it will be related to the number of variables you are using. Rules of thumb for any analysis can generally be used: the more the better! Having at least 100 time points is recommended, but adequate results have been obtained in simulation studies with only T = 60.
+
+**Do all individuals have to have the same number of observations (T)?**
+No.
+
+**How many people do I need in my sample?** **NEED TO UPDATE**
+For *netreg*, reliable results are obtained with as few as 10 participants. Remember that in this context, power to detect effects is determined by the number of time points rather than the number of individuals. Still, having at least 10 individuals helps *netreg* to detect signal from noise by looking for effects that consistently occur.
+
+**What do I do if I obtain an error?**
+Do some initial trouble-shooting. 
+1. Ensure that all of your individuals have the same number of variables (columns) in their data sets.
+2. Ensure that all variables have variability (i.e., are not constant). *netreg* will let you know if this is the case. **NEED TO ADD TO FUNCTION**
+3. Ensure your path directories are correct.
+4. Ensure that the columns are variables and the rows contain the observations across time. 
+5. If all of this is correct, please email the error you received, code used to run *netreg*, and the data (we promise not to use it or share it) to: gimme@unc.edu. **NEED TO ADD TO FUNCTION**
