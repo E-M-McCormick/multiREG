@@ -190,4 +190,4 @@ contain the observations across time. 5. If all of this is correct,
 please email the error you received, code used to run *netreg*, and the
 data (we promise not to use it or share it) to:
 <a href="mailto:gimme@unc.edu" class="email">gimme@unc.edu</a>. **NEED
-TO ADD TO FUNCTION**
+TO ADD**
