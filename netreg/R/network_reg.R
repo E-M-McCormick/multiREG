@@ -148,6 +148,7 @@ network_reg <- netreg <- function(data                       = NULL,
   output[['function_parameters']] = as.list(sys.call())
   
   # Wrangle Data into List
+  print('Reading data in.')
   if (!is.list(data)){
     subdata = list(); setwd(data)
     for (i in list.files(data)){
