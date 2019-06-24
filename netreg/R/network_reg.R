@@ -397,11 +397,14 @@ network_reg <- netreg <- function(data                       = NULL,
       plot(output[['group']][['interaction_fig']])
       dev.off()
     }
-    
-    
     dir.create(paste(out, 'individual', sep=.Platform$file.sep))
+    indpaths = data.frame()
+    pathtypes = output[['group']][['group_paths_proportions']]
+    pathtypes[pathtypes >= groupcutoff] = 'group'
+    pathtypes[!is.na(pathtypes) & pathtypes > 0 & pathtypes != 'group'] = 'individual'
+    pathtypes[pathtypes != 'group' & pathtypes != 'individual'] = 'none'
     for (sub in names(subdata)){
-      write.csv(output[[sub]]$regression_matrix[, colnames(output$group$group_paths_counts) %in% yvarnames],
+      write.csv(output[[sub]][['regression_matrix']][, colnames(output$group$group_paths_counts) %in% yvarnames],
                 file = paste(out, 'individual', paste0(sub,'_Betas.csv'), sep=.Platform$file.sep))
       if (plot) {
         pdf(file.path(out, 'individual', paste0(sub,'_main_effects_plot.pdf')))
@@ -411,7 +414,20 @@ network_reg <- netreg <- function(data                       = NULL,
         plot(output[[sub]][['interaction_fig']])
         dev.off()
       }
+      ind=cbind(which(output[[sub]][['regression_matrix']] != 0 & !is.na(output[[sub]][['regression_matrix']]), arr.ind = TRUE, useNames = F), 
+                output[[sub]][['regression_matrix']][output[[sub]][['regression_matrix']] != 0 & !is.na(output[[sub]][['regression_matrix']])])
+      temp = ind
+      temp[,1]=rownames(output$group$group_paths_counts)[ind[,1]]
+      temp[,2]=rownames(output$group$group_paths_counts)[ind[,2]]
+      temp = cbind(sub, temp)
+      temp = cbind(temp, rep(0, nrow(temp)))
+      for (r in 1:nrow(temp)){ temp[r,5] = pathtypes[temp[r,2], temp[r,3]] }
+      colnames(temp) = c('file','iv','dv','beta_estimate','type')
+      temp = temp[order(temp[,'type']),]
+      indpaths = rbind(indpaths, temp)
     }
+    write.csv(indpaths,
+              file = paste(out, 'indivPathEstimates.csv', sep=.Platform$file.sep))
     setwd(out)
   }
   print('Algorithm successfully completed.')
