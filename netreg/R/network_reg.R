@@ -148,12 +148,12 @@ network_reg <- netreg <- function(data                       = NULL,
   output[['function_parameters']] = as.list(sys.call())
   
   # Wrangle Data into List
-  print('Reading data in.', quote = FALSE)
+  print('Reading in data.', quote = FALSE)
   if (!is.list(data)){
     subdata = list(); setwd(data)
     for (i in list.files(data)){
       tempname = file_path_sans_ext(i)
-      print(paste0('   Reading ', tempname, ' in...'), quote = FALSE)
+      print(paste0('   Reading in ', tempname, ' ...'), quote = FALSE)
       subdata[[tempname]] = read.delim(i, sep=sep, header=header)
     } 
   } else if (is.list(data)){
