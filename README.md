@@ -107,5 +107,4 @@ command window. The algorithm will alert you when it is finished.
 
 -   The output directory will contain:
 
-    -   **indivPathEstimates**: Contains estimate, standard error,
-        p-value, and z-value for each path and each individual
+    -   **GroupLevel\_PathCountsMatrix**:
