@@ -1,6 +1,6 @@
-#' @name netreg
-#' @aliases network_reg netreg
-#' @title Network Regularization Model Search
+#' @name multiLASSO
+#' @aliases multiLASSO
+#' @title Network Model Search using Regularization with LASSO
 #' @description This function utilizes regression with regularization to build models for individuals 
 #' consisting of individual and group-level paths.
 #' @usage 
