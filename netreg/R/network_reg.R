@@ -153,7 +153,7 @@ network_reg <- netreg <- function(data                       = NULL,
     subdata = list(); setwd(data)
     for (i in list.files(data)){
       tempname = file_path_sans_ext(i)
-      print(paste0('   Reading in ', tempname, ' ...'), quote = FALSE)
+      print(paste0('   Reading in ', tempname, '.'), quote = FALSE)
       subdata[[tempname]] = read.delim(i, sep=sep, header=header)
     } 
   } else if (is.list(data)){
@@ -261,11 +261,11 @@ network_reg <- netreg <- function(data                       = NULL,
   # Calculate Data Thresholds
   nsubs = length(subdata)
   numvars = ncol(subdata[[1]])
-  pathpresent = array(data = rep(NaN, numvars*numvars*length(subdata)), 
-                      dim = c(numvars, numvars, length(subdata)),
-                      dimnames = list(c(colnames(subdata[[1]])),
-                                      c(colnames(subdata[[1]])),
-                                      c(names(subdata))))
+  pathpresent = group_coefs = array(data = rep(NaN, numvars*numvars*length(subdata)), 
+                                    dim = c(numvars, numvars, length(subdata)), 
+                                    dimnames = list(c(colnames(subdata[[1]])), 
+                                                    c(colnames(subdata[[1]])), 
+                                                    c(names(subdata))))
   finalpaths = array(data = rep(0, numvars*numvars*length(subdata)), 
                      dim = c(numvars, numvars, length(subdata)),
                      dimnames = list(c(colnames(subdata[[1]])),
@@ -300,15 +300,16 @@ network_reg <- netreg <- function(data                       = NULL,
     print(paste0('Building group-level model for ', sub, '.'), quote = FALSE)
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
+      print(paste0('Running model for ', varname, '.'), quote = FALSE)
       subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
           subset_predictors = subset_predictors[, !colnames(subset_predictors) %in% interactnames]
       }
       cvfit = cv.glmnet(x = subset_predictors,
-                        y =  tempdata[, colnames(tempdata) %in% varname],
+                        y = tempdata[, colnames(tempdata) %in% varname],
                         type.measure = 'mse',
-                        nfolds = round(nrow(tempdata)/10),
+                        nfolds = round(nrow(tempdata)/100),
                         alpha = alpha,
                         penalty.factor = initial_penalties[!colnames(tempdata) %in% varname, varname])
       temp = coef(cvfit, s = 'lambda.1se')
@@ -318,6 +319,7 @@ network_reg <- netreg <- function(data                       = NULL,
         } else {
           pathpresent[predictor, varname, sub] = 1
         }
+        group_coefs[predictor, varname, sub] = temp[predictor, ]
       }
     }
   }
