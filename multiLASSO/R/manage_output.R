@@ -29,9 +29,11 @@ manage_output = function(out = NULL, plot = NULL, output = NULL){
       pdf(file.path(out, 'groupMainEffectsPlots.pdf'))
       plot(output[['group']][['main_effects_fig']])
       dev.off()
-      pdf(file.path(out, 'groupInteractionsPlots.pdf'))
-      plot(output[['group']][['interaction_fig']])
-      dev.off()
+      if (!is.null(output[['group']][['interaction_fig']])){
+        pdf(file.path(out, 'groupInteractionsPlots.pdf'))
+        plot(output[['group']][['interaction_fig']])
+        dev.off()
+      }
     }
     
     # Write Individual Level Data with Plots if Needed
@@ -50,9 +52,11 @@ manage_output = function(out = NULL, plot = NULL, output = NULL){
         pdf(file.path(out, 'individual', paste0(sub,'MainEffectsPlot.pdf')))
         plot(output[[sub]][['main_effects_fig']])
         dev.off()
-        pdf(file.path(out, 'individual', paste0(sub,'InteractionsPlot.pdf')))
-        plot(output[[sub]][['interaction_fig']])
-        dev.off()
+        if (!is.null(output[[sub]][['interaction_fig']])){
+          pdf(file.path(out, 'individual', paste0(sub,'InteractionsPlot.pdf')))
+          plot(output[[sub]][['interaction_fig']])
+          dev.off()
+        }
       }
       ind=cbind(which(output[[sub]][['regression_matrix']] != 0 & !is.na(output[[sub]][['regression_matrix']]), arr.ind = TRUE, useNames = F), 
                 output[[sub]][['regression_matrix']][output[[sub]][['regression_matrix']] != 0 & !is.na(output[[sub]][['regression_matrix']])])

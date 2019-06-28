@@ -182,8 +182,8 @@ multiLASSO = function(data                       = NULL,
       conv_length   = conv_length, 
       conv_interval = conv_interval
     )
-    
   }
+  
   # Categorize Variables. & Omit NaN Rows
   for (i in 1:length(subdata)){
     yvar = subdata[[i]][, !colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
@@ -258,6 +258,13 @@ multiLASSO = function(data                       = NULL,
   output[['variablenames']][['y_vars']] = yvarnames
   output[['variablenames']][['exogenous_vars']] = exognames
   output[['variablenames']][['interaction_vars']] = interactnames
+  
+  # Check for Data Variability
+  variability = check_variability(data = subdata)
+  if (variability[['flag']]){
+    return(variability)
+    stop('Zero-variability variable detected, see variability object for details.')
+  }
   
   # Calculate Data Thresholds
   nsubs = length(subdata)

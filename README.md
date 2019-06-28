@@ -141,7 +141,8 @@ command window. The algorithm will alert you when it is finished.
         are individual-level, where the thickness of the line represents
         the count. Interactions are represented by a knot combining the
         relevant predictors, with an arrow from the knot indicating the
-        relevant outcome variable.
+        relevant outcome variable. Will only be created if interactions
+        are specified.
 
   - In individual output directory (*where id represents the original
     file name for each individual*):
@@ -161,6 +162,7 @@ command window. The algorithm will alert you when it is finished.
         indicating the relevant outcome variable. Red paths represent
         positive weights and blue paths represent negative weights.
         Contemporaneous paths are solid and lagged paths are dashed.
+        Will only be created if interactions are specified.
 
 # **FAQ**
 
@@ -174,12 +176,12 @@ T = 60.
 **Do all individuals have to have the same number of observations (T)?**
 No.
 
-**How many people do I need in my sample?** **NEED TO UPDATE** For
-*multiLASSO*, reliable results are obtained with as few as 10
-participants. Remember that in this context, power to detect effects is
-determined by the number of time points rather than the number of
-individuals. Still, having at least 10 individuals helps *multiLASSO* to
-detect signal from noise by looking for effects that consistently occur.
+**How many people do I need in my sample?** For *multiLASSO*, reliable
+results are obtained with as few as 10 participants. Remember that in
+this context, power to detect effects is determined by the number of
+time points rather than the number of individuals. Still, having at
+least 10 individuals helps *multiLASSO* to detect signal from noise by
+looking for effects that consistently occur.
 
 **What do I do if I obtain an error?** Do some initial trouble-shooting.
 
@@ -187,8 +189,7 @@ detect signal from noise by looking for effects that consistently occur.
     variables (columns) in their data sets.
 
 2.  Ensure that all variables have variability (i.e., are not constant).
-    *multiLASSO* will let you know if this is the case. **NEED TO ADD TO
-    FUNCTION**
+    *multiLASSO* will let you know if this is the case.
 
 3.  Ensure your path directories are correct.
 
@@ -197,4 +198,4 @@ detect signal from noise by looking for effects that consistently occur.
 
 5.  If all of this is correct, please email the error you received, code
     used to run *multiLASSO*, and the data (we promise not to use it or
-    share it) to: <gimme@unc.edu>. **NEED TO ADD**
+    share it) to: <gimme@unc.edu>.

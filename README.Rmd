@@ -111,7 +111,7 @@ While *multiLASSO* is running you will see information iterate in the command wi
   
   + __groupMainEffectsPlots__: Produced if plot = TRUE. Contains figure with group, subgroup (if subgroup = TRUE), and individual-level paths for the sample. Black paths are group-level, green paths are subgroup-level, and grey paths are individual-level, where the thickness of the line represents the count. Contemporaneous paths are solid and lagged paths are dashed.
   
-  + __groupInteractionsPlots__: Produced if plot = TRUE. Contains figure with group, subgroup (if subgroup = TRUE), and individual-level interaction paths for the sample. Black paths are group-level, green paths are subgroup-level, and grey paths are individual-level, where the thickness of the line represents the count. Interactions are represented by a knot combining the relevant predictors, with an arrow from the knot indicating the relevant outcome variable.
+  + __groupInteractionsPlots__: Produced if plot = TRUE. Contains figure with group, subgroup (if subgroup = TRUE), and individual-level interaction paths for the sample. Black paths are group-level, green paths are subgroup-level, and grey paths are individual-level, where the thickness of the line represents the count. Interactions are represented by a knot combining the relevant predictors, with an arrow from the knot indicating the relevant outcome variable. Will only be created if interactions are specified.
   
 + In individual output directory (*where id represents the original file name for each individual*):
 
@@ -119,7 +119,7 @@ While *multiLASSO* is running you will see information iterate in the command wi
   
   + __*id*MainEffectsPlot__: Contains individual-level plots for main effects paths. Red paths represent positive weights and blue paths represent negative weights. Contemporaneous paths are solid and lagged paths are dashed.
   
-  + __*id*InteractionsPlot__: Contains individual-level plots for interaction paths. Interactions are represented by a knot combining the relevant predictors, with an arrow from the knot indicating the relevant outcome variable. Red paths represent positive weights and blue paths represent negative weights. Contemporaneous paths are solid and lagged paths are dashed.
+  + __*id*InteractionsPlot__: Contains individual-level plots for interaction paths. Interactions are represented by a knot combining the relevant predictors, with an arrow from the knot indicating the relevant outcome variable. Red paths represent positive weights and blue paths represent negative weights. Contemporaneous paths are solid and lagged paths are dashed. Will only be created if interactions are specified.
   
 # **FAQ**
 
@@ -129,7 +129,7 @@ This is a difficult question since it will be related to the number of variables
 **Do all individuals have to have the same number of observations (T)?**
 No.
 
-**How many people do I need in my sample?** **NEED TO UPDATE**
+**How many people do I need in my sample?**
 For *multiLASSO*, reliable results are obtained with as few as 10 participants. Remember that in this context, power to detect effects is determined by the number of time points rather than the number of individuals. Still, having at least 10 individuals helps *multiLASSO* to detect signal from noise by looking for effects that consistently occur.
 
 **What do I do if I obtain an error?**
@@ -137,10 +137,10 @@ Do some initial trouble-shooting.
 
 1. Ensure that all of your individuals have the same number of variables (columns) in their data sets.
 
-2. Ensure that all variables have variability (i.e., are not constant). *multiLASSO* will let you know if this is the case. **NEED TO ADD TO FUNCTION**
+2. Ensure that all variables have variability (i.e., are not constant). *multiLASSO* will let you know if this is the case.
 
 3. Ensure your path directories are correct.
 
 4. Ensure that the columns are variables and the rows contain the observations across time.
 
-5. If all of this is correct, please email the error you received, code used to run *multiLASSO*, and the data (we promise not to use it or share it) to: gimme@unc.edu. **NEED TO ADD**
+5. If all of this is correct, please email the error you received, code used to run *multiLASSO*, and the data (we promise not to use it or share it) to: gimme@unc.edu.
