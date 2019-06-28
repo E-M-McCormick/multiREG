@@ -112,6 +112,8 @@
 #' @param predict_with_interactions (Optional) Select which endogenous variables should be predicted
 #' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 #' are NULL. 
+#' 
+#' @export multiLASSO
 
 multiLASSO = function(data                       = NULL,
                       out                        = NULL,
@@ -135,9 +137,6 @@ multiLASSO = function(data                       = NULL,
                       interact_exogenous         = NULL,
                       interact_with_exogenous    = NULL,
                       predict_with_interactions  = NULL){
-  
-  
-  library(tools); library(glmnet); library(gimme)
 
   # Add Function Parameters to Output
   output = list()
