@@ -2,11 +2,17 @@ Package: multiLASSO
 Type: Package
 Title: What the Package Does (Title Case)
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Ethan McCormick [aut, cre],
+    Kathleen Gates [aut]
+Maintainer: EM McCormick <emccormick@.unc.edu>
+Depends: R (>= 3.6.0)
+Imports: glmnet (>= 2.0-18); gimme (0.6-0); qgraph(>=1.6.2)
+Description: Directed connectivity search using regularization. 
+    Utilizes the GIMME heuristic of using group information
+    to initialize individual model search. 
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
+Suggests: 
+    testthat
