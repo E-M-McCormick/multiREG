@@ -4,7 +4,7 @@
 \alias{manage_output}
 \title{Manage Output Parameters Following Regularization with LASSO}
 \usage{
-manage_output(out = out, output = NULL)
+manage_output(out = NULL, plot = NULL, output = NULL)
 }
 \description{
 Manage Output Parameters Following Regularization with LASSO

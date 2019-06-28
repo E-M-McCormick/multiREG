@@ -10,11 +10,6 @@ multiLASSO(data                       = NULL,
            header                     = TRUE,
            ar                         = TRUE,
            plot                       = TRUE,
-           subgroup                   = FALSE,
-           sub_feature                = 'lag & contemp',       
-           sub_method                 = 'walktrap',
-           confirm_subgroup           = NULL,
-           paths                      = NULL,
            conv_vars                  = NULL,
            conv_length                = 16,
            conv_interval              = 1,
@@ -22,9 +17,8 @@ multiLASSO(data                       = NULL,
            mean_center_mult           = FALSE,
            standardize                = FALSE,
            groupcutoff                = .75,
-           subcutoff                  = .5,
-           diagnos                    = FALSE,
            alpha                      = .5,
+           model_crit                 = 'bic',
            penalties                  = NULL,
            test_penalties             = FALSE,
            exogenous                  = NULL,
@@ -52,7 +46,9 @@ Only necessary when reading in files from physical directory.}
 Only necessary when reading in files from physical directory.}
 
 \item{ar}{(Logical) If TRUE, begin model search with all autoregressive pathways estimated
-with no shrinkage (i.e., penalty = 0).
+with no shrinkage (i.e., penalty = 0).}
+
+\item{plot}{(Logical) IF TRUE, will create pdf plots of network maps during output.
 
 #' @param conv_vars Vector of variable names to be convolved via smoothed Finite Impulse 
 Response (sFIR). Note, conv_vars are not not automatically considered exogenous variables.
@@ -68,11 +64,18 @@ for the hemodynamic response function.}
 \item{conv_interval}{Interval between data acquisition. Currently must be a constant. For 
 fMRI studies, this is the repetition time. Defaults to 1.}
 
+\item{groupcutoff}{Cutoff value for inclusion of a given path at the group-level.
+For instance, group_cutoff = .75 indicates that a path needs to be estimated for 75% of
+individuals to be included as a group-level path.}
+
 \item{alpha}{Elastic-net parameter for the regularization approach. Values close to 0 mimic 
 the ridge penalty, which tends to shrink correlated parameters towards one another. Values 
 close to 1 mimic the lasso penalty, which tends to select one parameter and shrink
 the others. The default value (alpha=.5) balances these two considerations, and tends to select
 groups of correlated parameters and shrink other groups towards zero.}
+
+\item{model_crit}{Argument to indicate the model selection criterion to use for model selection.
+Defaults to 'bic' (select on BIC). Options: 'bic', 'aic', 'aicc', 'hqc', 'cv' (cross-validation).}
 
 \item{penalties}{(Optional) A matrix of user-provided penalties to initialize group-model search. 
 Should contain a column for all variables (including lagged versions and interactions) that will 
@@ -108,10 +111,6 @@ in the data.}
 \item{predict_with_interactions}{(Optional) Select which endogenous variables should be predicted
 by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 are NULL.}
-
-\item{group_cutoff}{Cutoff value for inclusion of a given path at the group-level.
-For instance, group_cutoff = .75 indicates that a path needs to be estimated for 75% of
-individuals to be included as a group-level path.}
 }
 \description{
 This function utilizes regression with regularization to build models for individuals 
