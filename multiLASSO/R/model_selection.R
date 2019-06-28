@@ -11,21 +11,21 @@ model_selection = function(x = NULL,
   if (selection_crit == 'cv'){
     
     if (length(y) < 1000){ nfolds = round(length(y)/10) } else { nfolds = 100 }
-    cvfit = cv.glmnet(x = x,
-                      y = y,
-                      type.measure = 'mse',
-                      nfolds = nfolds,
-                      alpha = alpha,
-                      penalty.factor = penalty.factor)
+    cvfit = glmnet::cv.glmnet(x = x,
+                              y = y,
+                              type.measure = 'mse',
+                              nfolds = nfolds,
+                              alpha = alpha,
+                              penalty.factor = penalty.factor)
                     
     final_coefs = coef(cvfit, s = 'lambda.1se')
   } else {
 
     crit = selection_crit
-    fit = glmnet(x = x,
-                 y = y,
-                 alpha = alpha,
-                 penalty.factor = penalty.factor)
+    fit = glmnet::glmnet(x = x,
+                         y = y,
+                         alpha = alpha,
+                         penalty.factor = penalty.factor)
     
     coef = coef(fit)
     lambda = fit$lambda
@@ -43,7 +43,7 @@ model_selection = function(x = NULL,
     aicc = aic + (2 * nvar * (nvar + 1)) / (n - nvar - 1)
     hqc = n * log(mse) + 2 * nvar * log(log(n))
     
-    # tLL = fit$nulldev - deviance(fit)
+    # tLL = fit$nulldev - glmnet::deviance(fit)
     # k = fit$df
     # n = fit$nobs
     # 
@@ -52,7 +52,6 @@ model_selection = function(x = NULL,
     # aicc = (2 * k - tLL) + ((2 * k * k) + 2 * k)/(n - k - 1)
     # hqc = 2 * k * log(log(n, base = exp(1)), exp(1)) - tLL
 
-    
     crit = switch(crit, bic=bic, aic=aic, aicc=aicc, hqc=hqc)
     selected = which(crit == min(crit))
 
