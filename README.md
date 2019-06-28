@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# **Network Regularization (multiLASSO)**
+# **multiLASSO (Directed Connectivity Search Using Regularization)**
 
 The multiLASSO algorithm is a continually maintained R package.
 
