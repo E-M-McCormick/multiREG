@@ -4,34 +4,34 @@
 #' @description This function utilizes regression with regularization to build models for individuals 
 #' consisting of individual and group-level paths.
 #' @usage 
-#' network_reg(data                       = NULL,
-#'             out                        = NULL,
-#'             sep                        = NULL,
-#'             header                     = TRUE,
-#'             ar                         = TRUE,
-#'             plot                       = TRUE,
-#'             subgroup                   = FALSE,
-#'             sub_feature                = 'lag & contemp',       
-#'             sub_method                 = 'walktrap',
-#'             confirm_subgroup           = NULL,
-#'             paths                      = NULL,
-#'             conv_vars                  = NULL,
-#'             conv_length                = 16,
-#'             conv_interval              = 1,
-#'             mult_vars                  = NULL,
-#'             mean_center_mult           = FALSE,
-#'             standardize                = FALSE,
-#'             groupcutoff                = .75,
-#'             subcutoff                  = .5,
-#'             diagnos                    = FALSE,
-#'             alpha                      = .5,
-#'             penalties                  = NULL,
-#'             test_penalties             = FALSE,
-#'             exogenous                  = NULL,
-#'             lag_exogenous              = FALSE,
-#'             interact_exogenous         = NULL,
-#'             interact_with_exogenous    = NULL,
-#'             predict_with_interactions  = NULL)
+#' multiLASSO(data                       = NULL,
+#'            out                        = NULL,
+#'            sep                        = NULL,
+#'            header                     = TRUE,
+#'            ar                         = TRUE,
+#'            plot                       = TRUE,
+#'            subgroup                   = FALSE,
+#'            sub_feature                = 'lag & contemp',       
+#'            sub_method                 = 'walktrap',
+#'            confirm_subgroup           = NULL,
+#'            paths                      = NULL,
+#'            conv_vars                  = NULL,
+#'            conv_length                = 16,
+#'            conv_interval              = 1,
+#'            mult_vars                  = NULL,
+#'            mean_center_mult           = FALSE,
+#'            standardize                = FALSE,
+#'            groupcutoff                = .75,
+#'            subcutoff                  = .5,
+#'            diagnos                    = FALSE,
+#'            alpha                      = .5,
+#'            penalties                  = NULL,
+#'            test_penalties             = FALSE,
+#'            exogenous                  = NULL,
+#'            lag_exogenous              = FALSE,
+#'            interact_exogenous         = NULL,
+#'            interact_with_exogenous    = NULL,
+#'            predict_with_interactions  = NULL)
 #'             
 #' @param data The path to the directory where individual data files are located,
 #' or the name of the list containing individual data. Each file or matrix within the list
@@ -112,33 +112,34 @@
 #' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 #' are NULL. 
 
-network_reg <- netreg <- function(data                       = NULL,
-                                  out                        = NULL,
-                                  sep                        = NULL,
-                                  header                     = TRUE,
-                                  ar                         = TRUE,
-                                  plot                       = TRUE,
-                                  # subgroup                  = FALSE,
-                                  # sub_feature               = 'lag & contemp',       
-                                  # sub_method                = 'walktrap',
-                                  # confirm_subgroup          = NULL,
-                                  # paths                     = NULL,
-                                  conv_vars                  = NULL,
-                                  conv_length                = 16,
-                                  conv_interval              = 1,
-                                  # mult_vars                 = NULL,
-                                  # mean_center_mult          = FALSE,
-                                  # standardize               = FALSE,
-                                  groupcutoff                = .75,
-                                  # subcutoff                 = .5,
-                                  alpha                      = .5,
-                                  penalties                  = NULL,
-                                  test_penalties             = FALSE,
-                                  exogenous                  = NULL,
-                                  lag_exogenous              = FALSE,
-                                  interact_exogenous         = NULL,
-                                  interact_with_exogenous    = NULL,
-                                  predict_with_interactions  = NULL){
+multiLASSO = function(data                       = NULL,
+                      out                        = NULL,
+                      sep                        = NULL,
+                      header                     = TRUE,
+                      ar                         = TRUE,
+                      plot                       = TRUE,
+                      # subgroup                  = FALSE,
+                      # sub_feature               = 'lag & contemp',       
+                      # sub_method                = 'walktrap',
+                      # confirm_subgroup          = NULL,
+                      # paths                     = NULL,
+                      conv_vars                  = NULL,
+                      conv_length                = 16,
+                      conv_interval              = 1,
+                      # mult_vars                 = NULL,
+                      # mean_center_mult          = FALSE,
+                      # standardize               = FALSE,
+                      groupcutoff                = .75,
+                      # subcutoff                 = .5,
+                      alpha                      = .5,
+                      model_crit                 = 'bic',
+                      penalties                  = NULL,
+                      test_penalties             = FALSE,
+                      exogenous                  = NULL,
+                      lag_exogenous              = FALSE,
+                      interact_exogenous         = NULL,
+                      interact_with_exogenous    = NULL,
+                      predict_with_interactions  = NULL){
   
   
   library(tools); library(glmnet); library(gimme)
@@ -295,7 +296,7 @@ network_reg <- netreg <- function(data                       = NULL,
     stop('Returning sample penatly matrix and exiting.')
   }
   
-  # Loop through Subjects Data to Build Individual Models
+  # Loop through Subjects Data for Group Search
   for (sub in names(subdata)){
     print(paste0('Building group-level model for ', sub, '.'), quote = FALSE)
     tempdata = subdata[[sub]]
@@ -306,20 +307,20 @@ network_reg <- netreg <- function(data                       = NULL,
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
           subset_predictors = subset_predictors[, !colnames(subset_predictors) %in% interactnames]
       }
-      cvfit = cv.glmnet(x = subset_predictors,
-                        y = tempdata[, colnames(tempdata) %in% varname],
-                        type.measure = 'mse',
-                        nfolds = round(nrow(tempdata)/100),
-                        alpha = alpha,
-                        penalty.factor = initial_penalties[!colnames(tempdata) %in% varname, varname])
-      temp = coef(cvfit, s = 'lambda.1se')
-      for (predictor in rownames(temp)[!rownames(temp) %in% '(Intercept)']){
-        if (temp[predictor,] == 0){
+      
+      final_coefs = model_selection(x = subset_predictors,
+                                    y = tempdata[, colnames(tempdata) %in% varname],
+                                    selection_crit = model_crit,
+                                    alpha = alpha,
+                                    penalty.factor = initial_penalties[!colnames(tempdata) %in% varname, varname])
+      
+      for (predictor in rownames(final_coefs)[!rownames(final_coefs) %in% '(Intercept)']){
+        if (final_coefs[predictor,] == 0){
           pathpresent[predictor, varname, sub] = 0
         } else {
           pathpresent[predictor, varname, sub] = 1
         }
-        group_coefs[predictor, varname, sub] = temp[predictor, ]
+        group_coefs[predictor, varname, sub] = final_coefs[predictor, ]
       }
     }
   }
@@ -342,6 +343,7 @@ network_reg <- netreg <- function(data                       = NULL,
     print(paste0('Building individual-level model for ', sub, '.'), quote = FALSE)
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
+      print(paste0('Running model for ', varname, '.'), quote = FALSE)
       subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
@@ -352,16 +354,16 @@ network_reg <- netreg <- function(data                       = NULL,
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
         subset_penalties = subset_penalties[!names(subset_penalties) %in% interactnames]
       }
-      cvfit = cv.glmnet(x = subset_predictors,
-                        y = tempdata[, colnames(tempdata) %in% varname],
-                        type.measure = 'mse',
-                        nfolds = round(nrow(tempdata)/10),
-                        alpha = alpha,
-                        penalty.factor = subset_penalties)
-      temp = coef(cvfit, s = 'lambda.1se')
-      for (predictor in rownames(temp)[!rownames(temp) %in% '(Intercept)']){
-        if (temp[predictor,] != 0){
-          finalpaths[predictor, varname, sub] = temp[predictor,]
+      
+      final_coefs = model_selection(x = subset_predictors,
+                                    y = tempdata[, colnames(tempdata) %in% varname],
+                                    selection_crit = model_crit,
+                                    alpha = alpha,
+                                    penalty.factor = subset_penalties)
+      
+      for (predictor in rownames(final_coefs)[!rownames(final_coefs) %in% '(Intercept)']){
+        if (final_coefs[predictor,] != 0){
+          finalpaths[predictor, varname, sub] = final_coefs[predictor,]
         }
       }
     }
@@ -382,58 +384,8 @@ network_reg <- netreg <- function(data                       = NULL,
   }
   
   # Save Output to Files
-  if (!is.null(out)){
-    if (!dir.exists(out)){
-      print('Creating output directories', quote = FALSE)
-      dir.create(out);
-    }
-    print('Writing output to file.', quote = FALSE)
-    capture.output(print('Function Arguments', quote = FALSE), print(output$function_parameters), print('Variable Names', quote = FALSE), print(output$variablenames), file = "function_summary.txt")
-    write.csv(output$group$group_paths_counts[, colnames(output$group$group_paths_counts) %in% yvarnames],
-              file = paste(out, 'GroupLevel_PathCountsMatrix.csv', sep=.Platform$file.sep))
-    write.csv(output$group$group_paths_present[, colnames(output$group$group_paths_present) %in% yvarnames],
-              file = paste(out, 'GroupLevel_PathsPresent.csv', sep=.Platform$file.sep))
-    if (plot) {
-      pdf(file.path(out, 'GroupLevel_main_effects_plot.pdf'))
-      plot(output[['group']][['main_effects_fig']])
-      dev.off()
-      pdf(file.path(out, 'GroupLevel_interactions_plot.pdf'))
-      plot(output[['group']][['interaction_fig']])
-      dev.off()
-    }
-    dir.create(paste(out, 'individual', sep=.Platform$file.sep))
-    indpaths = data.frame()
-    pathtypes = output[['group']][['group_paths_proportions']]
-    pathtypes[pathtypes >= groupcutoff] = 'group'
-    pathtypes[!is.na(pathtypes) & pathtypes > 0 & pathtypes != 'group'] = 'individual'
-    pathtypes[pathtypes != 'group' & pathtypes != 'individual'] = 'none'
-    for (sub in names(subdata)){
-      write.csv(output[[sub]][['regression_matrix']][, colnames(output$group$group_paths_counts) %in% yvarnames],
-                file = paste(out, 'individual', paste0(sub,'_Betas.csv'), sep=.Platform$file.sep))
-      if (plot) {
-        pdf(file.path(out, 'individual', paste0(sub,'_main_effects_plot.pdf')))
-        plot(output[[sub]][['main_effects_fig']])
-        dev.off()
-        pdf(file.path(out, 'individual', paste0(sub,'_interactions_plot.pdf')))
-        plot(output[[sub]][['interaction_fig']])
-        dev.off()
-      }
-      ind=cbind(which(output[[sub]][['regression_matrix']] != 0 & !is.na(output[[sub]][['regression_matrix']]), arr.ind = TRUE, useNames = F), 
-                output[[sub]][['regression_matrix']][output[[sub]][['regression_matrix']] != 0 & !is.na(output[[sub]][['regression_matrix']])])
-      temp = ind
-      temp[,1]=rownames(output$group$group_paths_counts)[ind[,1]]
-      temp[,2]=rownames(output$group$group_paths_counts)[ind[,2]]
-      temp = cbind(sub, temp)
-      temp = cbind(temp, rep(0, nrow(temp)))
-      for (r in 1:nrow(temp)){ temp[r,5] = pathtypes[temp[r,2], temp[r,3]] }
-      colnames(temp) = c('file','iv','dv','beta_estimate','type')
-      temp = temp[order(temp[,'type']),]
-      indpaths = rbind(indpaths, temp)
-    }
-    write.csv(indpaths,
-              file = paste(out, 'indivPathEstimates.csv', sep=.Platform$file.sep))
-    setwd(out)
-  }
+  manage_output(out = out, output = output)
+  
   print('Algorithm successfully completed.', quote = FALSE)
   return(output)
 }

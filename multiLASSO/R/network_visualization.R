@@ -1,11 +1,7 @@
 #' @name network_visualization
 #' @aliases network_vis network_visualization
-#' @title Network Visualization following Regularized Search
-#' @description This function utilizes output from network_reg to build network plots.
-#' @usage 
-#' network_vis(output = NULL)
-#'
-#'@param output Output object from network_reg
+#' @title Network Visualization Following Regularization with LASSO
+#' @keywords internal 
 network_visualization = network_vis = function(output = NULL){
   library(qgraph)
   
