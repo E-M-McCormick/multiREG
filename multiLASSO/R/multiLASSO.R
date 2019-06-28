@@ -301,7 +301,6 @@ multiLASSO = function(data                       = NULL,
     print(paste0('Building group-level model for ', sub, '.'), quote = FALSE)
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
-      print(paste0('Running model for ', varname, '.'), quote = FALSE)
       subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
@@ -343,7 +342,6 @@ multiLASSO = function(data                       = NULL,
     print(paste0('Building individual-level model for ', sub, '.'), quote = FALSE)
     tempdata = subdata[[sub]]
     for (varname in yvarnames){
-      print(paste0('Running model for ', varname, '.'), quote = FALSE)
       subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
                                                   colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
       if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
