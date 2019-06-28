@@ -1,8 +1,10 @@
 #' @name manage_output
 #' @title Manage Output Parameters Following Regularization with LASSO
 #' @keywords internal 
-manage_output = function(out = out, output = NULL){
+manage_output = function(out = NULL, plot = NULL, output = NULL){
   if (!is.null(out)){
+    yvarnames = output[['variablenames']][['y_vars']]
+    groupcutoff = output[['function_parameters']][['groupcutoff']]
     
     # Create Output Directory if Needed
     if (!dir.exists(out)){
@@ -39,7 +41,9 @@ manage_output = function(out = out, output = NULL){
     pathtypes[pathtypes >= groupcutoff] = 'group'
     pathtypes[!is.na(pathtypes) & pathtypes > 0 & pathtypes != 'group'] = 'individual'
     pathtypes[pathtypes != 'group' & pathtypes != 'individual'] = 'none'
-    for (sub in names(subdata)){
+    
+    subnames = names(output[!names(output) %in% c('group','function_parameters','variablenames')])
+    for (sub in subnames){
       write.csv(output[[sub]][['regression_matrix']][, colnames(output$group$group_paths_counts) %in% yvarnames],
                 file = paste(out, 'individual', paste0(sub,'Betas.csv'), sep=.Platform$file.sep))
       if (plot) {

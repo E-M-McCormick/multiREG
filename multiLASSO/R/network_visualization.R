@@ -5,6 +5,13 @@
 network_visualization = network_vis = function(output = NULL){
   library(qgraph)
   
+  # Determine if Interaction Plots are Needed
+  interaction_flag = TRUE
+  if (is.null(output[['function_parameters']][['interact_exogenous']]) & 
+      is.null(output[['function_parameters']][['interact_with_exogenous']])) {
+    interaction_flag = FALSE
+  }
+  
   # Create Individual-Level Figures
   subnames = names(output[!names(output) %in% c('group','function_parameters','variablenames')])
   for (sub in subnames){
@@ -70,7 +77,8 @@ network_visualization = network_vis = function(output = NULL){
                                                   knot.border.width = 1,
                                                   DoNotPlot=FALSE)
     } else {
-      output[[sub]][['interaction_fig']] = qgraph(int.list,
+      if (interaction_flag) {
+        output[[sub]][['interaction_fig']] = qgraph(int.list,
                                                   layout='circle',
                                                   posCol='red',
                                                   negCol='blue',
@@ -81,6 +89,7 @@ network_visualization = network_vis = function(output = NULL){
                                                   label.cex = 1,
                                                   shape = ifelse(is_exogenous,'square','circle'),
                                                   DoNotPlot=FALSE)
+      }
     }
   }
   # Create Subgroup-Level Figures
@@ -160,17 +169,19 @@ network_visualization = network_vis = function(output = NULL){
                                                 DoNotPlot=FALSE)
     
   } else {
-    output[['group']][['interaction_fig']] = qgraph(int.list,
-                                                layout='circle',
-                                                posCol='red',
-                                                negCol='blue',
-                                                esize = 5,
-                                                parallelEdge = TRUE,
-                                                fade = FALSE,
-                                                labels = sub('_',' ', rownames(contemp)),
-                                                label.cex = 1,
-                                                shape = ifelse(is_exogenous,'square','circle'),
-                                                DoNotPlot=FALSE)
+    if (interaction_flag) {
+      output[['group']][['interaction_fig']] = qgraph(int.list,
+                                                      layout='circle',
+                                                      posCol='red',
+                                                      negCol='blue',
+                                                      esize = 5,
+                                                      parallelEdge = TRUE,
+                                                      fade = FALSE,
+                                                      labels = sub('_',' ', rownames(contemp)),
+                                                      label.cex = 1,
+                                                      shape = ifelse(is_exogenous,'square','circle'),
+                                                      DoNotPlot=FALSE)
+    }
   }
   dev.off()
   return(output)

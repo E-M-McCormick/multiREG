@@ -382,7 +382,7 @@ multiLASSO = function(data                       = NULL,
   }
   
   # Save Output to Files
-  manage_output(out = out, output = output)
+  manage_output(out = out, plot = plot, output = output)
   
   print('Algorithm successfully completed.', quote = FALSE)
   return(output)
