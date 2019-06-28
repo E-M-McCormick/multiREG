@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
   fig.path = "README-")
 ```
 
-# **multiLASSO (Directed Connectivity Search Using Regularization)**
+# **multiLASSO: Directed Connectivity Search Using Regularization**
 
 The multiLASSO algorithm is a continually maintained R package.
 
