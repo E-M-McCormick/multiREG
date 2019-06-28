@@ -166,12 +166,11 @@ command window. The algorithm will alert you when it is finished.
 
 # **FAQ**
 
-**How many time points do I need?** **NEED TO UPDATE** This is a
-difficult question since it will be related to the number of variables
-you are using. Rules of thumb for any analysis can generally be used:
-the more the better\! Having at least 100 time points is recommended,
-but adequate results have been obtained in simulation studies with only
-T = 60.
+**How many time points do I need?** This is a difficult question since
+it will be related to the number of variables you are using. Rules of
+thumb for any analysis can generally be used: the more the better\!
+Having at least 100 time points is recommended, but adequate results
+have been obtained in simulation studies with only T = 60.
 
 **Do all individuals have to have the same number of observations (T)?**
 No.
