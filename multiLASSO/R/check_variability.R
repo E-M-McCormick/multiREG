@@ -13,4 +13,5 @@ check_variability = function(data = NULL){
     }
     variability[[sub]] = isEqual
   }
+  return(variability)
 }
