@@ -172,5 +172,6 @@ network_visualization = network_vis = function(output = NULL){
                                                 shape = ifelse(is_exogenous,'square','circle'),
                                                 DoNotPlot=FALSE)
   }
+  dev.off()
   return(output)
 }
