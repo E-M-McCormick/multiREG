@@ -3,7 +3,6 @@
 #' @title Network Visualization Following Regularization with LASSO
 #' @keywords internal 
 network_visualization = network_vis = function(output = NULL){
-  library(qgraph)
   
   # Determine if Interaction Plots are Needed
   interaction_flag = TRUE
@@ -28,18 +27,19 @@ network_visualization = network_vis = function(output = NULL){
     is_exogenous = rownames(contemp) %in% output[['variablenames']][['exogenous_vars']]
     is_lagged = grepl('Lag',rownames(edge.list)) & !grepl('_by_', rownames(edge.list))
     rownames(edge.list)[is_lagged] = sub('Lag','',rownames(edge.list)[is_lagged])
-    output[[sub]][['main_effects_fig']]= qgraph(edge.list,
-                                                layout='circle',
-                                                lty=ifelse(is_lagged,2,1),
-                                                posCol='red',
-                                                negCol='blue',
-                                                esize = 5,
-                                                parallelEdge = TRUE,
-                                                fade = FALSE,
-                                                labels = sub('_',' ', rownames(contemp)),
-                                                label.cex = 1,
-                                                shape = ifelse(is_exogenous,'square','circle'),
-                                                DoNotPlot=FALSE)
+    
+    output[[sub]][['main_effects_fig']] = qgraph::qgraph(edge.list,
+                                                         layout='circle',
+                                                         lty=ifelse(is_lagged,2,1),
+                                                         posCol='red',
+                                                         negCol='blue',
+                                                         esize = 5,
+                                                         parallelEdge = TRUE,
+                                                         fade = FALSE,
+                                                         labels = sub('_',' ', rownames(contemp)),
+                                                         label.cex = 1,
+                                                         shape = ifelse(is_exogenous,'square','circle'),
+                                                         DoNotPlot=FALSE)
     
     if (nrow(int.list) > 0){
       int.list = cbind(int.list,seq.int(nrow(int.list)))
@@ -59,36 +59,36 @@ network_visualization = network_vis = function(output = NULL){
       int.list.final = rbind(int.list1, int.list2)
       is_lagged = c(is_lagged1, is_lagged2)
       
-      output[[sub]][['interaction_fig']] = qgraph(int.list.final[,1:3],
-                                                  layout='circle',
-                                                  lty=ifelse(is_lagged,2,1),
-                                                  posCol='red',
-                                                  negCol='blue',
-                                                  esize = 5,
-                                                  parallelEdge = TRUE,
-                                                  fade = FALSE,
-                                                  labels = sub('_',' ', rownames(contemp)),
-                                                  label.cex = 1,
-                                                  shape = ifelse(is_exogenous,'square','circle'),
-                                                  knots = int.list.final[,4],
-                                                  knot.size = 3,
-                                                  knot.color = 'green',
-                                                  knot.borders = TRUE,
-                                                  knot.border.width = 1,
-                                                  DoNotPlot=FALSE)
+      output[[sub]][['interaction_fig']] = qgraph::qgraph(int.list.final[,1:3],
+                                                          layout='circle',
+                                                          lty=ifelse(is_lagged,2,1),
+                                                          posCol='red',
+                                                          negCol='blue',
+                                                          esize = 5,
+                                                          parallelEdge = TRUE,
+                                                          fade = FALSE,
+                                                          labels = sub('_',' ', rownames(contemp)),
+                                                          label.cex = 1,
+                                                          shape = ifelse(is_exogenous,'square','circle'),
+                                                          knots = int.list.final[,4],
+                                                          knot.size = 3,
+                                                          knot.color = 'green',
+                                                          knot.borders = TRUE,
+                                                          knot.border.width = 1,
+                                                          DoNotPlot=FALSE)
     } else {
       if (interaction_flag) {
-        output[[sub]][['interaction_fig']] = qgraph(int.list,
-                                                  layout='circle',
-                                                  posCol='red',
-                                                  negCol='blue',
-                                                  esize = 5,
-                                                  parallelEdge = TRUE,
-                                                  fade = FALSE,
-                                                  labels = sub('_',' ', rownames(contemp)),
-                                                  label.cex = 1,
-                                                  shape = ifelse(is_exogenous,'square','circle'),
-                                                  DoNotPlot=FALSE)
+        output[[sub]][['interaction_fig']] = qgraph::qgraph(int.list,
+                                                            layout='circle',
+                                                            posCol='red',
+                                                            negCol='blue',
+                                                            esize = 5,
+                                                            parallelEdge = TRUE,
+                                                            fade = FALSE,
+                                                            labels = sub('_',' ', rownames(contemp)),
+                                                            label.cex = 1,
+                                                            shape = ifelse(is_exogenous,'square','circle'),
+                                                            DoNotPlot=FALSE)
       }
     }
   }
@@ -114,20 +114,20 @@ network_visualization = network_vis = function(output = NULL){
   #is_subgroup = TO BE ADDED
   rownames(edge.list)[is_lagged] = sub('Lag','',rownames(edge.list)[is_lagged])
 
-  output[['group']][['main_effects_fig']] = qgraph(edge.list,
-                                                   layout='circle',
-                                                   lty=ifelse(is_lagged,2,1),
-                                                   esize = 5,
-                                                   parallelEdge = TRUE,
-                                                   fade = FALSE,
-                                                   labels = sub('_',' ', rownames(contemp)),
-                                                   label.cex = 1,
-                                                   shape = ifelse(is_exogenous,'square','circle'),
-                                                   edge.width = ifelse(is_group, 1, edge.list[,3]),
-                                                   #edge.width = ifelse(is_group,1,ifelse(is_subgroup,1,edge.list[,3])),
-                                                   edge.color = ifelse(is_group,'black','grey'),
-                                                   #edge.color = ifelse(is_group,'black',ifelse(is_subgroup,'green','grey')),
-                                                   DoNotPlot=FALSE)
+  output[['group']][['main_effects_fig']] = qgraph::qgraph(edge.list,
+                                                           layout='circle',
+                                                           lty=ifelse(is_lagged,2,1),
+                                                           esize = 5,
+                                                           parallelEdge = TRUE,
+                                                           fade = FALSE,
+                                                           labels = sub('_',' ', rownames(contemp)),
+                                                           label.cex = 1,
+                                                           shape = ifelse(is_exogenous,'square','circle'),
+                                                           edge.width = ifelse(is_group, 1, edge.list[,3]),
+                                                           #edge.width = ifelse(is_group,1,ifelse(is_subgroup,1,edge.list[,3])),
+                                                           edge.color = ifelse(is_group,'black','grey'),
+                                                           #edge.color = ifelse(is_group,'black',ifelse(is_subgroup,'green','grey')),
+                                                           DoNotPlot=FALSE)
   
   if (nrow(int.list) > 0){
     int.list = cbind(int.list,seq.int(nrow(int.list)))
@@ -148,39 +148,39 @@ network_visualization = network_vis = function(output = NULL){
     is_lagged = c(is_lagged1, is_lagged2)
     is_group = int.list.final[,3] >= groupcut
     
-    output[['group']][['interaction_fig']] = qgraph(int.list.final[,1:3],
-                                                layout='circle',
-                                                lty=ifelse(is_lagged,2,1),
-                                                esize = 5,
-                                                parallelEdge = TRUE,
-                                                fade = FALSE,
-                                                labels = sub('_',' ', rownames(contemp)),
-                                                label.cex = 1,
-                                                shape = ifelse(is_exogenous,'square','circle'),
-                                                edge.width = ifelse(is_group, 1, int.list.final[,3]),
-                                                #edge.width = ifelse(is_group,1,ifelse(is_subgroup,1,edge.list[,3])),
-                                                edge.color = ifelse(is_group, 'black', 'grey'),
-                                                #edge.color = ifelse(is_group,'black',ifelse(is_subgroup,'green','grey')),
-                                                knots = int.list.final[,4],
-                                                knot.size = ifelse(is_group,3,1),
-                                                knot.color = ifelse(is_group, 'green', 'grey'),
-                                                knot.borders = TRUE,
-                                                knot.border.width = 1,
-                                                DoNotPlot=FALSE)
+    output[['group']][['interaction_fig']] = qgraph::qgraph(int.list.final[,1:3],
+                                                            layout='circle',
+                                                            lty=ifelse(is_lagged,2,1),
+                                                            esize = 5,
+                                                            parallelEdge = TRUE,
+                                                            fade = FALSE,
+                                                            labels = sub('_',' ', rownames(contemp)),
+                                                            label.cex = 1,
+                                                            shape = ifelse(is_exogenous,'square','circle'),
+                                                            edge.width = ifelse(is_group, 1, int.list.final[,3]),
+                                                            #edge.width = ifelse(is_group,1,ifelse(is_subgroup,1,edge.list[,3])),
+                                                            edge.color = ifelse(is_group, 'black', 'grey'),
+                                                            #edge.color = ifelse(is_group,'black',ifelse(is_subgroup,'green','grey')),
+                                                            knots = int.list.final[,4],
+                                                            knot.size = ifelse(is_group,3,1),
+                                                            knot.color = ifelse(is_group, 'green', 'grey'),
+                                                            knot.borders = TRUE,
+                                                            knot.border.width = 1,
+                                                            DoNotPlot=FALSE)
     
   } else {
     if (interaction_flag) {
-      output[['group']][['interaction_fig']] = qgraph(int.list,
-                                                      layout='circle',
-                                                      posCol='red',
-                                                      negCol='blue',
-                                                      esize = 5,
-                                                      parallelEdge = TRUE,
-                                                      fade = FALSE,
-                                                      labels = sub('_',' ', rownames(contemp)),
-                                                      label.cex = 1,
-                                                      shape = ifelse(is_exogenous,'square','circle'),
-                                                      DoNotPlot=FALSE)
+      output[['group']][['interaction_fig']] = qgraph::qgraph(int.list,
+                                                              layout='circle',
+                                                              posCol='red',
+                                                              negCol='blue',
+                                                              esize = 5,
+                                                              parallelEdge = TRUE,
+                                                              fade = FALSE,
+                                                              labels = sub('_',' ', rownames(contemp)),
+                                                              label.cex = 1,
+                                                              shape = ifelse(is_exogenous,'square','circle'),
+                                                              DoNotPlot=FALSE)
     }
   }
   dev.off()
