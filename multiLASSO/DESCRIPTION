@@ -4,9 +4,9 @@ Title: What the Package Does (Title Case)
 Version: 0.1.0
 Author: Ethan McCormick [aut, cre],
     Kathleen Gates [aut]
-Maintainer: EM McCormick <emccormick@.unc.edu>
+Maintainer: EM McCormick <emccormick@unc.edu>
 Depends: R (>= 3.6.0)
-Imports: glmnet (>= 2.0-18); gimme (0.6-0); qgraph(>=1.6.2)
+Imports: glmnet (>= 2.0-18), gimme (>= 0.6-0), qgraph(>= 1.6.2)
 Description: Directed connectivity search using regularization. 
     Utilizes the GIMME heuristic of using group information
     to initialize individual model search. 
