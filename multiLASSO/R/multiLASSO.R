@@ -10,11 +10,6 @@
 #'            header                     = TRUE,
 #'            ar                         = TRUE,
 #'            plot                       = TRUE,
-#'            subgroup                   = FALSE,
-#'            sub_feature                = 'lag & contemp',       
-#'            sub_method                 = 'walktrap',
-#'            confirm_subgroup           = NULL,
-#'            paths                      = NULL,
 #'            conv_vars                  = NULL,
 #'            conv_length                = 16,
 #'            conv_interval              = 1,
@@ -22,9 +17,8 @@
 #'            mean_center_mult           = FALSE,
 #'            standardize                = FALSE,
 #'            groupcutoff                = .75,
-#'            subcutoff                  = .5,
-#'            diagnos                    = FALSE,
 #'            alpha                      = .5,
+#'            model_crit                 = 'bic',
 #'            penalties                  = NULL,
 #'            test_penalties             = FALSE,
 #'            exogenous                  = NULL,
@@ -39,6 +33,10 @@
 #' where the rows represent time and columns represent individual variables. Individuals may
 #' have different numbers of observations (T), but must have the same number of variables (p).
 #' 
+#' @param out (Optional) The path to directory where results will be stored. If specified,
+#' a copy of output data will be saved into the directory. If the specified directory does
+#' not exist, it will be created.
+#' 
 #' @param sep Spacing scheme for input files. 
 #' '' indicates space-separated; ',' indicates comma separated; '/t' indicates tab-separated
 #' Only necessary when reading in files from physical directory.
@@ -48,6 +46,8 @@
 #' 
 #' @param ar (Logical) If TRUE, begin model search with all autoregressive pathways estimated
 #' with no shrinkage (i.e., penalty = 0).
+#' 
+#' @param plot (Logical) IF TRUE, will create pdf plots of network maps during output.
 #' 
 #' #' @param conv_vars Vector of variable names to be convolved via smoothed Finite Impulse 
 #' Response (sFIR). Note, conv_vars are not not automatically considered exogenous variables.
@@ -63,19 +63,20 @@
 #' @param conv_interval Interval between data acquisition. Currently must be a constant. For 
 #' fMRI studies, this is the repetition time. Defaults to 1. 
 #' 
-#' @param group_cutoff Cutoff value for inclusion of a given path at the group-level.
+#' 
+#' 
+#' @param groupcutoff Cutoff value for inclusion of a given path at the group-level.
 #' For instance, group_cutoff = .75 indicates that a path needs to be estimated for 75% of
 #' individuals to be included as a group-level path.
-#' 
-#' @param out (Optional) The path to directory where results will be stored. If specified,
-#' a copy of output data will be saved into the directory. If the specified directory does
-#' not exist, it will be created.
 #' 
 #' @param alpha Elastic-net parameter for the regularization approach. Values close to 0 mimic 
 #' the ridge penalty, which tends to shrink correlated parameters towards one another. Values 
 #' close to 1 mimic the lasso penalty, which tends to select one parameter and shrink
 #' the others. The default value (alpha=.5) balances these two considerations, and tends to select
 #' groups of correlated parameters and shrink other groups towards zero.
+#' 
+#' @param model_crit Argument to indicate the model selection criterion to use for model selection.
+#' Defaults to 'bic' (select on BIC). Options: 'bic', 'aic', 'aicc', 'hqc', 'cv' (cross-validation).
 #' 
 #' @param penalties (Optional) A matrix of user-provided penalties to initialize group-model search. 
 #' Should contain a column for all variables (including lagged versions and interactions) that will 
@@ -118,11 +119,6 @@ multiLASSO = function(data                       = NULL,
                       header                     = TRUE,
                       ar                         = TRUE,
                       plot                       = TRUE,
-                      # subgroup                  = FALSE,
-                      # sub_feature               = 'lag & contemp',       
-                      # sub_method                = 'walktrap',
-                      # confirm_subgroup          = NULL,
-                      # paths                     = NULL,
                       conv_vars                  = NULL,
                       conv_length                = 16,
                       conv_interval              = 1,
@@ -130,7 +126,6 @@ multiLASSO = function(data                       = NULL,
                       # mean_center_mult          = FALSE,
                       # standardize               = FALSE,
                       groupcutoff                = .75,
-                      # subcutoff                 = .5,
                       alpha                      = .5,
                       model_crit                 = 'bic',
                       penalties                  = NULL,
