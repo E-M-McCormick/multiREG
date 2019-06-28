@@ -20,14 +20,14 @@ manage_output = function(out = out, output = NULL){
     
     # Write Group Level Data with Plots if Needed
     write.csv(output$group$group_paths_counts[, colnames(output$group$group_paths_counts) %in% yvarnames],
-              file = paste(out, 'GroupLevel_PathCountsMatrix.csv', sep=.Platform$file.sep))
+              file = paste(out, 'groupPathCountsMatrix.csv', sep=.Platform$file.sep))
     write.csv(output$group$group_paths_present[, colnames(output$group$group_paths_present) %in% yvarnames],
-              file = paste(out, 'GroupLevel_PathsPresent.csv', sep=.Platform$file.sep))
+              file = paste(out, 'groupPathCountsPresent.csv', sep=.Platform$file.sep))
     if (plot) {
-      pdf(file.path(out, 'GroupLevel_main_effects_plot.pdf'))
+      pdf(file.path(out, 'groupMainEffectsPlots.pdf'))
       plot(output[['group']][['main_effects_fig']])
       dev.off()
-      pdf(file.path(out, 'GroupLevel_interactions_plot.pdf'))
+      pdf(file.path(out, 'groupInteractionsPlots.pdf'))
       plot(output[['group']][['interaction_fig']])
       dev.off()
     }
@@ -41,12 +41,12 @@ manage_output = function(out = out, output = NULL){
     pathtypes[pathtypes != 'group' & pathtypes != 'individual'] = 'none'
     for (sub in names(subdata)){
       write.csv(output[[sub]][['regression_matrix']][, colnames(output$group$group_paths_counts) %in% yvarnames],
-                file = paste(out, 'individual', paste0(sub,'_Betas.csv'), sep=.Platform$file.sep))
+                file = paste(out, 'individual', paste0(sub,'Betas.csv'), sep=.Platform$file.sep))
       if (plot) {
-        pdf(file.path(out, 'individual', paste0(sub,'_main_effects_plot.pdf')))
+        pdf(file.path(out, 'individual', paste0(sub,'MainEffectsPlot.pdf')))
         plot(output[[sub]][['main_effects_fig']])
         dev.off()
-        pdf(file.path(out, 'individual', paste0(sub,'_interactions_plot.pdf')))
+        pdf(file.path(out, 'individual', paste0(sub,'InteractionsPlot.pdf')))
         plot(output[[sub]][['interaction_fig']])
         dev.off()
       }

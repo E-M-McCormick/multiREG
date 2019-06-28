@@ -1,8 +1,8 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# **Network Regularization (netreg)**
+# **Network Regularization (multiLASSO)**
 
-The netreg algorithm is a continually maintained R package.
+The multiLASSO algorithm is a continually maintained R package.
 
 Program developers are invited to submit changes here at the GitHub
 repository.
@@ -32,9 +32,10 @@ repository.
       - Alternatively can support interaction effects between endogenous
         variables, or between exogenous and endogenous variables.
 
-  - Can be freely downloaded by installing the package “netreg” in R.
+  - Can be freely downloaded by installing the package “multiLASSO” in
+    R.
 
-# **Running netreg**
+# **Running multiLASSO**
 
 **1. Create two new folders (i.e., directories)**
 
@@ -61,18 +62,17 @@ repository.
 
   - Files must be either comma, space, or tab delimited.
 
-**3. Installing netreg with R**
+**3. Installing multiLASSO with R**
 
   - Open an R script and enter into the console:
-    `install.packages("netreg")`
+    `install.packages("multiLASSO")`
 
-  - Once netreg has been installed, you will need to load the package by
-    entering: `library(netreg)`
+  - Once multiLASSO has been installed, you will need to load the
+    package by entering: `library(multiLASSO)`
 
-**4. Running gimme**
+**4. Running multiLASSO**
 
-The *netreg* (or equivalently, *network\_reg*) function requires that
-you input:
+The *multiLASSO* function requires that you input:
 
   - The path to the directory containing your data.
 
@@ -85,7 +85,7 @@ is provided. If no output directory is indicated, all information is
 stored as R objects (see tutorial linked above for details).
 
 ``` r
-output <- netreg(     # can use "netreg" or "network_reg"
+output <- multiLASSO(
   data = '',          # source directory where your data are 
   out = NULL,         # output directory where you'd like your output to go (if NULL, output will only be saved in a list object)
   sep = NULL,         # how data are separated. "" for space; "," for comma, "/t" for tab-delimited
@@ -94,13 +94,14 @@ output <- netreg(     # can use "netreg" or "network_reg"
   plot = TRUE,        # TRUE (default) or FALSE, generate plots
   subgroup = FALSE,   # TRUE or FALSE (default), cluster individuals based on similarities in effects
   alpha = .5,         # option to control the elasticnet mixing parameter; alpha = .5 (default), alpha = 1 is the lasso penalty, alpha = 0 is the ridge regression penalty
+  model_crit = 'bic', # model critera to use in model selection (default to BIC); other options include 'cv' (cross-validation), 'aic', 'aicc', 'hqc'
   penalties = NULL,   # option to specify a matrix of shrinkage parameters that will control the initial search for a group-level network map
   groupcutoff = .75,  # the proportion that is considered the majority at the group level
   subcutoff = .5      # the proportion that is considered the majority at the subgroup level
 )        
 ```
 
-While *netreg* is running you will see information iterate in the
+While *multiLASSO* is running you will see information iterate in the
 command window. The algorithm will alert you when it is finished.
 
 # **Output**
@@ -174,11 +175,11 @@ T = 60.
 No.
 
 **How many people do I need in my sample?** **NEED TO UPDATE** For
-*netreg*, reliable results are obtained with as few as 10 participants.
-Remember that in this context, power to detect effects is determined by
-the number of time points rather than the number of individuals. Still,
-having at least 10 individuals helps *netreg* to detect signal from
-noise by looking for effects that consistently occur.
+*multiLASSO*, reliable results are obtained with as few as 10
+participants. Remember that in this context, power to detect effects is
+determined by the number of time points rather than the number of
+individuals. Still, having at least 10 individuals helps *multiLASSO* to
+detect signal from noise by looking for effects that consistently occur.
 
 **What do I do if I obtain an error?** Do some initial trouble-shooting.
 
@@ -186,7 +187,7 @@ noise by looking for effects that consistently occur.
     variables (columns) in their data sets.
 
 2.  Ensure that all variables have variability (i.e., are not constant).
-    *netreg* will let you know if this is the case. **NEED TO ADD TO
+    *multiLASSO* will let you know if this is the case. **NEED TO ADD TO
     FUNCTION**
 
 3.  Ensure your path directories are correct.
@@ -195,5 +196,5 @@ noise by looking for effects that consistently occur.
     observations across time.
 
 5.  If all of this is correct, please email the error you received, code
-    used to run *netreg*, and the data (we promise not to use it or
+    used to run *multiLASSO*, and the data (we promise not to use it or
     share it) to: <gimme@unc.edu>. **NEED TO ADD**
