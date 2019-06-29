@@ -33,8 +33,8 @@ model_selection = function(x = NULL,
 
     yhat = cbind(1, x) %*% coef
     residuals = y - yhat
-    mse = colMeans(residuals^2)
-    sse = colSums(residuals^2)
+    mse = colMeans(as.array(residuals^2))
+    sse = colSums(as.array(residuals^2))
     n = fit$nobs
 
     nvar = df + 1
