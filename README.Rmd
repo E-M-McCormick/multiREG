@@ -86,12 +86,10 @@ output <- multiLASSO(
   header = TRUE,      # TRUE or FALSE, is there a header
   ar = TRUE,          # TRUE (default) or FALSE, start with autoregressive paths open
   plot = TRUE,        # TRUE (default) or FALSE, generate plots
-  subgroup = FALSE,   # TRUE or FALSE (default), cluster individuals based on similarities in effects
   alpha = .5,         # option to control the elasticnet mixing parameter; alpha = .5 (default), alpha = 1 is the lasso penalty, alpha = 0 is the ridge regression penalty
   model_crit = 'bic', # model critera to use in model selection (default to BIC); other options include 'cv' (cross-validation), 'aic', 'aicc', 'hqc'
   penalties = NULL,   # option to specify a matrix of shrinkage parameters that will control the initial search for a group-level network map
   groupcutoff = .75,  # the proportion that is considered the majority at the group level
-  subcutoff = .5      # the proportion that is considered the majority at the subgroup level
 )        
 ```
 
