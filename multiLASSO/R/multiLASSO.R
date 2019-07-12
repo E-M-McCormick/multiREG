@@ -108,7 +108,7 @@
 #' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 #' are NULL. 
 #' 
-#' @import utils stats grDevices
+#' @import utils stats grDevices gimme
 #' 
 #' @export multiLASSO
 
