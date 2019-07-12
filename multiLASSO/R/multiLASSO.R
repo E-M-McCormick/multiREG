@@ -13,9 +13,6 @@
 #'            conv_vars                  = NULL,
 #'            conv_length                = 16,
 #'            conv_interval              = 1,
-#'            mult_vars                  = NULL,
-#'            mean_center_mult           = FALSE,
-#'            standardize                = FALSE,
 #'            groupcutoff                = .75,
 #'            alpha                      = .5,
 #'            model_crit                 = 'bic',
@@ -49,7 +46,7 @@
 #' 
 #' @param plot (Logical) IF TRUE, will create pdf plots of network maps during output.
 #' 
-#' #' @param conv_vars Vector of variable names to be convolved via smoothed Finite Impulse 
+#' @param conv_vars Vector of variable names to be convolved via smoothed Finite Impulse 
 #' Response (sFIR). Note, conv_vars are not not automatically considered exogenous variables.
 #' To treat conv_vars as exogenous use the exogenous argument. Variables listed in conv_vars 
 #' must be binary variables. If there is missing data in the endogenous variables their values 
@@ -62,8 +59,6 @@
 #' 
 #' @param conv_interval Interval between data acquisition. Currently must be a constant. For 
 #' fMRI studies, this is the repetition time. Defaults to 1. 
-#' 
-#' 
 #' 
 #' @param groupcutoff Cutoff value for inclusion of a given path at the group-level.
 #' For instance, group_cutoff = .75 indicates that a path needs to be estimated for 75% of
@@ -113,6 +108,8 @@
 #' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 #' are NULL. 
 #' 
+#' @import utils stats grDevices
+#' 
 #' @export multiLASSO
 
 multiLASSO = function(data                       = NULL,
@@ -124,9 +121,6 @@ multiLASSO = function(data                       = NULL,
                       conv_vars                  = NULL,
                       conv_length                = 16,
                       conv_interval              = 1,
-                      # mult_vars                 = NULL,
-                      # mean_center_mult          = FALSE,
-                      # standardize               = FALSE,
                       groupcutoff                = .75,
                       alpha                      = .5,
                       model_crit                 = 'bic',

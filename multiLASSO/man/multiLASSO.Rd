@@ -13,9 +13,6 @@ multiLASSO(data                       = NULL,
            conv_vars                  = NULL,
            conv_length                = 16,
            conv_interval              = 1,
-           mult_vars                  = NULL,
-           mean_center_mult           = FALSE,
-           standardize                = FALSE,
            groupcutoff                = .75,
            alpha                      = .5,
            model_crit                 = 'bic',
@@ -48,9 +45,9 @@ Only necessary when reading in files from physical directory.}
 \item{ar}{(Logical) If TRUE, begin model search with all autoregressive pathways estimated
 with no shrinkage (i.e., penalty = 0).}
 
-\item{plot}{(Logical) IF TRUE, will create pdf plots of network maps during output.
+\item{plot}{(Logical) IF TRUE, will create pdf plots of network maps during output.}
 
-#' @param conv_vars Vector of variable names to be convolved via smoothed Finite Impulse 
+\item{conv_vars}{Vector of variable names to be convolved via smoothed Finite Impulse 
 Response (sFIR). Note, conv_vars are not not automatically considered exogenous variables.
 To treat conv_vars as exogenous use the exogenous argument. Variables listed in conv_vars 
 must be binary variables. If there is missing data in the endogenous variables their values 
