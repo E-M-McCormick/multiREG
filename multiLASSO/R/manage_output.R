@@ -48,7 +48,7 @@ manage_output = function(out = NULL, plot = NULL, output = NULL){
     for (sub in subnames){
       write.csv(output[[sub]][['regression_matrix']][, colnames(output$group$group_paths_counts) %in% yvarnames],
                 file = paste(out, 'individual', paste0(sub,'Betas.csv'), sep=.Platform$file.sep))
-      if (plot) {
+      if (plot & length(output[['variablenames']][['y_vars']]) <= 100) {
         pdf(file.path(out, 'individual', paste0(sub,'MainEffectsPlot.pdf')))
         plot(output[[sub]][['main_effects_fig']])
         dev.off()

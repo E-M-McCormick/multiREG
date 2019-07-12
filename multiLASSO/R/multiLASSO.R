@@ -381,6 +381,7 @@ multiLASSO = function(data                       = NULL,
   if (plot){
     output = network_vis(output)
   }
+  return(output)
   
   # Save Output to Files
   manage_output(out = out, plot = plot, output = output)
