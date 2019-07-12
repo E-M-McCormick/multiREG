@@ -38,7 +38,7 @@
 #' '' indicates space-separated; ',' indicates comma separated; '/t' indicates tab-separated
 #' Only necessary when reading in files from physical directory.
 #' 
-#' @param header (Logical) Indicate TRUE if variable names incluced in input file, FALSE otherwise.
+#' @param header (Logical) Indicate TRUE if variable names included in input file, FALSE otherwise.
 #' Only necessary when reading in files from physical directory.
 #' 
 #' @param ar (Logical) If TRUE, begin model search with all autoregressive pathways estimated
@@ -75,12 +75,12 @@
 #' 
 #' @param penalties (Optional) A matrix of user-provided penalties to initialize group-model search. 
 #' Should contain a column for all variables (including lagged versions and interactions) that will 
-#' be included in the model search. Values of 1 (the default) will initilize a variable to be 
-#' normally considered in the regularization, values of 0 will initilize a variable to be estimated
-#' (i.e., no shrinkage), and values of Inf will exlcude variables from the model.
+#' be included in the model search. Values of 1 (the default) will initialize a variable to be 
+#' normally considered in the regularization, values of 0 will initialize a variable to be estimated
+#' (i.e., no shrinkage), and values of Inf will exclude variables from the model.
 #' 
 #' @param test_penalties (Optional, Logical) Optional argument to output a sample penalty matrix
-#' based on function parameters. Helpful for specifying a matrix to use in the penalties arguement.
+#' based on function parameters. Helpful for specifying a matrix to use in the penalties argument.
 #' Function will exit gracefully before running anything if test_penalties = TRUE.
 #' 
 #' @param exogenous (Optional) A list of user-specified variables to consider as exogenous
@@ -89,7 +89,7 @@
 #' the pattern 'V#', where # represents the column number in the original data file (e.g., 'V5').
 #' 
 #' @param lag_exogenous (Optional, Logical) If TRUE, a lagged version of the exogenous variable 
-#' will be created. If set to TRUE, but exogenous variables are not indicated in the arguement
+#' will be created. If set to TRUE, but exogenous variables are not indicated in the argument
 #' above, the function will not run properly.
 #'
 #' @param interact_exogenous (Optional) Select which exogenous variables are used to create
