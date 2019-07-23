@@ -119,7 +119,7 @@
 #' with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
 #' "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass". 
 #' 
-#' @import utils stats grDevices gimme
+#' @import utils stats grDevices gimme igraph
 #' 
 #' @export multiLASSO
 
@@ -268,7 +268,8 @@ multiLASSO = function(data                       = NULL,
   }
   
   # Calculate Data Thresholds
-  
+  nsubs = length(subdata)
+  numvars = ncol(subdata[[1]])
   if (is.null(penalties)){
     initial_penalties = array(data = rep(1, numvars*numvars), 
                               dim = c(numvars, numvars),
@@ -296,22 +297,24 @@ multiLASSO = function(data                       = NULL,
   # Group level search 
   grppaths <- group_search(subdata,
                            groupcutoff,
-                           varname,
+                           yvarnames,
                            interact_exogenous,
                            predict_with_interactions,
                            interactnames,
                            interact_exogvars, 
                            output,
-                           grppen = NULL)
+                           grppen = NULL,
+                           initial_penalties)
   
   # Loop Through Subjects Again with the Group Level Information
   finalpaths <- ind_search(subdata,
-                           varname,
+                           yvarnames,
                            interact_exogenous,
                            predict_with_interactions,
                            interactnames,
                            interact_exogvars, 
-                           grppen = grppaths$group_penalties)
+                           grppen = grppaths$group_penalties,
+                           output)
   
   # Optional search for subgroups using results from above. 
   if(subgroup){
@@ -355,13 +358,16 @@ multiLASSO = function(data                       = NULL,
   # Organize Output
   grppaths$group_thresh_mat[is.na(grppaths$group_thresh_mat)] = 0
   output[['group']][['group_paths_present']] = grppaths$group_thresh_mat
+  
+  group_thresh_mat = grppaths$group_thresh_mat/nsubs
+  output[['group']][['group_paths_proportions']] = group_thresh_mat
   output[['group']][['group_penalties']] = grppaths$group_penalties
   for (sub in names(subdata)){
     output[[sub]][['data']] = subdata[[sub]]
     output[[sub]][['regression_matrix']] = finalpaths[, , sub]
   }
   
-  if(subgroup)
+  if(subgroup & subgroup_results$n_subgroups>1)
     for (j in 1:subgroup_results$n_subgroups){
       output[['subgroup']][['subgroup_paths_present']][[j]] = subgrouppaths[[j]]$group_thresh_mat
       output[['subgroup']][['subgroup_group_penalties']][[j]] = subgrouppaths[[j]]$group_penalties

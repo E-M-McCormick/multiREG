@@ -2,14 +2,17 @@
 #' @return Returns final paths for all individuals. 
 #' @keywords internal  
 ind_search <- function(subdata,
-                       varname,
+                       yvarnames,
                        interact_exogenous,
                        predict_with_interactions,
                        interactnames,
                        interact_exogvars,
-                       grppen){
+                       grppen,
+                       output){
   
   numvars = ncol(subdata[[1]])
+  model_crit = output[['function_parameters']][['model_crit']]
+  alpha = output[['function_parameters']][['alpha']]
   
   finalpaths = array(data = rep(0, numvars*numvars*length(subdata)), 
                      dim = c(numvars, numvars, length(subdata)),

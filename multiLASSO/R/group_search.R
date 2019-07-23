@@ -3,15 +3,18 @@
 #' @keywords internal  
 group_search <- function(subdata,
                          groupcutoff,
-                         varname,
+                         yvarnames,
                          interact_exogenous,
                          predict_with_interactions,
                          interactnames,
                          interact_exogvars, 
                          output,
-                         grppen = NULL){
+                         grppen = NULL,
+                         initial_penalties){
   
   numvars = ncol(subdata[[1]])
+  model_crit = output[['function_parameters']][['model_crit']]
+  alpha = output[['function_parameters']][['alpha']]
 
   pathpresent = group_coefs = array(data = rep(NaN, numvars*numvars*length(subdata)), 
                                     dim = c(numvars, numvars, length(subdata)), 
