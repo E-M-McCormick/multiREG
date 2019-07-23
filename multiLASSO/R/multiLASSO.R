@@ -22,7 +22,9 @@
 #'            lag_exogenous              = FALSE,
 #'            interact_exogenous         = NULL,
 #'            interact_with_exogenous    = NULL,
-#'            predict_with_interactions  = NULL)
+#'            predict_with_interactions  = NULL,
+#'            subgroup                   = FALSE,
+#'            sub_method                 = 'Walktrap')
 #'             
 #' @param data The path to the directory where individual data files are located,
 #' or the name of the list containing individual data. Each file or matrix within the list
@@ -106,7 +108,16 @@
 #' 
 #' @param predict_with_interactions (Optional) Select which endogenous variables should be predicted
 #' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
-#' are NULL. 
+#' are NULL.
+#' 
+#' @param subgroup Logical. If TRUE, subgroups are generated based on
+#' similarities in model features using the \code{walktrap.community}
+#' function from the \code{igraph} package. When ms_allow=TRUE, subgroup
+#' should be set to FALSE.  Defaults to FALSE.  
+#' 
+#' @param sub_method Community detection method used to cluster individuals into subgroups. Options align 
+#' with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
+#' "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass". 
 #' 
 #' @import utils stats grDevices gimme
 #' 
@@ -130,7 +141,9 @@ multiLASSO = function(data                       = NULL,
                       lag_exogenous              = FALSE,
                       interact_exogenous         = NULL,
                       interact_with_exogenous    = NULL,
-                      predict_with_interactions  = NULL){
+                      predict_with_interactions  = NULL,
+                      subgroup                   = FALSE,
+                      sub_method                 = 'Walktrap'){
 
   # Add Function Parameters to Output
   output = list()
@@ -255,18 +268,7 @@ multiLASSO = function(data                       = NULL,
   }
   
   # Calculate Data Thresholds
-  nsubs = length(subdata)
-  numvars = ncol(subdata[[1]])
-  pathpresent = group_coefs = array(data = rep(NaN, numvars*numvars*length(subdata)), 
-                                    dim = c(numvars, numvars, length(subdata)), 
-                                    dimnames = list(c(colnames(subdata[[1]])), 
-                                                    c(colnames(subdata[[1]])), 
-                                                    c(names(subdata))))
-  finalpaths = array(data = rep(0, numvars*numvars*length(subdata)), 
-                     dim = c(numvars, numvars, length(subdata)),
-                     dimnames = list(c(colnames(subdata[[1]])),
-                                     c(colnames(subdata[[1]])),
-                                     c(names(subdata))))
+  
   if (is.null(penalties)){
     initial_penalties = array(data = rep(1, numvars*numvars), 
                               dim = c(numvars, numvars),
@@ -291,85 +293,79 @@ multiLASSO = function(data                       = NULL,
     stop('Returning sample penatly matrix and exiting.')
   }
   
-  # Loop through Subjects Data for Group Search
-  for (sub in names(subdata)){
-    print(paste0('Building group-level model for ', sub, '.'), quote = FALSE)
-    tempdata = subdata[[sub]]
-    for (varname in yvarnames){
-      subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
-                                                  colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
-      if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
-          subset_predictors = subset_predictors[, !colnames(subset_predictors) %in% interactnames]
-      }
-      
-      final_coefs = model_selection(x = subset_predictors,
-                                    y = tempdata[, colnames(tempdata) %in% varname],
-                                    selection_crit = model_crit,
-                                    alpha = alpha,
-                                    penalty.factor = initial_penalties[!colnames(tempdata) %in% varname, varname])
-      
-      for (predictor in rownames(final_coefs)[!rownames(final_coefs) %in% '(Intercept)']){
-        if (final_coefs[predictor,] == 0){
-          pathpresent[predictor, varname, sub] = 0
-        } else {
-          pathpresent[predictor, varname, sub] = 1
-        }
-        group_coefs[predictor, varname, sub] = final_coefs[predictor, ]
-      }
-    }
-  }
-  
-  # Calculate Paths that Should Appear in the Group (Non-Penalized) Model
-  group_thresh_mat = rowSums(pathpresent, dims = 2)
-  output[['group']][['group_paths_counts']] = group_thresh_mat
-  
-  group_thresh_mat = group_thresh_mat/nsubs
-  output[['group']][['group_paths_proportions']] = group_thresh_mat
-  group_thresh_mat[group_thresh_mat < groupcutoff] = 0
-  group_thresh_mat[group_thresh_mat >= groupcutoff] = 1
-  group_penalties = abs(group_thresh_mat - 1)
-  
-  
-  # PLACE for SUBGROUPING & SUBGROUP MODEL SEARCH
+  # Group level search 
+  grppaths <- group_search(subdata,
+                           groupcutoff,
+                           varname,
+                           interact_exogenous,
+                           predict_with_interactions,
+                           interactnames,
+                           interact_exogvars, 
+                           output,
+                           grppen = NULL)
   
   # Loop Through Subjects Again with the Group Level Information
-  for (sub in names(subdata)){
-    print(paste0('Building individual-level model for ', sub, '.'), quote = FALSE)
-    tempdata = subdata[[sub]]
-    for (varname in yvarnames){
-      subset_predictors = as.matrix(tempdata[, !(colnames(tempdata) %in% varname |
-                                                  colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars))])
-      if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
-        subset_predictors = subset_predictors[, !colnames(subset_predictors) %in% interactnames]
-      }
-      subset_penalties = group_penalties[!(colnames(tempdata) %in% varname |
-                                              colnames(tempdata) %in% paste0(varname,'_by_',interact_exogvars)), varname]
-      if (!is.null(predict_with_interactions) & !varname %in% predict_with_interactions){
-        subset_penalties = subset_penalties[!names(subset_penalties) %in% interactnames]
-      }
-      
-      final_coefs = model_selection(x = subset_predictors,
-                                    y = tempdata[, colnames(tempdata) %in% varname],
-                                    selection_crit = model_crit,
-                                    alpha = alpha,
-                                    penalty.factor = subset_penalties)
-      
-      for (predictor in rownames(final_coefs)[!rownames(final_coefs) %in% '(Intercept)']){
-        if (final_coefs[predictor,] != 0){
-          finalpaths[predictor, varname, sub] = final_coefs[predictor,]
+  finalpaths <- ind_search(subdata,
+                           varname,
+                           interact_exogenous,
+                           predict_with_interactions,
+                           interactnames,
+                           interact_exogvars, 
+                           grppen = grppaths$group_penalties)
+  
+  # Optional search for subgroups using results from above. 
+  if(subgroup){
+    subgroup_results <- subgroup_search(subdata, 
+                                        indpaths = finalpaths, 
+                                        sub_method)
+    if(subgroup_results$n_subgroups>1){
+      subgrouppaths <- list()
+      indpaths_sub  <- list()
+      for (j in 1:subgroup_results$n_subgroups){
+        sub_s_subjids = subset(subgroup_results$sub_mem$names,
+                               subgroup_results$sub_mem$sub_membership == j)
+        subgroupdata = subdata[sub_s_subjids]
+        
+        subgrouppaths[[j]] <- group_search(subdata = subgroupdata,
+                                           groupcutoff,
+                                           varname,
+                                           interact_exogenous,
+                                           predict_with_interactions,
+                                           interactnames,
+                                           interact_exogvars, 
+                                           output, 
+                                           grppen = grppaths$group_penalties)
+        
+        indpaths_sub[[j]] <- ind_search(subdata = subgroupdata,
+                                        varname,
+                                        interact_exogenous,
+                                        predict_with_interactions,
+                                        interactnames,
+                                        interact_exogvars, 
+                                        grppen = subgrouppaths[[j]]$group_penalties)  
+        # combine subgroup-specific resuts into final estimates
+        for (sub in names(subgroupdata)){
+          finalpaths[,,sub] <- indpaths_sub[[j]][,,sub]
         }
       }
     }
   }
+
   
   # Organize Output
-  group_thresh_mat[is.na(group_thresh_mat)] = 0
-  output[['group']][['group_paths_present']] = group_thresh_mat
-  output[['group']][['group_penalties']] = group_penalties
+  grppaths$group_thresh_mat[is.na(grppaths$group_thresh_mat)] = 0
+  output[['group']][['group_paths_present']] = grppaths$group_thresh_mat
+  output[['group']][['group_penalties']] = grppaths$group_penalties
   for (sub in names(subdata)){
     output[[sub]][['data']] = subdata[[sub]]
     output[[sub]][['regression_matrix']] = finalpaths[, , sub]
   }
+  
+  if(subgroup)
+    for (j in 1:subgroup_results$n_subgroups){
+      output[['subgroup']][['subgroup_paths_present']][[j]] = subgrouppaths[[j]]$group_thresh_mat
+      output[['subgroup']][['subgroup_group_penalties']][[j]] = subgrouppaths[[j]]$group_penalties
+    } 
   
   # Add Visualization
   if (plot){
