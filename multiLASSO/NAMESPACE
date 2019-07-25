@@ -3,5 +3,7 @@
 export(multiLASSO)
 import(gimme)
 import(grDevices)
-import(stats)
+import(igraph)
 import(utils)
+importFrom(stats,na.omit)
+importFrom(stats,ts)

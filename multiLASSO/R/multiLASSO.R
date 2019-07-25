@@ -119,7 +119,8 @@
 #' with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
 #' "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass". 
 #' 
-#' @import utils stats grDevices gimme igraph
+#' @import utils grDevices gimme igraph
+#' @importFrom stats ts na.omit
 #' 
 #' @export multiLASSO
 

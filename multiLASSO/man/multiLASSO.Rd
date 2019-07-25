@@ -22,7 +22,9 @@ multiLASSO(data                       = NULL,
            lag_exogenous              = FALSE,
            interact_exogenous         = NULL,
            interact_with_exogenous    = NULL,
-           predict_with_interactions  = NULL)
+           predict_with_interactions  = NULL,
+           subgroup                   = FALSE,
+           sub_method                 = 'Walktrap')
 }
 \arguments{
 \item{data}{The path to the directory where individual data files are located,
@@ -108,6 +110,15 @@ in the data.}
 \item{predict_with_interactions}{(Optional) Select which endogenous variables should be predicted
 by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
 are NULL.}
+
+\item{subgroup}{Logical. If TRUE, subgroups are generated based on
+similarities in model features using the \code{walktrap.community}
+function from the \code{igraph} package. When ms_allow=TRUE, subgroup
+should be set to FALSE.  Defaults to FALSE.}
+
+\item{sub_method}{Community detection method used to cluster individuals into subgroups. Options align 
+with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
+"Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass".}
 }
 \description{
 This function utilizes regression with regularization to build models for individuals 
