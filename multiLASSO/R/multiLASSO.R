@@ -147,7 +147,7 @@ multiLASSO = function(data                       = NULL,
 
   # Add Function Parameters to Output
   output = list()
-  output[['function_parameters']] = as.list(sys.call())
+  output[['function_parameters']] = as.list(sys.frame(which = 1))
   
   # Wrangle Data into List
   print('Reading in data.', quote = FALSE)
@@ -331,7 +331,7 @@ multiLASSO = function(data                       = NULL,
         
         subgrouppaths[[j]] <- group_search(subdata = subgroupdata,
                                            groupcutoff,
-                                           varname,
+                                           yvarnames,
                                            interact_exogenous,
                                            predict_with_interactions,
                                            interactnames,
@@ -340,12 +340,13 @@ multiLASSO = function(data                       = NULL,
                                            grppen = grppaths$group_penalties)
         
         indpaths_sub[[j]] <- ind_search(subdata = subgroupdata,
-                                        varname,
+                                        yvarnames,
                                         interact_exogenous,
                                         predict_with_interactions,
                                         interactnames,
                                         interact_exogvars, 
-                                        grppen = subgrouppaths[[j]]$group_penalties)  
+                                        grppen = subgrouppaths[[j]]$group_penalties,
+                                        output)  
         # combine subgroup-specific resuts into final estimates
         for (sub in names(subgroupdata)){
           finalpaths[,,sub] <- indpaths_sub[[j]][,,sub]

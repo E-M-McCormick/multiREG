@@ -10,7 +10,7 @@ group_search <- function(subdata,
                          interact_exogvars, 
                          output,
                          grppen = NULL,
-                         initial_penalties){
+                         initial_penalties = NULL){
   
   numvars = ncol(subdata[[1]])
   model_crit = output[['function_parameters']][['model_crit']]
