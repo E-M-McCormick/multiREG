@@ -373,6 +373,11 @@ multiLASSO = function(data                       = NULL,
     for (j in 1:subgroup_results$n_subgroups){
       output[['subgroup']][['subgroup_paths_present']][[j]] = subgrouppaths[[j]]$group_thresh_mat
       output[['subgroup']][['subgroup_group_penalties']][[j]] = subgrouppaths[[j]]$group_penalties
+      output[['subgroup']][['membership']] = subgroup_results$sub_mem
+      output[['subgroup']][['modularity']] = subgroup_results$modularity
+      output[['subgroup']][['subgroup_number']] = subgroup_results$n_subgroups
+      output[['subgroup']][['similarity_matrix']] = subgroup_results$sim
+      output[['subgroup']][['subgroup_method']] = sub_method
     } 
   
   # Add Visualization
