@@ -157,7 +157,7 @@ multiLASSO = function(data                       = NULL,
     for (i in list.files(data)){
       tempname = tools::file_path_sans_ext(i)
       print(paste0('   Reading in ', tempname, '.'), quote = FALSE)
-      subdata[[tempname]] = read.delim(i, sep=sep, header=header)
+      subdata[[tempname]] = read.table(i, sep=sep, header=header)
     } 
   } else if (is.list(data)){
       subdata = data
