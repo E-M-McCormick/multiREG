@@ -4,7 +4,7 @@
 \alias{subgroup_search}
 \title{Find subgroup solutions using final patterns.}
 \usage{
-subgroup_search(subdata, indpaths, sub_method)
+subgroup_search(subdata, indpaths, output)
 }
 \value{
 Returns subgroup membership, similarity matrix, modularity, and number of subgroups.

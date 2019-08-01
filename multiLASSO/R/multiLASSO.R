@@ -120,9 +120,9 @@
 #' with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
 #' "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass". 
 #' 
-#' @param sub_feature Features upon which to generate similartiy matrix for subgrouping individuals if subgroup 
-#' option invoked. "Count" uses the counts of similar paths (default); "PCA" reduces the data to those components 
-#' that explain at least 95% of variance and correlates these for each pair of individuals; "correlate" correlates all paths 
+#' @param sub_feature Features used to generate similartiy matrix for subgrouping individuals if subgroup 
+#' option invoked. "count" uses the counts of similar paths (default); "PCA" reduces the data to those components 
+#' that explain at least 95% of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
 #' @import utils grDevices gimme igraph
@@ -150,9 +150,8 @@ multiLASSO = function(data                       = NULL,
                       interact_with_exogenous    = NULL,
                       predict_with_interactions  = NULL,
                       subgroup                   = FALSE,
-                      sub_feature                = "count",
-                      sub_method                 = "Walktrap"
-                      ){
+                      sub_method                 = "Walktrap",
+                      sub_feature                = "count"){
 
   # Add Function Parameters to Output
   output = list()
@@ -386,6 +385,7 @@ multiLASSO = function(data                       = NULL,
       output[['subgroup']][['subgroup_number']] = subgroup_results$n_subgroups
       output[['subgroup']][['similarity_matrix']] = subgroup_results$sim
       output[['subgroup']][['subgroup_method']] = sub_method
+      output[['subgroup']][['subgroup_feature']] = sub_feature
     } 
   
   # Add Visualization

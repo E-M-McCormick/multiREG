@@ -15,7 +15,7 @@ multiLASSO(data                       = NULL,
            conv_interval              = 1,
            groupcutoff                = .75,
            alpha                      = .5,
-           model_crit                 = 'bic',
+           model_crit                 = "bic",
            penalties                  = NULL,
            test_penalties             = FALSE,
            exogenous                  = NULL,
@@ -24,7 +24,8 @@ multiLASSO(data                       = NULL,
            interact_with_exogenous    = NULL,
            predict_with_interactions  = NULL,
            subgroup                   = FALSE,
-           sub_method                 = 'Walktrap')
+           sub_method                 = "Walktrap",
+           sub_feature                = "count")
 }
 \arguments{
 \item{data}{The path to the directory where individual data files are located,
@@ -119,6 +120,11 @@ should be set to FALSE.  Defaults to FALSE.}
 \item{sub_method}{Community detection method used to cluster individuals into subgroups. Options align 
 with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
 "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass".}
+
+\item{sub_feature}{Features used to generate similartiy matrix for subgrouping individuals if subgroup 
+option invoked. "count" uses the counts of similar paths (default); "PCA" reduces the data to those components 
+that explain at least 95% of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
+for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.}
 }
 \description{
 This function utilizes regression with regularization to build models for individuals 
