@@ -2,9 +2,7 @@
 #' @return Returns subgroup membership, similarity matrix, modularity, and number of subgroups.
 #' @keywords internal  
 subgroup_search <- function(subdata,
-                            indpaths,
-                            sub_method,
-                            sub_feature,  
+                            indpaths, 
                             output){
   
   print(paste0('Searching for subgroups.'), quote = FALSE)
@@ -13,7 +11,7 @@ subgroup_search <- function(subdata,
   
   sim <- matrix(0, ncol = length(subdata), nrow = length(subdata))
   
-  if(sub_feature == "count"){
+  if(output$function_parameters$sub_feature == "count"){
     for (sub in 1:length(subdata)){
       for (sub2 in 1:length(subdata)){
         sim[sub,sub2] <- sum(binary[,,sub] == 1 & binary[,,sub2] == 1 & 
@@ -34,8 +32,8 @@ subgroup_search <- function(subdata,
       vectored[,p] <- c(indpaths[1:n_IVs,1:n_DVs,p])
     }
     vectored <-t(na.omit(vectored))
-    if(sub_feature =="PCA"){
-      pca_out <- prcomp(vectored, center = TRUE, scale = TRUE)   
+    if (output$function_parameters$sub_feature =="PCA"){
+      pca_out <- prcomp(vectored, center = TRUE)   
       eigs <- pca_out$sdev^2
       eigs <- eigs / sum(eigs)
       counter = 1
@@ -47,7 +45,7 @@ subgroup_search <- function(subdata,
       forsim <- t(pca_out$x[,1:counter])
       sim <- cor(cor(forsim))
     }
-    if(sub_feature == "correlate")
+    if (output$function_parameters$sub_feature == "correlate")
       sim <- cor(vectored)
     sim[which(sim<0)] = 0
   }
@@ -55,6 +53,7 @@ subgroup_search <- function(subdata,
   
   
   colnames(sim) <- rownames(sim) <- names(subdata)
+  sub_method <- output$function_parameters$sub_method 
   
   g            <- igraph::graph.adjacency(sim, mode = "undirected", weighted = TRUE, diag = FALSE)
   weights      <- igraph::E(g)$weight

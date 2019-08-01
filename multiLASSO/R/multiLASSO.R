@@ -119,6 +119,7 @@
 #' @param sub_method Community detection method used to cluster individuals into subgroups. Options align 
 #' with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
 #' "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass". 
+#' 
 #' @param sub_feature Features upon which to generate similartiy matrix for subgrouping individuals if subgroup 
 #' option invoked. "Count" uses the counts of similar paths (default); "PCA" reduces the data to those components 
 #' that explain at least 95% of variance and correlates these for each pair of individuals; "correlate" correlates all paths 
@@ -149,8 +150,9 @@ multiLASSO = function(data                       = NULL,
                       interact_with_exogenous    = NULL,
                       predict_with_interactions  = NULL,
                       subgroup                   = FALSE,
-                      sub_method                 = 'Walktrap', 
-                      sub_featere                = 'count'){
+                      sub_feature                = "count",
+                      sub_method                 = "Walktrap"
+                      ){
 
   # Add Function Parameters to Output
   output = list()
@@ -327,7 +329,7 @@ multiLASSO = function(data                       = NULL,
   if(subgroup){
     subgroup_results <- subgroup_search(subdata, 
                                         indpaths = finalpaths, 
-                                        sub_method)
+                                        output)
     if(subgroup_results$n_subgroups>1){
       subgrouppaths <- list()
       indpaths_sub  <- list()
