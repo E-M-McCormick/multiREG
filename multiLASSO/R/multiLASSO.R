@@ -15,7 +15,7 @@
 #'            conv_interval              = 1,
 #'            groupcutoff                = .75,
 #'            alpha                      = .5,
-#'            model_crit                 = 'bic',
+#'            model_crit                 = "bic",
 #'            penalties                  = NULL,
 #'            test_penalties             = FALSE,
 #'            exogenous                  = NULL,
@@ -24,7 +24,8 @@
 #'            interact_with_exogenous    = NULL,
 #'            predict_with_interactions  = NULL,
 #'            subgroup                   = FALSE,
-#'            sub_method                 = 'Walktrap')
+#'            sub_method                 = "Walktrap",
+#'            sub_feature                = "count")
 #'             
 #' @param data The path to the directory where individual data files are located,
 #' or the name of the list containing individual data. Each file or matrix within the list
@@ -118,6 +119,10 @@
 #' @param sub_method Community detection method used to cluster individuals into subgroups. Options align 
 #' with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
 #' "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass". 
+#' @param sub_feature Features upon which to generate similartiy matrix for subgrouping individuals if subgroup 
+#' option invoked. "Count" uses the counts of similar paths (default); "PCA" reduces the data to those components 
+#' that explain at least 95% of variance and correlates these for each pair of individuals; "correlate" correlates all paths 
+#' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
 #' @import utils grDevices gimme igraph
 #' @importFrom stats ts na.omit
@@ -144,7 +149,8 @@ multiLASSO = function(data                       = NULL,
                       interact_with_exogenous    = NULL,
                       predict_with_interactions  = NULL,
                       subgroup                   = FALSE,
-                      sub_method                 = 'Walktrap'){
+                      sub_method                 = 'Walktrap', 
+                      sub_featere                = 'count'){
 
   # Add Function Parameters to Output
   output = list()
@@ -157,7 +163,7 @@ multiLASSO = function(data                       = NULL,
     for (i in list.files(data)){
       tempname = tools::file_path_sans_ext(i)
       print(paste0('   Reading in ', tempname, '.'), quote = FALSE)
-      subdata[[tempname]] = read.table(i, sep=sep, header=header)
+      subdata[[tempname]] = read.delim(i, sep=sep, header=header)
     } 
   } else if (is.list(data)){
       subdata = data
