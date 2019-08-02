@@ -390,7 +390,7 @@ multiLASSO = function(data                       = NULL,
     output[['subgroup']][['subgroup_method']] = sub_method
     output[['subgroup']][['subgroup_feature']] = sub_feature
     for (j in 1:subgroup_results$n_subgroups){
-      output[['subgroup']][['subgroup_paths_proportions']][[j]] = subgrouppaths[[j]]$group_thresh_mat
+      output[['subgroup']][['subgroup_paths_present']][[j]] = subgrouppaths[[j]]$group_thresh_mat
       output[['subgroup']][['subgroup_penalties']][[j]] = subgrouppaths[[j]]$group_penalties
     } 
   }

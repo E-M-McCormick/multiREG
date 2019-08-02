@@ -33,14 +33,12 @@ manage_output = function(out = NULL, plot = NULL, output = NULL){
     
     # Write Group Level Data with Plots if Needed
     # KMG: not sure the best way to compile all the subgroup information
-    if(subgroup){
+    if(output[['function_parameters']][['subgroup']]){
       write.csv(output$subgroup$membership, file = paste(out, 'subgroupAssignments.csv', sep = .Platform$file.sep))
       write.csv(output$subgroup$subgroup$similarity_matrix, paste(out, 'similarityMatrix.csv', sep = .Platform$file.sep))
       for (j in 1:subgroup_results$n_subgroups){
-      write.csv(output[['subgroup']][['subgroup_paths_proportions']][[j]][, colnames(output$group$group_paths_counts) %in% yvarnames],
-                file = paste(out, 'subgroupPathCountsMatrix.csv', sep=.Platform$file.sep))
-      write.csv(output$subgroup$subgroup_paths_present[, colnames(output$group$group_paths_present) %in% yvarnames],
-              file = paste(out, 'groupPathCountsPresent.csv', sep=.Platform$file.sep))      
+      write.csv(output[['subgroup']][['subgroup_paths_present']][[j]][, colnames(output$subgroup$group_paths_counts) %in% yvarnames],
+                file = paste(out, 'subgroupPathCountsPresent.csv', sep=.Platform$file.sep))
       }
       }
      

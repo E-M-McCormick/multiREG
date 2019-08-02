@@ -98,8 +98,19 @@ network_visualization = network_vis = function(output = NULL){
     print('Suppressing individual-level plots to improve clarity and runtime.', quote = FALSE)
   }
   # Create Subgroup-Level Figures
-  ## KMG to create 
-  
+  # ## KMG to create 
+  # if(subgroup & output$subgroup$subgroup_number>1){
+  # print('Creating Subgroup Plots.', quote = FALSE)
+  # groupcut = output[["function_parameters"]][["groupcutoff"]]
+  # for (j in 1:output){
+  #   temp_counts = output[['subgroup']][['subgroup_paths_proportions']][[j]]
+  #   contemp = temp_counts[!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
+  #   lagged = temp_counts[grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
+  #   interacted = temp_counts[grepl('_by_', rownames(temp_counts)),]
+  #   present = output[["group"]][["group_paths_present"]][!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
+  # }
+  # }
+  # 
   # Create Group-Level Figure
   print('Creating Group Plots.', quote = FALSE)
   groupcut = output[["function_parameters"]][["groupcutoff"]]
