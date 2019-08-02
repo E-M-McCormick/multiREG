@@ -152,7 +152,12 @@ multiLASSO = function(data                       = NULL,
                       subgroup                   = FALSE,
                       sub_method                 = "Walktrap",
                       sub_feature                = "count"){
-
+  # Create Output Directory if Needed
+  if (!isnull(out) & !dir.exists(out)){
+    print('Creating output directories', quote = FALSE)
+    dir.create(out);
+  }
+  
   # Add Function Parameters to Output
   output = list()
   output[['function_parameters']] = as.list(sys.frame(which = 1))
@@ -375,18 +380,20 @@ multiLASSO = function(data                       = NULL,
     output[[sub]][['data']] = subdata[[sub]]
     output[[sub]][['regression_matrix']] = finalpaths[, , sub]
   }
-  
-  if(subgroup & subgroup_results$n_subgroups>1)
+  if(subgroup)
+    
+  if(subgroup & subgroup_results$n_subgroups>1){
+    output[['subgroup']][['membership']] = subgroup_results$sub_mem
+    output[['subgroup']][['modularity']] = subgroup_results$modularity
+    output[['subgroup']][['subgroup_number']] = subgroup_results$n_subgroups
+    output[['subgroup']][['similarity_matrix']] = subgroup_results$sim
+    output[['subgroup']][['subgroup_method']] = sub_method
+    output[['subgroup']][['subgroup_feature']] = sub_feature
     for (j in 1:subgroup_results$n_subgroups){
-      output[['subgroup']][['subgroup_paths_present']][[j]] = subgrouppaths[[j]]$group_thresh_mat
-      output[['subgroup']][['subgroup_group_penalties']][[j]] = subgrouppaths[[j]]$group_penalties
-      output[['subgroup']][['membership']] = subgroup_results$sub_mem
-      output[['subgroup']][['modularity']] = subgroup_results$modularity
-      output[['subgroup']][['subgroup_number']] = subgroup_results$n_subgroups
-      output[['subgroup']][['similarity_matrix']] = subgroup_results$sim
-      output[['subgroup']][['subgroup_method']] = sub_method
-      output[['subgroup']][['subgroup_feature']] = sub_feature
+      output[['subgroup']][['subgroup_paths_proportions']][[j]] = subgrouppaths[[j]]$group_thresh_mat
+      output[['subgroup']][['subgroup_penalties']][[j]] = subgrouppaths[[j]]$group_penalties
     } 
+  }
   
   # Add Visualization
   if (plot){
@@ -394,7 +401,8 @@ multiLASSO = function(data                       = NULL,
   }
   
   # Save Output to Files
-  manage_output(out = out, plot = plot, output = output)
+  if (!is.null(out))
+    manage_output(out = out, plot = plot, output = output)
   
   print('Algorithm successfully completed.', quote = FALSE)
   return(output)
