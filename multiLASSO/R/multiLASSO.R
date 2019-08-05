@@ -153,7 +153,7 @@ multiLASSO = function(data                       = NULL,
                       sub_method                 = "Walktrap",
                       sub_feature                = "count"){
   # Create Output Directory if Needed
-  if (!isnull(out) & !dir.exists(out)){
+  if (!is.null(out) & !dir.exists(out)){
     print('Creating output directories', quote = FALSE)
     dir.create(out);
   }
