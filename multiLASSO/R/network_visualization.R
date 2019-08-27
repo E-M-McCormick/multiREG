@@ -97,24 +97,72 @@ network_visualization = network_vis = function(output = NULL){
   } else {
     print('Suppressing individual-level plots to improve clarity and runtime.', quote = FALSE)
   }
-  # Create Subgroup-Level Figures
-  # ## KMG to create 
-  # if(subgroup & output$subgroup$subgroup_number>1){
-  # print('Creating Subgroup Plots.', quote = FALSE)
-  # groupcut = output[["function_parameters"]][["groupcutoff"]]
-  # for (j in 1:output){
-  #   temp_counts = output[['subgroup']][['subgroup_paths_proportions']][[j]]
-  #   contemp = temp_counts[!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
-  #   lagged = temp_counts[grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
-  #   interacted = temp_counts[grepl('_by_', rownames(temp_counts)),]
-  #   present = output[["group"]][["group_paths_present"]][!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
-  # }
-  # }
-  # 
+  
+  # Create Subgroup-Level Figures, and get some info to add colors to the group-level plot
+  id_subpaths_all <- matrix(0,length(output$group$group_paths_present[,1]), length(output$group$group_paths_present[1,]))
+  
+  if(output$function_parameters$subgroup && output$subgroup$subgroup_number>1){
+    for (p in 1:output$subgroup$subgroup_number){
+      if (length(which(output$subgroup$membership[,2]==p))>1){
+        id_subpaths <- output$subgroup$subgroup_paths_present[[p]] - output$group$group_paths_present
+        sub_temp_counts <- id_subpaths + output$subgroup$subgroup_paths_proportions[[p]] # subgroup-level paths will be >1
+        sub_contemp = sub_temp_counts[!grepl('Lag', rownames(sub_temp_counts)) & !grepl('_by_', rownames(sub_temp_counts)),]
+        sub_lagged = sub_temp_counts[grepl('Lag', rownames(sub_temp_counts)) & !grepl('_by_', rownames(sub_temp_counts)),]
+        sub_interacted = sub_temp_counts[grepl('_by_', rownames(sub_temp_counts)),]
+        # sub_present = output[["group"]][["group_paths_present"]][!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
+        
+        sub_con.list = cbind(which(sub_contemp!=0 & !is.na(sub_contemp), arr.ind=TRUE), sub_contemp[sub_contemp!=0 & !is.na(sub_contemp)])
+        sub_lag.list = cbind(which(sub_lagged!=0 & !is.na(sub_lagged), arr.ind=TRUE), sub_lagged[sub_lagged!=0 & !is.na(sub_lagged)])
+        sub_int.list = cbind(which(sub_interacted!=0 & !is.na(sub_interacted), arr.ind=TRUE), sub_interacted[sub_interacted!=0 & !is.na(sub_interacted)])
+        sub_edge.list = rbind(sub_con.list, sub_lag.list)
+        
+        
+        sub_is_exogenous = rownames(sub_contemp) %in% output[['variablenames']][['exogenous_vars']]
+        sub_is_lagged = grepl('Lag',rownames(sub_edge.list)) & !grepl('_by_', rownames(sub_edge.list))
+        is_subgroup = sub_edge.list[,3] > 1
+        sub_is_group = between(sub_edge.list[,3], output$function_parameters$groupcutoff, 1)
+        
+        rownames(sub_edge.list)[sub_is_lagged] = sub('Lag','',rownames(sub_edge.list)[sub_is_lagged])
+        
+        #if (length(output[['variablenames']][['y_vars']]) <= 100) { #KMG: commented out, wasn't sure if all lines should be black here
+        output[['subgroup']][['sub_effects_fig']][[p]] = qgraph::qgraph(sub_edge.list,
+                                                                        layout='circular',
+                                                                        lty=ifelse(sub_is_lagged,2,1),
+                                                                        esize = 3,
+                                                                        parallelEdge = TRUE,
+                                                                        fade = FALSE,
+                                                                        labels = sub('_',' ', rownames(sub_contemp)),
+                                                                        label.cex = 1,
+                                                                        shape = ifelse(sub_is_exogenous,'square','circle'),
+                                                                        #edge.width = ifelse(is_group, 1, edge.list[,3]),
+                                                                        edge.width = ifelse(sub_is_group,1,ifelse(is_subgroup,1,sub_edge.list[,3])),
+                                                                        #edge.color = ifelse(is_group,'black','grey'),
+                                                                        edge.color = ifelse(sub_is_group,'black',ifelse(is_subgroup,'green','grey')),
+                                                                        DoNotPlot=FALSE)
+        #} else {
+        #   edge.list = edge.list[is_group, ]
+        #   is_lagged = is_lagged[is_group]
+        #   output[['group']][['main_effects_fig']] = qgraph::qgraph(sub_edge.list[, 1:2],
+        #                                                            layout = 'circle',
+        #                                                            lty=ifelse(sub_is_lagged,2,1),
+        #                                                            esize = 1,
+        #                                                            parallelEdge = TRUE,
+        #                                                            labels = sub('_',' ', rownames(sub_contemp)),
+        #                                                            label.cex = 1,
+        #                                                            shape = ifelse(sub_is_exogenous,'square','circle'),
+        #                                                            edge.width = 1,
+        #                                                            edge.color = 'black',
+        #                                                            DoNotPlot = FALSE)
+        # }        
+      }
+      id_subpaths_all <- id_subpaths + id_subpaths_all
+       }
+  }
+  
   # Create Group-Level Figure
   print('Creating Group Plots.', quote = FALSE)
-  groupcut = output[["function_parameters"]][["groupcutoff"]]
-  temp_counts = output[["group"]][["group_paths_proportions"]]
+  groupcut = output[["function_parameters"]][["groupcutoff"]] 
+  temp_counts = output[["group"]][["group_paths_proportions"]] + id_subpaths_all # ID subgroup-level paths; zero if no subgroups
   contemp = temp_counts[!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
   lagged = temp_counts[grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
   interacted = temp_counts[grepl('_by_', rownames(temp_counts)),]
@@ -127,8 +175,9 @@ network_visualization = network_vis = function(output = NULL){
   
   is_exogenous = rownames(contemp) %in% output[['variablenames']][['exogenous_vars']]
   is_lagged = grepl('Lag',rownames(edge.list)) & !grepl('_by_', rownames(edge.list))
-  is_group = edge.list[,3] >= groupcut
-  #is_subgroup = TO BE ADDED
+  is_group = between(edge.list[,3], groupcut, 1)
+  is_subgroup = edge.list[,3] > 1
+
   rownames(edge.list)[is_lagged] = sub('Lag','',rownames(edge.list)[is_lagged])
 
   if (length(output[['variablenames']][['y_vars']]) <= 100) {
@@ -141,10 +190,10 @@ network_visualization = network_vis = function(output = NULL){
                                                              labels = sub('_',' ', rownames(contemp)),
                                                              label.cex = 1,
                                                              shape = ifelse(is_exogenous,'square','circle'),
-                                                             edge.width = ifelse(is_group, 1, edge.list[,3]),
-                                                             #edge.width = ifelse(is_group,1,ifelse(is_subgroup,1,edge.list[,3])),
-                                                             edge.color = ifelse(is_group,'black','grey'),
-                                                             #edge.color = ifelse(is_group,'black',ifelse(is_subgroup,'green','grey')),
+                                                             #edge.width = ifelse(is_group, 1, edge.list[,3]),
+                                                             edge.width = ifelse(is_group,1,ifelse(is_subgroup,1,edge.list[,3])),
+                                                             #edge.color = ifelse(is_group,'black','grey'),
+                                                             edge.color = ifelse(is_group,'black',ifelse(is_subgroup,'green','grey')),
                                                              DoNotPlot=FALSE)
   } else {
     edge.list = edge.list[is_group, ]

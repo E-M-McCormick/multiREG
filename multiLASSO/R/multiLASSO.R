@@ -386,8 +386,7 @@ multiLASSO = function(data                       = NULL,
     output[[sub]][['data']] = subdata[[sub]]
     output[[sub]][['regression_matrix']] = finalpaths[, , sub]
   }
-  if(subgroup)
-    
+
   if(subgroup & subgroup_results$n_subgroups>1){
     output[['subgroup']][['membership']] = subgroup_results$sub_mem
     output[['subgroup']][['modularity']] = subgroup_results$modularity
@@ -396,8 +395,14 @@ multiLASSO = function(data                       = NULL,
     output[['subgroup']][['subgroup_method']] = sub_method
     output[['subgroup']][['subgroup_feature']] = sub_feature
     for (j in 1:subgroup_results$n_subgroups){
+      subgrouppaths[[j]]$group_thresh_mat[is.na(subgrouppaths[[j]]$group_thresh_mat)] = 0
       output[['subgroup']][['subgroup_paths_present']][[j]] = subgrouppaths[[j]]$group_thresh_mat
       output[['subgroup']][['subgroup_penalties']][[j]] = subgrouppaths[[j]]$group_penalties
+      selectPeople <- output$subgroup$membership[which(output$subgroup$membership[,2]==j),]
+      countmatrix <- matrix(0,length(newfinalpaths[,1,1]), length(newfinalpaths[1,,1]))
+      for (p in 1:length(selectPeople[,1]))
+        countmatrix <- countmatrix + newfinalpaths[,,as.numeric(rownames(selectPeople)[p])]
+      output[['subgroup']][['subgroup_paths_proportions']][[j]] = countmatrix/length(selectPeople[,1])
     } 
   }
   
