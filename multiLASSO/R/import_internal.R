@@ -1,2 +1,2 @@
 #' @keywords internal
-convolve = getFromNamespace('convolve', 'gimme')
+convolve = setupConvolve = getFromNamespace('setupConvolve', 'gimme')

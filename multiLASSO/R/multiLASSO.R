@@ -152,9 +152,7 @@ multiLASSO = function(data                       = NULL,
                       subgroup                   = FALSE,
                       sub_method                 = "Walktrap",
                       sub_feature                = "count"){
-  # Import Functions
-  import_internal()
-  
+
   # Create Output Directory if Needed
   if (!is.null(out)){
     if (!dir.exists(out)){
@@ -195,7 +193,8 @@ multiLASSO = function(data                       = NULL,
       coln = varnames   # all variable names
     )
     
-    subdata <- gimme::convolve(
+    #subdata <- gimme::convolve(
+    subdata <- convolve(
       ts_list       = subdata, 
       varLabels     = varLabels, 
       conv_length   = conv_length, 
