@@ -127,6 +127,7 @@
 #' 
 #' @import utils grDevices gimme igraph
 #' @importFrom stats ts na.omit
+#' @importFrom dplyr between
 #' 
 #' @export multiLASSO
 
