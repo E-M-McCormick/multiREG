@@ -375,8 +375,12 @@ multiLASSO = function(data                       = NULL,
   grppaths$group_thresh_mat[is.na(grppaths$group_thresh_mat)] = 0
   output[['group']][['group_paths_present']] = grppaths$group_thresh_mat
   
-  group_thresh_mat = grppaths$group_thresh_mat/nsubs
-  output[['group']][['group_paths_proportions']] = group_thresh_mat
+  newfinalpaths <- finalpaths
+  newfinalpaths[which(abs(newfinalpaths)>0)]<- 1
+  countmatrix <- matrix(0,length(newfinalpaths[,1,1]), length(newfinalpaths[1,,1]))
+  for (p in 1:nsubs)
+    countmatrix <- countmatrix + newfinalpaths[,,p]
+  output[['group']][['group_paths_proportions']] = countmatrix/nsubs
   output[['group']][['group_penalties']] = grppaths$group_penalties
   for (sub in names(subdata)){
     output[[sub]][['data']] = subdata[[sub]]
