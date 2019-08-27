@@ -152,6 +152,9 @@ multiLASSO = function(data                       = NULL,
                       subgroup                   = FALSE,
                       sub_method                 = "Walktrap",
                       sub_feature                = "count"){
+  # Import Functions
+  import_internal()
+  
   # Create Output Directory if Needed
   if (!is.null(out)){
     if (!dir.exists(out)){
