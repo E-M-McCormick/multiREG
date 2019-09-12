@@ -194,8 +194,7 @@ multiLASSO = function(data                       = NULL,
       coln = varnames   # all variable names
     )
     
-    #subdata <- gimme::convolve(
-    subdata <- convolve(
+    subdata <- setupConvolve(
       ts_list       = subdata, 
       varLabels     = varLabels, 
       conv_length   = conv_length, 
