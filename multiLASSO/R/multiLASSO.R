@@ -125,8 +125,8 @@
 #' that explain at least 95% of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
-#' @import utils grDevices gimme igraph
-#' @importFrom stats ts na.omit
+#' @import utils grDevices gimme igraph imputeTS
+#' @importFrom stats ts na.omit cor prcomp
 #' @importFrom dplyr between
 #' 
 #' @export multiLASSO
@@ -333,7 +333,7 @@ multiLASSO = function(data                       = NULL,
                            grppen = grppaths$group_penalties,
                            output)
   
-  # Optional search for subgroups using results from above. 
+  # Optional search for subgroups using results from above.
   if(subgroup){
     subgroup_results <- subgroup_search(subdata, 
                                         indpaths = finalpaths, 

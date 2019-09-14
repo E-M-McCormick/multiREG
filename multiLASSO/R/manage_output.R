@@ -36,7 +36,7 @@ manage_output = function(out = NULL, plot = NULL, output = NULL){
     if(output[['function_parameters']][['subgroup']]){
       write.csv(output$subgroup$membership, file = paste(out, 'subgroupAssignments.csv', sep = .Platform$file.sep))
       write.csv(output$subgroup$subgroup$similarity_matrix, paste(out, 'similarityMatrix.csv', sep = .Platform$file.sep))
-      for (j in 1:subgroup_results$n_subgroups){
+      for (j in 1:output[['subgroup']][['subgroup_number']]){
       write.csv(output[['subgroup']][['subgroup_paths_present']][[j]][, colnames(output$subgroup$group_paths_counts) %in% yvarnames],
                 file = paste(out, 'subgroupPathCountsPresent.csv', sep=.Platform$file.sep))
       }
