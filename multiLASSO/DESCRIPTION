@@ -2,7 +2,7 @@ Package: multiLASSO
 Type: Package
 Title: Multiple Model Estimation using LASSO
 Version: 0.1.0
-Date: 2019-07-12
+Date: 2019-09-12
 Author: Ethan McCormick [aut, cre],
     Kathleen Gates [aut]
 Maintainer: EM McCormick <emccormick@unc.edu>
