@@ -1,8 +1,8 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# **multiLASSO: Directed Connectivity Search Using Regularized Regression**
+# **multiREG: Directed Connectivity Search Using Regularized Regression**
 
-The multiLASSO algorithm is a continually maintained R package.
+The multiREG algorithm is a continually maintained R package.
 
 Program developers are invited to submit changes here at the GitHub
 repository.
@@ -32,10 +32,9 @@ repository.
       - Alternatively can support interaction effects between endogenous
         variables, or between exogenous and endogenous variables.
 
-  - Can be freely downloaded by installing the package “multiLASSO” in
-    R.
+  - Can be freely downloaded by installing the package “multiREG” in R.
 
-# **Running multiLASSO**
+# **Running multiREG**
 
 **1. Create two new folders (i.e., directories)**
 
@@ -62,17 +61,17 @@ repository.
 
   - Files must be either comma, space, or tab delimited.
 
-**3. Installing multiLASSO with R**
+**3. Installing multiREG with R**
 
   - Open an R script and enter into the console:
-    `install.packages("multiLASSO")`
+    `install.packages("multiREG")`
 
-  - Once multiLASSO has been installed, you will need to load the
-    package by entering: `library(multiLASSO)`
+  - Once multiREG has been installed, you will need to load the package
+    by entering: `library(multiREG)`
 
-**4. Running multiLASSO**
+**4. Running multiREG**
 
-The *multiLASSO* function requires that you input:
+The *multiREG* function requires that you input:
 
   - The path to the directory containing your data.
 
@@ -85,7 +84,7 @@ is provided. If no output directory is indicated, all information is
 stored as R objects (see tutorial linked above for details).
 
 ``` r
-output <- multiLASSO(
+output <- multiREG(
   data = '',          # source directory where your data are 
   out = NULL,         # output directory where you'd like your output to go (if NULL, output will only be saved in a list object)
   sep = NULL,         # how data are separated. "" for space; "," for comma, "/t" for tab-delimited
@@ -99,7 +98,7 @@ output <- multiLASSO(
 )        
 ```
 
-While *multiLASSO* is running you will see information iterate in the
+While *multiREG* is running you will see information iterate in the
 command window. The algorithm will alert you when it is finished.
 
 # **Output**
@@ -173,11 +172,11 @@ have been obtained in simulation studies with only T = 60.
 **Do all individuals have to have the same number of observations (T)?**
 No.
 
-**How many people do I need in my sample?** For *multiLASSO*, reliable
+**How many people do I need in my sample?** For *multiREG*, reliable
 results are obtained with as few as 10 participants. Remember that in
 this context, power to detect effects is determined by the number of
 time points rather than the number of individuals. Still, having at
-least 10 individuals helps *multiLASSO* to detect signal from noise by
+least 10 individuals helps *multiREG* to detect signal from noise by
 looking for effects that consistently occur.
 
 **What do I do if I obtain an error?** Do some initial trouble-shooting.
@@ -186,7 +185,7 @@ looking for effects that consistently occur.
     variables (columns) in their data sets.
 
 2.  Ensure that all variables have variability (i.e., are not constant).
-    *multiLASSO* will let you know if this is the case.
+    *multiREG* will let you know if this is the case.
 
 3.  Ensure your path directories are correct.
 
@@ -194,5 +193,5 @@ looking for effects that consistently occur.
     observations across time.
 
 5.  If all of this is correct, please email the error you received, code
-    used to run *multiLASSO*, and the data (we promise not to use it or
+    used to run *multiREG*, and the data (we promise not to use it or
     share it) to: <gimme@unc.edu>.
