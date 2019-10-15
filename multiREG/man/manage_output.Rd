@@ -2,11 +2,11 @@
 % Please edit documentation in R/manage_output.R
 \name{manage_output}
 \alias{manage_output}
-\title{Manage Output Parameters Following Regularization with LASSO}
+\title{Manage Output Parameters Following Regularization}
 \usage{
 manage_output(out = NULL, plot = NULL, output = NULL)
 }
 \description{
-Manage Output Parameters Following Regularization with LASSO
+Manage Output Parameters Following Regularization
 }
 \keyword{internal}

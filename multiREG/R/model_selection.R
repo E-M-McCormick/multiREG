@@ -1,4 +1,4 @@
-# multiLASSO Model Selection
+# multiREG Model Selection
 #' @name model_selection
 #' @title Model Selection for Regularized Parameters
 #' @keywords internal 

@@ -1,6 +1,6 @@
 #' @name network_visualization
 #' @aliases network_vis network_visualization
-#' @title Network Visualization Following Regularization with LASSO
+#' @title Network Visualization Following Regularization
 #' @keywords internal 
 network_visualization = network_vis = function(output = NULL){
   

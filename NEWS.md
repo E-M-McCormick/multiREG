@@ -1,3 +1,3 @@
-# multiLASSO 0.1.0
+# multiREG 0.1.0
 
 Initial release

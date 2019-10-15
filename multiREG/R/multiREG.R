@@ -1,31 +1,31 @@
-#' @name multiLASSO
-#' @aliases multiLASSO
-#' @title Network Model Search using Regularization with LASSO
+#' @name multiREG
+#' @aliases multiREG
+#' @title Network Model Search using Regularization
 #' @description This function utilizes regression with regularization to build models for individuals 
 #' consisting of individual and group-level paths.
 #' @usage 
-#' multiLASSO(data                       = NULL,
-#'            out                        = NULL,
-#'            sep                        = NULL,
-#'            header                     = TRUE,
-#'            ar                         = TRUE,
-#'            plot                       = TRUE,
-#'            conv_vars                  = NULL,
-#'            conv_length                = 16,
-#'            conv_interval              = 1,
-#'            groupcutoff                = .75,
-#'            alpha                      = .5,
-#'            model_crit                 = "bic",
-#'            penalties                  = NULL,
-#'            test_penalties             = FALSE,
-#'            exogenous                  = NULL,
-#'            lag_exogenous              = FALSE,
-#'            interact_exogenous         = NULL,
-#'            interact_with_exogenous    = NULL,
-#'            predict_with_interactions  = NULL,
-#'            subgroup                   = FALSE,
-#'            sub_method                 = "Walktrap",
-#'            sub_feature                = "count")
+#' multiREG(data                       = NULL,
+#'          out                        = NULL,
+#'          sep                        = NULL,
+#'          header                     = TRUE,
+#'          ar                         = TRUE,
+#'          plot                       = TRUE,
+#'          conv_vars                  = NULL,
+#'          conv_length                = 16,
+#'          conv_interval              = 1,
+#'          groupcutoff                = .75,
+#'          alpha                      = .5,
+#'          model_crit                 = "bic",
+#'          penalties                  = NULL,
+#'          test_penalties             = FALSE,
+#'          exogenous                  = NULL,
+#'          lag_exogenous              = FALSE,
+#'          interact_exogenous         = NULL,
+#'          interact_with_exogenous    = NULL,
+#'          predict_with_interactions  = NULL,
+#'          subgroup                   = FALSE,
+#'          sub_method                 = "Walktrap",
+#'          sub_feature                = "count")
 #'             
 #' @param data The path to the directory where individual data files are located,
 #' or the name of the list containing individual data. Each file or matrix within the list
@@ -129,9 +129,9 @@
 #' @importFrom stats ts na.omit cor prcomp
 #' @importFrom dplyr between
 #' 
-#' @export multiLASSO
+#' @export multiREG
 
-multiLASSO = function(data                       = NULL,
+multiREG = function(data                       = NULL,
                       out                        = NULL,
                       sep                        = NULL,
                       header                     = TRUE,
@@ -169,8 +169,8 @@ multiLASSO = function(data                       = NULL,
   # Wrangle Data into List
   print('Reading in data.', quote = FALSE)
   if (!is.list(data)){
-    subdata = list(); setwd(data)
-    for (i in list.files(data)){
+    subdata = list()
+    for (i in list.files(data, full.names = TRUE)){
       tempname = tools::file_path_sans_ext(i)
       print(paste0('   Reading in ', tempname, '.'), quote = FALSE)
       subdata[[tempname]] = read.delim(i, sep=sep, header=header)

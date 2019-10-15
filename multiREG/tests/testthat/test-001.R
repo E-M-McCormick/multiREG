@@ -1,10 +1,10 @@
-library(multiLASSO)
+library(multiREG)
 
-test_check("multiLASSO")
+test_check("multiREG")
 
 #-------------------------------------------------------# 
 context("Check Output Structure")
 #-------------------------------------------------------# 
-output = multiLASSO(data = data("HRFsim"), header = FALSE, plot = FALSE)
+output = multiREG(data = data("HRFsim"), header = FALSE, plot = FALSE)
 
 expect_equal(length(output), 27)

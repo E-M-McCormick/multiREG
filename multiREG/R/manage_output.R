@@ -1,5 +1,5 @@
 #' @name manage_output
-#' @title Manage Output Parameters Following Regularization with LASSO
+#' @title Manage Output Parameters Following Regularization
 #' @keywords internal 
 manage_output = function(out = NULL, plot = NULL, output = NULL){
 

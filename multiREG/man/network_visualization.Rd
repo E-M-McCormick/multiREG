@@ -3,11 +3,11 @@
 \name{network_visualization}
 \alias{network_visualization}
 \alias{network_vis}
-\title{Network Visualization Following Regularization with LASSO}
+\title{Network Visualization Following Regularization}
 \usage{
 network_visualization(output = NULL)
 }
 \description{
-Network Visualization Following Regularization with LASSO
+Network Visualization Following Regularization
 }
 \keyword{internal}

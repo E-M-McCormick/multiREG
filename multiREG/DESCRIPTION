@@ -1,10 +1,10 @@
-Package: multiLASSO
+Package: multiREG
 Type: Package
-Title: Multiple Model Estimation using LASSO
+Title: Multiple Model Estimation using Regularization
 Version: 0.1.0
-Date: 2019-09-12
-Author: Ethan McCormick [aut, cre],
-    Kathleen Gates [aut]
+Date: 2019-10-12
+Author: Ethan M. McCormick [aut, cre],
+    Kathleen M. Gates [aut]
 Maintainer: EM McCormick <emccormick@unc.edu>
 Depends: R (>= 3.6.0)
 Imports: glmnet (>= 2.0-18), gimme (>= 0.6-0), qgraph(>= 1.6.2), igraph(>= 1.2.4.1), dplyr(>= 0.8.1), imputeTS(>= 2.7)

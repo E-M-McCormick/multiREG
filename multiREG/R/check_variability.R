@@ -1,4 +1,4 @@
-# multiLASSO Check Variability
+# multiREG Check Variability
 #' @name check_variability
 #' @title Check that there are no columns with 0 variability
 #' @keywords internal 
