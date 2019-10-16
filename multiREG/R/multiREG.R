@@ -122,7 +122,7 @@
 #' 
 #' @param sub_feature Features used to generate similartiy matrix for subgrouping individuals if subgroup 
 #' option invoked. "count" uses the counts of similar paths (default); "PCA" reduces the data to those components 
-#' that explain at least 95% of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
+#' that explain at least 95 percent of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
 #' @import utils grDevices gimme igraph imputeTS

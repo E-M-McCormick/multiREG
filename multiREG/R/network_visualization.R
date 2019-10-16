@@ -1,6 +1,5 @@
-#' @name network_visualization
-#' @aliases network_vis network_visualization
-#' @title Network Visualization Following Regularization
+#' Network Visualization
+#' @return Returns network plots.
 #' @keywords internal 
 network_visualization = network_vis = function(output = NULL){
   

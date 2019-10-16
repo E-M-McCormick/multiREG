@@ -1,6 +1,6 @@
-# multiREG Check Variability
-#' @name check_variability
-#' @title Check that there are no columns with 0 variability
+#' multiREG Check Variability
+#' @return Returns variability check.
+#' @param data raw data files
 #' @keywords internal 
 check_variability = function(data = NULL){
   variability = list()

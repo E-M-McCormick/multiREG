@@ -1,5 +1,5 @@
-#' @name manage_output
-#' @title Manage Output Parameters Following Regularization
+#' Manage Output from multiREG
+#' @return Returns output object and prints output files if necessary.
 #' @keywords internal 
 manage_output = function(out = NULL, plot = NULL, output = NULL){
 

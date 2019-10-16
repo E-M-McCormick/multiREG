@@ -1,6 +1,5 @@
-# multiREG Model Selection
-#' @name model_selection
-#' @title Model Selection for Regularized Parameters
+#' multiREG Model Selection
+#' @return Returns best model parameters based on fit indices.
 #' @keywords internal 
 model_selection = function(x = NULL,
                            y = NULL,
