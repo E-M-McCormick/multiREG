@@ -1,4 +1,5 @@
 #' Network Visualization
+#' @param output Output object.
 #' @return Returns network plots.
 #' @keywords internal 
 network_visualization = network_vis = function(output = NULL){

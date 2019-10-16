@@ -1,4 +1,12 @@
 #' Find individual-level solutions using final patterns. 
+#' @param subdata Data from previous step.
+#' @param yvarnames Endogenous variable names.
+#' @param interact_exogenous Exogenous variable to use as moderators.
+#' @param predict_with_interactions Endogenous variables to be predicted by interactions.
+#' @param interactnames Names of interaction variables.
+#' @param interact_exogvars Exogenous variable to use as moderators.
+#' @param grppen Group path penalties.
+#' @param output Output object
 #' @return Returns final paths for all individuals. 
 #' @keywords internal  
 ind_search <- function(subdata,

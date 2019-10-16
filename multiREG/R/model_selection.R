@@ -1,4 +1,9 @@
 #' multiREG Model Selection
+#' @param x Matrix of predictor variables.
+#' @param y Vector of criterion variable.
+#' @param selection_crit Model selection criteria (e.g., BIC, cross-validation).
+#' @param alpha Elastic-net parameter.
+#' @param penalty.factor User-set penalty matrix.
 #' @return Returns best model parameters based on fit indices.
 #' @keywords internal 
 model_selection = function(x = NULL,

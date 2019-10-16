@@ -1,4 +1,7 @@
 #' Find subgroup solutions using final patterns. 
+#' @param subdata Data from previous step.
+#' @param indpaths Results from individual-level path search.
+#' @param output Output object.
 #' @return Returns subgroup membership, similarity matrix, modularity, and number of subgroups.
 #' @keywords internal  
 subgroup_search <- function(subdata,

@@ -125,10 +125,20 @@
 #' that explain at least 95 percent of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
+#' @examples
+#'  \dontrun{
+#'    init_penalties = matrix(Inf, nrow=5, ncol=4)
+#'    init_penalties[1,1] = 0
+#'    output = multiREG(data=examplesim, penalties=init_penalties, plot=FALSE)
+#' }
+#' 
 #' @import utils grDevices gimme igraph imputeTS
 #' @importFrom stats ts na.omit cor prcomp
 #' @importFrom dplyr between
 #' 
+#' @return Object containing individual regression matrices as well as plots if desired.
+#' @author Ethan M. McCormick and Kathleen M. Gates
+#' @keywords multiREG
 #' @export multiREG
 
 multiREG = function(data                       = NULL,
@@ -414,8 +424,9 @@ multiREG = function(data                       = NULL,
   }
   
   # Save Output to Files
-  if (!is.null(out))
+  if (!is.null(out)){
     manage_output(out = out, plot = plot, output = output)
+  }
   
   print('Algorithm successfully completed.', quote = FALSE)
   return(output)

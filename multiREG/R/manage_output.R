@@ -1,4 +1,7 @@
 #' Manage Output from multiREG
+#' @param out Controls whether output should be written to file.
+#' @param plot Controls whether plots should be generated.
+#' @param output Output object.
 #' @return Returns output object and prints output files if necessary.
 #' @keywords internal 
 manage_output = function(out = NULL, plot = NULL, output = NULL){

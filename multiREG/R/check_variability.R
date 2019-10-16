@@ -1,6 +1,6 @@
 #' multiREG Check Variability
-#' @return Returns variability check.
 #' @param data raw data files
+#' @return Returns variability check.
 #' @keywords internal 
 check_variability = function(data = NULL){
   variability = list()

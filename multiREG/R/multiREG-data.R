@@ -1,3 +1,15 @@
+#' Toy example for documentation
+#'
+#' This object contains a list of time series data for 3 individuals 
+#' with 500 time points and 5 variables.
+#'
+#' @docType data
+#' @keywords datasets
+#' @name examplesim
+#' @usage examplesim
+#' @format A list of data frames with 3 individuals, who each have 500 observations on 5 variables.
+NULL
+
 #' Small Node example with exogenous variable
 #'
 #' This object contains a list of time series data for twenty-five individuals 

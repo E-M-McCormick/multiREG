@@ -1,4 +1,14 @@
-#' Find subgroup solutions using final patterns. 
+#' Find subgroup solutions using final patterns.
+#' @param subdata Data from previous step.
+#' @param groupcutoff Thresholds for group-level paths.
+#' @param yvarnames Endogenous variable names.
+#' @param interact_exogenous Exogenous variable to use as moderators.
+#' @param predict_with_interactions Endogenous variables to be predicted by interactions.
+#' @param interactnames Names of interaction variables.
+#' @param interact_exogvars Exogenous variable to use as moderators.
+#' @param output Output object
+#' @param grppen Group path penalties.
+#' @param initial_penalties User-set penalties.
 #' @return Returns subgroup membership, similarity matrix, modularity, and number of subgroups.
 #' @keywords internal  
 group_search <- function(subdata,
