@@ -2,14 +2,17 @@
 #' @param out Controls whether output should be written to file.
 #' @param plot Controls whether plots should be generated.
 #' @param output Output object.
+#' @param verbose Logical. If TRUE, algorithm will print progress to console.
 #' @return Returns output object and prints output files if necessary.
 #' @keywords internal 
-manage_output = function(out = NULL, plot = NULL, output = NULL){
+manage_output = function(out = NULL, plot = NULL, output = NULL, verbose = TRUE){
 
     yvarnames = output[['variablenames']][['y_vars']]
     groupcutoff = output[['function_parameters']][['groupcutoff']]
+    subgroupcutoff = output[['function_parameters']][['subgroupcutoff']]
     
-    print('Writing output to file.', quote = FALSE)
+    
+    if(verbose){print('Writing output to file.', quote = FALSE)}
     
     # Write out Function Arguments & Variable Names
     capture.output(print('Function Arguments', quote = FALSE), 
@@ -34,26 +37,43 @@ manage_output = function(out = NULL, plot = NULL, output = NULL){
       }
     }
     
-    # Write Group Level Data with Plots if Needed
-    # KMG: not sure the best way to compile all the subgroup information
+    # Write SUbgroup Level Data with Plots if Needed
     if(output[['function_parameters']][['subgroup']]){
       write.csv(output$subgroup$membership, file = paste(out, 'subgroupAssignments.csv', sep = .Platform$file.sep))
-      write.csv(output$subgroup$subgroup$similarity_matrix, paste(out, 'similarityMatrix.csv', sep = .Platform$file.sep))
+      write.csv(output$subgroup$similarity_matrix, paste(out, 'similarityMatrix.csv', sep = .Platform$file.sep))
+      dir.create(paste(out,'subgroup', sep=.Platform$file.sep))
       for (j in 1:output[['subgroup']][['subgroup_number']]){
-      write.csv(output[['subgroup']][['subgroup_paths_present']][[j]][, colnames(output$subgroup$group_paths_counts) %in% yvarnames],
-                file = paste(out, 'subgroupPathCountsPresent.csv', sep=.Platform$file.sep))
+        write.csv(output[['subgroup']][['subgroup_paths_present']][[j]][, colnames(output$subgroup$subgroup_paths_present[[j]]) %in% yvarnames],
+                  file = paste(out, 'subgroup', paste0('subgroup',j,'PathCountsPresent.csv'), sep=.Platform$file.sep))
+        if (plot){
+          pdf(file.path(out, 'subgroup', paste0('subgroup',j,'MainEffectsPlots.pdf')))
+          plot(output[['subgroup']][['main_effects_fig']][[j]])
+          dev.off()
+          if (!is.null(output[['subgroup']][['interaction_fig']])){
+            pdf(file.path(out, 'subgroup', paste0('subgroup',j,'InteractionsPlots.pdf')))
+            plot(output[['subgroup']][['interaction_fig']][[j]])
+            dev.off()
+          }
+        }
       }
-      }
+    }
      
-    # Write Individual Level Data with Plots if Needed
+    # Categorize Path Types (NEED TO ADD SUBGROUP FEATURES)
     dir.create(paste(out, 'individual', sep=.Platform$file.sep))
     indpaths = data.frame()
     pathtypes = output[['group']][['group_paths_proportions']]
     pathtypes[pathtypes >= groupcutoff] = 'group'
-    pathtypes[!is.na(pathtypes) & pathtypes > 0 & pathtypes != 'group'] = 'individual'
-    pathtypes[pathtypes != 'group' & pathtypes != 'individual'] = 'none'
+    if (output[['function_parameters']][['subgroup']]){
+      for (j in 1:output[['subgroup']][['subgroup_number']]){
+        pathtypes[(output$subgroup$subgroup_paths_present[[j]] - output$group$group_paths_present) == 1] = 'subgroup'
+      }
+    }
+    pathtypes[!is.na(pathtypes) & pathtypes > 0 & pathtypes != 'group' & pathtypes != 'subgroup'] = 'individual'
+    pathtypes[pathtypes != 'group' & pathtypes != 'subgroup' & pathtypes != 'individual'] = 'none'
     
+    # Write Individual Level Data with Plots if Needed
     subnames = names(output[!names(output) %in% c('group','function_parameters','variablenames')])
+    if (output[['function_parameters']][['subgroup']]){subnames = subnames[subnames != 'subgroup']}
     for (sub in subnames){
       write.csv(output[[sub]][['regression_matrix']][, colnames(output$group$group_paths_counts) %in% yvarnames],
                 file = paste(out, 'individual', paste0(sub,'Betas.csv'), sep=.Platform$file.sep))
@@ -72,8 +92,7 @@ manage_output = function(out = NULL, plot = NULL, output = NULL){
       temp = ind
       temp[,1]=rownames(output$group$group_paths_counts)[ind[,1]]
       temp[,2]=rownames(output$group$group_paths_counts)[ind[,2]]
-      temp = cbind(sub, temp)
-      temp = cbind(temp, rep(0, nrow(temp)))
+      temp = cbind(sub, temp, rep(0, nrow(temp)))
       for (r in 1:nrow(temp)){ temp[r,5] = pathtypes[temp[r,2], temp[r,3]] }
       colnames(temp) = c('file','iv','dv','beta_estimate','type')
       temp = temp[order(temp[,'type']),]
@@ -81,6 +100,5 @@ manage_output = function(out = NULL, plot = NULL, output = NULL){
     }
     write.csv(indpaths,
               file = paste(out, 'indivPathEstimates.csv', sep=.Platform$file.sep))
-    setwd(out)
   
 }

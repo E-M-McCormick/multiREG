@@ -114,7 +114,11 @@
 #' @param subgroup Logical. If TRUE, subgroups are generated based on
 #' similarities in model features using the \code{walktrap.community}
 #' function from the \code{igraph} package. When ms_allow=TRUE, subgroup
-#' should be set to FALSE.  Defaults to FALSE.  
+#' should be set to FALSE.  Defaults to FALSE.
+#' 
+#' @param subgroupcutoff Cutoff value for inclusion of a given path at the subgroup-level.
+#' For instance, subgroup_cutoff = .5 indicates that a path needs to be estimated for 50% of
+#' individuals wihtin the subgroup to be included as a subgroup-level path.
 #' 
 #' @param sub_method Community detection method used to cluster individuals into subgroups. Options align 
 #' with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
@@ -125,12 +129,9 @@
 #' that explain at least 95 percent of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
-#' @examples
-#'  \dontrun{
-#'    init_penalties = matrix(Inf, nrow=5, ncol=4)
-#'    init_penalties[1,1] = 0
-#'    output = multiREG(data=examplesim, penalties=init_penalties, plot=FALSE)
-#' }
+#' @param verbose Logical. If TRUE, algorithm will print progress to console.
+#' 
+#' @example output = multiREG(data=examplesim, exogenous='V5', plot=FALSE)
 #' 
 #' @import utils grDevices gimme igraph imputeTS
 #' @importFrom stats ts na.omit cor prcomp
@@ -142,32 +143,34 @@
 #' @export multiREG
 
 multiREG = function(data                       = NULL,
-                      out                        = NULL,
-                      sep                        = NULL,
-                      header                     = TRUE,
-                      ar                         = TRUE,
-                      plot                       = TRUE,
-                      conv_vars                  = NULL,
-                      conv_length                = 16,
-                      conv_interval              = 1,
-                      groupcutoff                = .75,
-                      alpha                      = .5,
-                      model_crit                 = 'bic',
-                      penalties                  = NULL,
-                      test_penalties             = FALSE,
-                      exogenous                  = NULL,
-                      lag_exogenous              = FALSE,
-                      interact_exogenous         = NULL,
-                      interact_with_exogenous    = NULL,
-                      predict_with_interactions  = NULL,
-                      subgroup                   = FALSE,
-                      sub_method                 = "Walktrap",
-                      sub_feature                = "count"){
+                    out                        = NULL,
+                    sep                        = NULL,
+                    header                     = TRUE,
+                    ar                         = TRUE,
+                    plot                       = TRUE,
+                    conv_vars                  = NULL,
+                    conv_length                = 16,
+                    conv_interval              = 1,
+                    groupcutoff                = .75,
+                    alpha                      = .5,
+                    model_crit                 = 'bic',
+                    penalties                  = NULL,
+                    test_penalties             = FALSE,
+                    exogenous                  = NULL,
+                    lag_exogenous              = FALSE,
+                    interact_exogenous         = NULL,
+                    interact_with_exogenous    = NULL,
+                    predict_with_interactions  = NULL,
+                    subgroup                   = FALSE,
+                    subgroupcutoff             = .5,
+                    sub_method                 = "Walktrap",
+                    sub_feature                = "count",
+                    verbose                    = TRUE){
 
   # Create Output Directory if Needed
   if (!is.null(out)){
     if (!dir.exists(out)){
-      print('Creating output directories', quote = FALSE)
+      if(verbose){print('Creating output directories', quote = FALSE)}
       dir.create(out)
       }
   }
@@ -177,12 +180,12 @@ multiREG = function(data                       = NULL,
   output[['function_parameters']] = as.list(sys.frame(which = 1))
   
   # Wrangle Data into List
-  print('Reading in data.', quote = FALSE)
+  if(verbose){print('Reading in data.', quote = FALSE)}
   if (!is.list(data)){
     subdata = list()
     for (i in list.files(data, full.names = TRUE)){
-      tempname = tools::file_path_sans_ext(i)
-      print(paste0('   Reading in ', tempname, '.'), quote = FALSE)
+      tempname = basename(tools::file_path_sans_ext(i))
+      if(verbose){print(paste0('   Reading in ', tempname, '.'), quote = FALSE)}
       subdata[[tempname]] = read.delim(i, sep=sep, header=header)
     } 
   } else if (is.list(data)){
@@ -282,7 +285,7 @@ multiREG = function(data                       = NULL,
       exognames = colnames(exogvar)
     }
   }
-  print('Data successfully read in.', quote = FALSE)
+  if(verbose){print('Data successfully read in.', quote = FALSE)}
   output[['variablenames']][['y_vars']] = yvarnames
   output[['variablenames']][['exogenous_vars']] = exognames
   output[['variablenames']][['interaction_vars']] = interactnames
@@ -307,6 +310,7 @@ multiREG = function(data                       = NULL,
     colnames(initial_penalties) = colnames(subdata[[1]])
     rownames(initial_penalties) = colnames(subdata[[1]])
   }
+  diag(initial_penalties) = NA
   
   # Free AR Paths if Desired
   for (varname in yvarnames){
@@ -322,61 +326,68 @@ multiREG = function(data                       = NULL,
   }
   
   # Group level search 
-  grppaths <- group_search(subdata,
-                           groupcutoff,
-                           yvarnames,
-                           interact_exogenous,
-                           predict_with_interactions,
-                           interactnames,
-                           interact_exogvars, 
-                           output,
-                           grppen = NULL,
-                           initial_penalties)
+  grppaths = group_search(subdata,
+                          groupcutoff,
+                          yvarnames,
+                          interact_exogenous,
+                          predict_with_interactions,
+                          interactnames,
+                          interact_exogvars, 
+                          output,
+                          grppen = NULL,
+                          initial_penalties,
+                          verbose)
   
   # Loop Through Subjects Again with the Group Level Information
-  finalpaths <- ind_search(subdata,
-                           yvarnames,
-                           interact_exogenous,
-                           predict_with_interactions,
-                           interactnames,
-                           interact_exogvars, 
-                           grppen = grppaths$group_penalties,
-                           output)
+  finalpaths = ind_search(subdata,
+                          yvarnames,
+                          interact_exogenous,
+                          predict_with_interactions,
+                          interactnames,
+                          interact_exogvars, 
+                          grppen = grppaths$group_penalties,
+                          output,
+                          verbose)
   
   # Optional search for subgroups using results from above.
   if(subgroup){
-    subgroup_results <- subgroup_search(subdata, 
-                                        indpaths = finalpaths, 
-                                        output)
+    subgroup_results = subgroup_search(subdata, 
+                                       indpaths = finalpaths, 
+                                       output,
+                                       verbose)
+    if(subgroup_results$n_subgroups==length(subdata)){subgroup_results$n_subgroups = 1}
     if(subgroup_results$n_subgroups>1){
-      subgrouppaths <- list()
-      indpaths_sub  <- list()
+      subgrouppaths = list()
+      indpaths_sub  = list()
       for (j in 1:subgroup_results$n_subgroups){
+        if(verbose){print(paste0('Starting model-building for subgroup',j,'.'), quote = FALSE)}
         sub_s_subjids = subset(subgroup_results$sub_mem$names,
                                subgroup_results$sub_mem$sub_membership == j)
         subgroupdata = subdata[sub_s_subjids]
         
-        subgrouppaths[[j]] <- group_search(subdata = subgroupdata,
-                                           groupcutoff,
-                                           yvarnames,
-                                           interact_exogenous,
-                                           predict_with_interactions,
-                                           interactnames,
-                                           interact_exogvars, 
-                                           output, 
-                                           grppen = grppaths$group_penalties)
+        subgrouppaths[[j]] = group_search(subdata = subgroupdata,
+                                          subgroupcutoff,
+                                          yvarnames,
+                                          interact_exogenous,
+                                          predict_with_interactions,
+                                          interactnames,
+                                          interact_exogvars, 
+                                          output, 
+                                          grppen = grppaths$group_penalties,
+                                          verbose = verbose)
         
-        indpaths_sub[[j]] <- ind_search(subdata = subgroupdata,
-                                        yvarnames,
-                                        interact_exogenous,
-                                        predict_with_interactions,
-                                        interactnames,
-                                        interact_exogvars, 
-                                        grppen = subgrouppaths[[j]]$group_penalties,
-                                        output)  
+        indpaths_sub[[j]] = ind_search(subdata = subgroupdata,
+                                       yvarnames,
+                                       interact_exogenous,
+                                       predict_with_interactions,
+                                       interactnames,
+                                       interact_exogvars, 
+                                       grppen = subgrouppaths[[j]]$group_penalties,
+                                       output,
+                                       verbose)  
         # combine subgroup-specific resuts into final estimates
         for (sub in names(subgroupdata)){
-          finalpaths[,,sub] <- indpaths_sub[[j]][,,sub]
+          finalpaths[,,sub] = indpaths_sub[[j]][,,sub]
         }
       }
     }
@@ -387,18 +398,16 @@ multiREG = function(data                       = NULL,
   grppaths$group_thresh_mat[is.na(grppaths$group_thresh_mat)] = 0
   output[['group']][['group_paths_present']] = grppaths$group_thresh_mat
   
-  newfinalpaths <- finalpaths
-  newfinalpaths[which(abs(newfinalpaths)>0)]<- 1
-  countmatrix <- matrix(0,length(newfinalpaths[,1,1]), length(newfinalpaths[1,,1]))
-  for (p in 1:nsubs)
-    countmatrix <- countmatrix + newfinalpaths[,,p]
+  binfinalpaths = finalpaths
+  binfinalpaths[which(abs(binfinalpaths)>0)] = 1
+  countmatrix <- matrix(0,length(binfinalpaths[,1,1]), length(binfinalpaths[1,,1]))
+  for (p in 1:nsubs){
+    countmatrix = countmatrix + binfinalpaths[,,p]
+  }
+  output[['group']][['group_paths_counts']] = countmatrix
   output[['group']][['group_paths_proportions']] = countmatrix/nsubs
   output[['group']][['group_penalties']] = grppaths$group_penalties
-  for (sub in names(subdata)){
-    output[[sub]][['data']] = subdata[[sub]]
-    output[[sub]][['regression_matrix']] = finalpaths[, , sub]
-  }
-
+  
   if(subgroup){if(subgroup_results$n_subgroups>1){
     output[['subgroup']][['membership']] = subgroup_results$sub_mem
     output[['subgroup']][['modularity']] = subgroup_results$modularity
@@ -410,24 +419,30 @@ multiREG = function(data                       = NULL,
       subgrouppaths[[j]]$group_thresh_mat[is.na(subgrouppaths[[j]]$group_thresh_mat)] = 0
       output[['subgroup']][['subgroup_paths_present']][[j]] = subgrouppaths[[j]]$group_thresh_mat
       output[['subgroup']][['subgroup_penalties']][[j]] = subgrouppaths[[j]]$group_penalties
-      selectPeople <- output$subgroup$membership[which(output$subgroup$membership[,2]==j),]
-      countmatrix <- matrix(0,length(newfinalpaths[,1,1]), length(newfinalpaths[1,,1]))
-      for (p in 1:length(selectPeople[,1]))
-        countmatrix <- countmatrix + newfinalpaths[,,as.numeric(rownames(selectPeople)[p])]
-      output[['subgroup']][['subgroup_paths_proportions']][[j]] = countmatrix/length(selectPeople[,1])
+      selectPeople = output$subgroup$membership[which(output$subgroup$membership[,2]==j),]
+      subcountmatrix = matrix(0,length(binfinalpaths[,1,1]), length(binfinalpaths[1,,1]))
+      for (p in 1:length(selectPeople[,1])){
+        subcountmatrix = subcountmatrix + binfinalpaths[,,as.numeric(rownames(selectPeople)[p])]
+      }
+      output[['subgroup']][['subgroup_paths_counts']][[j]] = subcountmatrix
+      output[['subgroup']][['subgroup_paths_proportions']][[j]] = subcountmatrix/length(selectPeople[,1])
     } 
   }}
+  for (sub in names(subdata)){
+    output[[sub]][['data']] = subdata[[sub]]
+    output[[sub]][['regression_matrix']] = finalpaths[, , sub]
+  }
   
   # Add Visualization
   if (plot){
-    output = network_vis(output)
+    output = network_vis(output, finalpaths, verbose)
   }
   
   # Save Output to Files
   if (!is.null(out)){
-    manage_output(out = out, plot = plot, output = output)
+    manage_output(out = out, plot = plot, output = output, verbose)
   }
   
-  print('Algorithm successfully completed.', quote = FALSE)
+  if(verbose){print('Algorithm successfully completed.', quote = FALSE)}
   return(output)
 }
