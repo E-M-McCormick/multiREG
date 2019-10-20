@@ -55,9 +55,10 @@
 #' must be binary variables. If there is missing data in the endogenous variables their values 
 #' will be imputed for the convolution operation only. Defaults to NULL. ### If there are multiple 
 #' variables listed in conv_vars they are not used in the convolution of additional conv_vars.## 
-#' You can't do lagged variables.
+#' Lagged variables cannot be convolved.
 #' 
-#' @param conv_length Expected response length in seconds. For functional MRI BOLD, 16 seconds (default) is typical
+#' @param conv_length Expected response length in seconds. For functional magnetic resonance imagine (fMRI)
+#' blood-oxygenation-level-dependent (BOLD) response, 16 seconds (default) is typical
 #' for the hemodynamic response function. 
 #' 
 #' @param conv_interval Interval between data acquisition. Currently must be a constant. For 
@@ -75,6 +76,8 @@
 #' 
 #' @param model_crit Argument to indicate the model selection criterion to use for model selection.
 #' Defaults to 'bic' (select on BIC). Options: 'bic', 'aic', 'aicc', 'hqc', 'cv' (cross-validation).
+#' BIC = Bayesian information criterion, AIC = Akaike information crietrion, 
+#' aicc = Akaike information crietrion for small samples, hqc = Hannan-Quinn information criterion
 #' 
 #' @param penalties (Optional) A matrix of user-provided penalties to initialize group-model search. 
 #' Should contain a column for all variables (including lagged versions and interactions) that will 
@@ -125,7 +128,7 @@
 #' "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass". 
 #' 
 #' @param sub_feature Features used to generate similartiy matrix for subgrouping individuals if subgroup 
-#' option invoked. "count" uses the counts of similar paths (default); "PCA" reduces the data to those components 
+#' option invoked. "count" uses the counts of similar paths (default); "PCA" (principal components analysis) reduces the data to those components 
 #' that explain at least 95 percent of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
