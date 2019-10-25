@@ -132,6 +132,8 @@
 #' that explain at least 95 percent of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
+#' @param individual Logical. If TRUE, no group-level model will be generated, and all individual models will be estimated independently.
+#' 
 #' @param verbose Logical. If TRUE, algorithm will print progress to console.
 #' 
 #' @example output = multiREG(data=examplesim, exogenous='V5', plot=FALSE)
@@ -168,6 +170,7 @@ multiREG = function(data                       = NULL,
                     subgroupcutoff             = .5,
                     sub_method                 = "Walktrap",
                     sub_feature                = "count",
+                    individual                 = FALSE,
                     verbose                    = TRUE){
 
   # Create Output Directory if Needed
@@ -329,17 +332,21 @@ multiREG = function(data                       = NULL,
   }
   
   # Group level search 
-  grppaths = group_search(subdata,
-                          groupcutoff,
-                          yvarnames,
-                          interact_exogenous,
-                          predict_with_interactions,
-                          interactnames,
-                          interact_exogvars, 
-                          output,
-                          grppen = NULL,
-                          initial_penalties,
-                          verbose)
+  if (individual){
+    # FIGURE OUT HOW TO MAKE WORK
+  } else{
+    grppaths = group_search(subdata,
+                            groupcutoff,
+                            yvarnames,
+                            interact_exogenous,
+                            predict_with_interactions,
+                            interactnames,
+                            interact_exogvars, 
+                            output,
+                            grppen = NULL,
+                            initial_penalties,
+                            verbose)
+  }
   
   # Loop Through Subjects Again with the Group Level Information
   finalpaths = ind_search(subdata,
