@@ -193,7 +193,7 @@ multiREG = function(data                       = NULL,
   output[['function_parameters']] = as.list(sys.frame(which = 1))
   
   # Adjust Group Threshold if Heuristic == Individual
-  output$function_parameters$groupcutoff = 1.1
+  if (heuristic == 'individual') {output$function_parameters$groupcutoff = 1.1}
   
   # Wrangle Data into List
   if(verbose){print('Reading in data.', quote = FALSE)}
