@@ -121,7 +121,7 @@
 #' 
 #' @param subgroupcutoff Cutoff value for inclusion of a given path at the subgroup-level.
 #' For instance, subgroup_cutoff = .5 indicates that a path needs to be estimated for 50% of
-#' individuals wihtin the subgroup to be included as a subgroup-level path.
+#' individuals within the subgroup to be included as a subgroup-level path.
 #' 
 #' @param sub_method Community detection method used to cluster individuals into subgroups. Options align 
 #' with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
@@ -132,7 +132,10 @@
 #' that explain at least 95 percent of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
-#' @param individual Logical. If TRUE, no group-level model will be generated, and all individual models will be estimated independently.
+#' @param heuristic Approach for building individual network maps. The default ('GIMME') proceeds using group- and individual
+#' information. The 'individual' option causes the algorithm to ignore group-level information and estimate individuals independently.
+#' The 'group' option aggregates across individuals by concatenating all timeseries data; note that no individual-level results will
+#' be generated in this case and subgroup search will be disabled.
 #' 
 #' @param verbose Logical. If TRUE, algorithm will print progress to console.
 #' 
@@ -170,7 +173,7 @@ multiREG = function(data                       = NULL,
                     subgroupcutoff             = .5,
                     sub_method                 = "Walktrap",
                     sub_feature                = "count",
-                    individual                 = FALSE,
+                    heuristic                  = 'GIMME',
                     verbose                    = TRUE){
 
   # Create Output Directory if Needed
@@ -184,6 +187,9 @@ multiREG = function(data                       = NULL,
   # Add Function Parameters to Output
   output = list()
   output[['function_parameters']] = as.list(sys.frame(which = 1))
+  
+  # Adjust Group Threshold if Heuristic == Individual
+  output$function_parameters$groupcutoff = 1.1
   
   # Wrangle Data into List
   if(verbose){print('Reading in data.', quote = FALSE)}
@@ -331,10 +337,23 @@ multiREG = function(data                       = NULL,
     stop('Returning sample penatly matrix and exiting.')
   }
   
+  # Concatenate Subdata for Group-Search Only
+  if (heuristic == 'group'){
+    if(verbose){print('Aggregating data across subjects.', quote = FALSE)}
+    aggsub = array()
+    for (i in 1:length(subdata)){
+      aggsub = rbind(aggsub, subdata[[i]])
+    }
+    subdata = list()
+    subdata[[1]] = aggsub[2:nrow(aggsub), ]
+    names(subdata)[1] = 'aggsub'
+    nsubs = length(subdata)
+    subgroup = FALSE
+    output$function_parameters$subgroup = FALSE
+  }
+  
   # Group level search 
-  if (individual){
-    # FIGURE OUT HOW TO MAKE WORK
-  } else{
+  if (heuristic == 'GIMME'){
     grppaths = group_search(subdata,
                             groupcutoff,
                             yvarnames,
@@ -346,6 +365,18 @@ multiREG = function(data                       = NULL,
                             grppen = NULL,
                             initial_penalties,
                             verbose)
+    
+  } else {
+    grppaths = list()
+    grppaths = list('output' = output,
+                    'group_thresh_mat' = array(data = rep(0, numvars*numvars), 
+                                               dim = c(numvars, numvars),
+                                               dimnames = list(c(colnames(subdata[[1]])),
+                                                               c(colnames(subdata[[1]])))),
+                    'group_penalties' = array(data = rep(1, numvars*numvars), 
+                                              dim = c(numvars, numvars),
+                                              dimnames = list(c(colnames(subdata[[1]])),
+                                                              c(colnames(subdata[[1]])))))
   }
   
   # Loop Through Subjects Again with the Group Level Information
@@ -360,13 +391,12 @@ multiREG = function(data                       = NULL,
                           verbose)
   
   # Optional search for subgroups using results from above.
-  if(subgroup){
+  if(subgroup && heuristic != 'group'){
     subgroup_results = subgroup_search(subdata, 
                                        indpaths = finalpaths, 
                                        output,
                                        verbose)
-    if(subgroup_results$n_subgroups==length(subdata)){subgroup_results$n_subgroups = 1}
-    if(subgroup_results$n_subgroups>1){
+    if(length(subdata)>subgroup_results$n_subgroups && subgroup_results$n_subgroups>1 && heuristic == 'GIMME'){
       subgrouppaths = list()
       indpaths_sub  = list()
       for (j in 1:subgroup_results$n_subgroups){
@@ -405,27 +435,31 @@ multiREG = function(data                       = NULL,
 
   
   # Organize Output
-  grppaths$group_thresh_mat[is.na(grppaths$group_thresh_mat)] = 0
-  output[['group']][['group_paths_present']] = grppaths$group_thresh_mat
-  
   binfinalpaths = finalpaths
   binfinalpaths[which(abs(binfinalpaths)>0)] = 1
-  countmatrix <- matrix(0,length(binfinalpaths[,1,1]), length(binfinalpaths[1,,1]))
+  countmatrix = matrix(0,length(binfinalpaths[,1,1]), length(binfinalpaths[1,,1]))
   for (p in 1:nsubs){
     countmatrix = countmatrix + binfinalpaths[,,p]
+  }
+  
+  if (heuristic == 'group'){
+    output[['group']][['group_paths_present']] = binfinalpaths[ , ,1]
+  } else {
+    grppaths$group_thresh_mat[is.na(grppaths$group_thresh_mat)] = 0
+    output[['group']][['group_paths_present']] = grppaths$group_thresh_mat
   }
   output[['group']][['group_paths_counts']] = countmatrix
   output[['group']][['group_paths_proportions']] = countmatrix/nsubs
   output[['group']][['group_penalties']] = grppaths$group_penalties
   
-  if(subgroup){if(subgroup_results$n_subgroups>1){
+  if(subgroup){if(length(subdata)>subgroup_results$n_subgroups && subgroup_results$n_subgroups>1){
     output[['subgroup']][['membership']] = subgroup_results$sub_mem
     output[['subgroup']][['modularity']] = subgroup_results$modularity
     output[['subgroup']][['subgroup_number']] = subgroup_results$n_subgroups
     output[['subgroup']][['similarity_matrix']] = subgroup_results$sim
     output[['subgroup']][['subgroup_method']] = sub_method
     output[['subgroup']][['subgroup_feature']] = sub_feature
-    for (j in 1:subgroup_results$n_subgroups){
+    if (heuristic == 'GIMME'){ for (j in 1:subgroup_results$n_subgroups){
       subgrouppaths[[j]]$group_thresh_mat[is.na(subgrouppaths[[j]]$group_thresh_mat)] = 0
       output[['subgroup']][['subgroup_paths_present']][[j]] = subgrouppaths[[j]]$group_thresh_mat
       output[['subgroup']][['subgroup_penalties']][[j]] = subgrouppaths[[j]]$group_penalties
@@ -436,7 +470,7 @@ multiREG = function(data                       = NULL,
       }
       output[['subgroup']][['subgroup_paths_counts']][[j]] = subcountmatrix
       output[['subgroup']][['subgroup_paths_proportions']][[j]] = subcountmatrix/length(selectPeople[,1])
-    } 
+    }} 
   }}
   for (sub in names(subdata)){
     output[[sub]][['data']] = subdata[[sub]]

@@ -56,7 +56,7 @@ subgroup_search = function(subdata,
         counter = counter + 1 
       }
       forsim = t(pca_out$x[,1:counter])
-      sim = cor(cor(forsim))
+      sim = cor(forsim)
     }
     if (output$function_parameters$sub_feature == "correlate"){
       sim = cor(vectored)
@@ -105,6 +105,3 @@ subgroup_search = function(subdata,
   
   return(subgroup_results)
 } 
-
-
-

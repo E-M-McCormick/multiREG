@@ -89,10 +89,10 @@ group_thresh_mat[group_thresh_mat < groupcutoff] = 0
 group_thresh_mat[group_thresh_mat >= groupcutoff] = 1
 group_penalties = abs(group_thresh_mat - 1)
 
-grppaths <- list()
-grppaths <- list("output" = output, 
-                 "group_thresh_mat" = group_thresh_mat, 
-                 "group_penalties" = group_penalties)
+grppaths = list()
+grppaths = list('output' = output, 
+                'group_thresh_mat' = group_thresh_mat, 
+                'group_penalties' = group_penalties)
 
 return(grppaths)
 }

@@ -1,7 +1,8 @@
 #' Network Visualization
 #' @param output Output object.
-#' @return Returns network plots.
+#' @param finalpaths Matrix of final coefficients for each path.
 #' @param verbose Logical. If TRUE, algorithm will print progress to console.
+#' @return Returns network plots.
 #' @keywords internal 
 network_visualization = network_vis = function(output = NULL, finalpaths = NULL, verbose = TRUE){
   
@@ -99,23 +100,22 @@ network_visualization = network_vis = function(output = NULL, finalpaths = NULL,
   } else {
     if(verbose){print('Suppressing individual-level plots to improve clarity and runtime.', quote = FALSE)}
   }
-  
-  # Create Subgroup-Level Figures, and get some info to add colors to the group-level plot
   id_subpaths_all = matrix(0,length(output$group$group_paths_present[,1]), length(output$group$group_paths_present[1,]))
-  moderated_group_by_subgroup = array(rep(0, nrow(id_subpaths_all)*ncol(id_subpaths_all)*output$subgroup$subgroup_number),
-                                      dim = c(nrow(id_subpaths_all), ncol(id_subpaths_all), output$subgroup$subgroup_number),
-                                      dimnames = list(c(colnames(id_subpaths_all)),
-                                                      c(colnames(id_subpaths_all)),
-                                                      c(1:output$subgroup$subgroup_number)))
   
-  if(output$function_parameters$subgroup && output$subgroup$subgroup_number>1){
+  if(output$function_parameters$subgroup && output$subgroup$subgroup_number>1 && length(subnames)>output$subgroup$subgroup_number && output$function_parameters$heuristic == 'GIMME'){
+    # Create Subgroup-Level Figures, and get some info to add colors to the group-level plot
+    moderated_group_by_subgroup = array(rep(0, nrow(id_subpaths_all)*ncol(id_subpaths_all)*output$subgroup$subgroup_number),
+                                        dim = c(nrow(id_subpaths_all), ncol(id_subpaths_all), output$subgroup$subgroup_number),
+                                        dimnames = list(c(colnames(id_subpaths_all)),
+                                                        c(colnames(id_subpaths_all)),
+                                                        c(1:output$subgroup$subgroup_number)))
     for (p in 1:output$subgroup$subgroup_number){
       if(verbose){print(paste0('Creating plots for subgroup', p, '.'), quote = FALSE)}
       if (length(which(output$subgroup$membership[,2]==p))>1){
         id_subpaths = output$subgroup$subgroup_paths_present[[p]] - output$group$group_paths_present
         sub_temp_counts = id_subpaths + output$subgroup$subgroup_paths_proportions[[p]] # subgroup-level paths will be >1
         
-        # Test if any group paths differ significantly in sign
+        # Test if any group paths differ significantly in sign (create a function for GIMME use)
         group_subgroupsign = id_subpaths
         group_subgroupsign[group_subgroupsign != 1] = 1
         groupindex = which(output$group$group_paths_present == 1, arr.ind=TRUE)
@@ -221,7 +221,7 @@ network_visualization = network_vis = function(output = NULL, finalpaths = NULL,
   if(verbose){print('Creating plots for group.', quote = FALSE)}
   groupcut = output[["function_parameters"]][["groupcutoff"]] 
   temp_counts = output[["group"]][["group_paths_proportions"]] + id_subpaths_all # ID subgroup-level paths; zero if no subgroups
-  if(output$function_parameters$subgroup){
+  if(output$function_parameters$subgroup && output$function_parameters$heuristic == 'GIMME'){
     temp_counts = temp_counts*ifelse(rowSums((moderated_group_by_subgroup < 0), dim=2),-1,1)
   }
   contemp = temp_counts[!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]

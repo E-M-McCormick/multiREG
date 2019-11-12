@@ -38,7 +38,7 @@ manage_output = function(out = NULL, plot = NULL, output = NULL, verbose = TRUE)
     }
     
     # Write SUbgroup Level Data with Plots if Needed
-    if(output[['function_parameters']][['subgroup']]){
+    if(output[['function_parameters']][['subgroup']] && output[['function_parameters']][['heuristic']] == 'GIMME'){
       write.csv(output$subgroup$membership, file = paste(out, 'subgroupAssignments.csv', sep = .Platform$file.sep))
       write.csv(output$subgroup$similarity_matrix, paste(out, 'similarityMatrix.csv', sep = .Platform$file.sep))
       dir.create(paste(out,'subgroup', sep=.Platform$file.sep))
@@ -58,7 +58,7 @@ manage_output = function(out = NULL, plot = NULL, output = NULL, verbose = TRUE)
       }
     }
      
-    # Categorize Path Types (NEED TO ADD SUBGROUP FEATURES)
+    # Categorize Path Types
     dir.create(paste(out, 'individual', sep=.Platform$file.sep))
     indpaths = data.frame()
     pathtypes = output[['group']][['group_paths_proportions']]
