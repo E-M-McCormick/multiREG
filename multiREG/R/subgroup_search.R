@@ -29,7 +29,7 @@ subgroup_search = function(subdata,
     # Calculate Number of Variables for Vector
     n_DVs = length(output$variablenames$y_vars)
     n_IVs = n_DVs*2 + length(output$variablenames$exogenous_vars) 
-    if(exists('interaction_vars', where=output$variablenames)){ # double check that exogenous_vars includes interaction; and are lagged included here? Are exog vars lagged?
+    if(exists('interaction_vars', where=output$variablenames)){ 
       n_IVs = n_IVs + length(output$variablenames$interaction_vars)
     } 
     
