@@ -11,6 +11,7 @@ subgroup_search = function(subdata,
                            verbose){
   
   if(verbose){print('Searching for subgroups.', quote = FALSE)}
+  confirm_subgroups = output$function_parameters$confirm_subgroups
   
   binary = ifelse(abs(indpaths)> 0, 1, 0)
   

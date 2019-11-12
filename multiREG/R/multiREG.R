@@ -132,6 +132,9 @@
 #' that explain at least 95 percent of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
+#' @param confirm_subgroup Option to specify a priori the subgroup membership. If not NULL, the user should provide a datafram with the first 
+#' column a string vector of subject names and the second column a vector subgroup assignments. 
+#' 
 #' @param heuristic Approach for building individual network maps. The default ('GIMME') proceeds using group- and individual
 #' information. The 'individual' option causes the algorithm to ignore group-level information and estimate individuals independently.
 #' The 'group' option aggregates across individuals by concatenating all timeseries data; note that no individual-level results will
@@ -173,6 +176,7 @@ multiREG = function(data                       = NULL,
                     subgroupcutoff             = .5,
                     sub_method                 = "Walktrap",
                     sub_feature                = "count",
+                    confirm_subgroup           = NULL,
                     heuristic                  = 'GIMME',
                     verbose                    = TRUE){
 
