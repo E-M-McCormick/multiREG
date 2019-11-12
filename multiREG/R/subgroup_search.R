@@ -68,40 +68,36 @@ subgroup_search = function(subdata,
   
   colnames(sim) = rownames(sim) = names(subdata)
   sub_method = output$function_parameters$sub_method 
+  subgroup_results = list()
+  if (is.null(confirm_subgroup)){
+    g            = igraph::graph.adjacency(sim, mode = "undirected", weighted = TRUE, diag = FALSE)
+    weights      = igraph::E(g)$weight
+    
+    if (sub_method == "Walktrap")        {res = igraph::cluster_walktrap(g, weights = weights, steps = 4)}
+    if (sub_method == "Infomap")         {res = igraph::cluster_infomap(g, e.weights = weights)          }
+    if (sub_method == "Edge Betweenness"){res = igraph::cluster_edge_betweenness(g, weights = weights)   }
+    if (sub_method == "Fast Greedy")     {res = igraph::cluster_fast_greedy(g, weights = weights)        }
+    if (sub_method == "Label Prop")      {res = igraph::cluster_label_prop(g, weights = weights)         }
+    if (sub_method == "Leading Eigen")   {res = igraph::cluster_leading_eigen(g, weights = weights)      }
+    if (sub_method == "Louvain")         {res = igraph::cluster_louvain(g, weights = weights)            }
+    if (sub_method == "Spinglass")       {res = igraph::cluster_spinglass(g, weights = weights)          }
+    
+    subgroup_results$sub_mem     = data.frame(names = names(igraph::membership(res)), 
+                                              sub_membership = as.numeric(igraph::membership(res)))
+    subgroup_results$sim         = sim
+    subgroup_results$n_subgroups = length(unique(na.omit(subgroup_results$sub_mem$sub_membership))) 
+    subgroup_results$modularity  = igraph::modularity(res)
+    
+  } else {
+    names(confirm_subgroup)      = c('names', 'sub_membership')
+    subgroup_results$sub_mem     = confirm_subgroup
+    subgroup_results$sim         = sim
+    subgroup_results$n_subgroups = length(unique(na.omit(subgroup_results$sub_mem$sub_membership)))
+    subgroup_results$modularity  = igraph::modularity(graph.adjacency(sim, mode='undirected'), subgroup_results$sub_mem$sub_membership)
+  }
   
-  g            = igraph::graph.adjacency(sim, mode = "undirected", weighted = TRUE, diag = FALSE)
-  weights      = igraph::E(g)$weight
   
-  if (sub_method == "Walktrap")
-    res        = igraph::cluster_walktrap(g, weights = weights, steps = 4)
   
-  if (sub_method == "Infomap")
-    res        = igraph::cluster_infomap(g, e.weights = weights)
-  
-  if (sub_method == "Edge Betweenness")
-    res        = igraph::cluster_edge_betweenness(g, weights = weights)
-  
-  if (sub_method == "Fast Greedy")
-    res        = igraph::cluster_fast_greedy(g, weights = weights)
-  
-  if (sub_method == "Label Prop")
-    res        = igraph::cluster_label_prop(g, weights = weights)
-  
-  if (sub_method == "Leading Eigen")
-    res        = igraph::cluster_leading_eigen(g, weights = weights)
-  
-  if (sub_method == "Louvain")
-    res        = igraph::cluster_louvain(g, weights = weights)
-  
-  if (sub_method == "Spinglass")
-    res        = igraph::cluster_spinglass(g, weights = weights)
-  
-  subgroup_results             = list()
-  subgroup_results$sub_mem     = data.frame(names = names(igraph::membership(res)), 
-                                            sub_membership = as.numeric(igraph::membership(res)))
-  subgroup_results$sim         = sim
-  subgroup_results$n_subgroups = length(unique(na.omit(subgroup_results$sub_mem$sub_membership))) 
-  subgroup_results$modularity  = igraph::modularity(res)
   
   return(subgroup_results)
 } 
