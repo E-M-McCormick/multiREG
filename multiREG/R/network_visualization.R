@@ -115,18 +115,9 @@ network_visualization = network_vis = function(output = NULL, finalpaths = NULL,
         id_subpaths = output$subgroup$subgroup_paths_present[[p]] - output$group$group_paths_present
         sub_temp_counts = id_subpaths + output$subgroup$subgroup_paths_proportions[[p]] # subgroup-level paths will be >1
         
-        # Test if any group paths differ significantly in sign (create a function for GIMME use)
-        group_subgroupsign = id_subpaths
-        group_subgroupsign[group_subgroupsign != 1] = 1
-        groupindex = which(output$group$group_paths_present == 1, arr.ind=TRUE)
-        for(index in 1:nrow(groupindex)){
-          groupcoefs = finalpaths[groupindex[index,1], groupindex[index,2], ]
-          groupmeans = aggregate(groupcoefs, output$subgroup$membership, mean)
-          if(any(sign(groupmeans$x) == 1 && sign(groupmeans$x) == -1)){
-            amodel = aov(groupcoefs ~ output$subgroup$membership$sub_membership)
-            if(summary(test)[[1]][['Pr(>F)']][[1]] < .05){group_subgroupsign[groupindex[index,1], groupindex[index,2]] = -1}
-          }
-        }
+        # Test if any group paths differ significantly in sign
+        group_subgroupsign = group_subgroupsign(output$group$group_paths_present, finalpaths, output$subgroup$membership)
+        
         sub_temp_counts = sub_temp_counts*group_subgroupsign
         moderated_group_by_subgroup[,,p] = sub_temp_counts
         
