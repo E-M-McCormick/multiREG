@@ -98,8 +98,5 @@ subgroup_search = function(subdata,
     subgroup_results$modularity  = igraph::modularity(graph.adjacency(sim, mode='undirected'), subgroup_results$sub_mem$sub_membership)
   }
   
-  
-  
-  
   return(subgroup_results)
 } 
