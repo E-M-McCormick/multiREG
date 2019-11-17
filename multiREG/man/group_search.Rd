@@ -25,7 +25,7 @@ group_search(subdata, groupcutoff, yvarnames, interactnames, output,
 \item{verbose}{Logical. If TRUE, algorithm will print progress to console.}
 }
 \value{
-Returns subgroup membership, similarity matrix, modularity, and number of subgroups.
+Returns a matrix to identify group paths.
 }
 \description{
 Find subgroup solutions using final patterns.
