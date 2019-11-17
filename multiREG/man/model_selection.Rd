@@ -12,7 +12,7 @@ model_selection(x = NULL, y = NULL, selection_crit = NULL,
 
 \item{y}{Vector of criterion variable.}
 
-\item{selection_crit}{Model selection criteria (e.g., BIC, cross-validation).}
+\item{selection_crit}{Model selection criteria (e.g., Bayesian information criterion, cross-validation).}
 
 \item{alpha}{Elastic-net parameter.}
 

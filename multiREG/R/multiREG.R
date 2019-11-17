@@ -15,17 +15,19 @@
 #'          conv_interval              = 1,
 #'          groupcutoff                = .75,
 #'          alpha                      = .5,
-#'          model_crit                 = "bic",
+#'          model_crit                 = 'bic',
 #'          penalties                  = NULL,
 #'          test_penalties             = FALSE,
 #'          exogenous                  = NULL,
 #'          lag_exogenous              = FALSE,
-#'          interact_exogenous         = NULL,
-#'          interact_with_exogenous    = NULL,
-#'          predict_with_interactions  = NULL,
+#'          interactions               = NULL,
 #'          subgroup                   = FALSE,
-#'          sub_method                 = "Walktrap",
-#'          sub_feature                = "count")
+#'          subgroupcutoff             = .5,
+#'          sub_method                 = 'Walktrap',
+#'          sub_feature                = 'count',
+#'          confirm_subgroup           = NULL,
+#'          heuristic                  = 'GIMME',
+#'          verbose                    = TRUE)
 #'             
 #' @param data The path to the directory where individual data files are located,
 #' or the name of the list containing individual data. Each file or matrix within the list
@@ -76,8 +78,8 @@
 #' 
 #' @param model_crit Argument to indicate the model selection criterion to use for model selection.
 #' Defaults to 'bic' (select on BIC). Options: 'bic', 'aic', 'aicc', 'hqc', 'cv' (cross-validation).
-#' BIC = Bayesian information criterion, AIC = Akaike information crietrion, 
-#' aicc = Akaike information crietrion for small samples, hqc = Hannan-Quinn information criterion
+#' BIC = Bayesian information criterion, AIC = Akaike information criterion, 
+#' aicc = Akaike information criterion for small samples, hqc = Hannan-Quinn information criterion
 #' 
 #' @param penalties (Optional) A matrix of user-provided penalties to initialize group-model search. 
 #' Should contain a column for all variables (including lagged versions and interactions) that will 
@@ -107,7 +109,7 @@
 #' Including 'all' in the list will create all possible 2-way interactions (including V^2 polynomials).
 #' Including 'all_cross' in the list will create all possible 2-way interactions between variables (excluding V^2 polynomials).
 #' Including 'all_exogenous' will create all 2-way interactions between exogenous variables (excluding V^2 polynomials).
-#' Including 'all_endogenous' will create all 2-way interactions between endogeous variables (excluding V^2 polynomials).
+#' Including 'all_endogenous' will create all 2-way interactions between endogenous variables (excluding V^2 polynomials).
 #' Including 'all_endog_by_exog' will create all 2-way interactions between pairs of endogenous and exogenous variables.
 #' Duplicated interactions are automatically, but caution when using shortcuts is encouraged.
 #' 
@@ -127,12 +129,12 @@
 #' with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
 #' "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass". 
 #' 
-#' @param sub_feature Features used to generate similartiy matrix for subgrouping individuals if subgroup 
+#' @param sub_feature Features used to generate similarity matrix for subgrouping individuals if subgroup 
 #' option invoked. "count" uses the counts of similar paths (default); "PCA" (principal components analysis) reduces the data to those components 
 #' that explain at least 95 percent of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 #' for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.
 #' 
-#' @param confirm_subgroup Option to specify a priori the subgroup membership. If not NULL, the user should provide a datafram with the first 
+#' @param confirm_subgroup Option to specify a priori the subgroup membership. If not NULL, the user should provide a data frame with the first 
 #' column a string vector of subject names and the second column a vector subgroup assignments. 
 #' 
 #' @param heuristic Approach for building individual network maps. The default ('GIMME') proceeds using group- and individual
@@ -142,7 +144,7 @@
 #' 
 #' @param verbose Logical. If TRUE, algorithm will print progress to console.
 #' 
-#' @example output = multiREG(data=examplesim, exogenous='V5', plot=FALSE)
+#' @examples output = multiREG(data=examplesim, exogenous='V5', plot=FALSE)
 #' 
 #' @import utils grDevices gimme igraph imputeTS
 #' @importFrom stats ts na.omit cor prcomp
@@ -172,8 +174,8 @@ multiREG = function(data                       = NULL,
                     interactions               = NULL,
                     subgroup                   = FALSE,
                     subgroupcutoff             = .5,
-                    sub_method                 = "Walktrap",
-                    sub_feature                = "count",
+                    sub_method                 = 'Walktrap',
+                    sub_feature                = 'count',
                     confirm_subgroup           = NULL,
                     heuristic                  = 'GIMME',
                     verbose                    = TRUE){

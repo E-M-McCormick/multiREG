@@ -4,7 +4,8 @@
 \alias{manage_output}
 \title{Manage Output from multiREG}
 \usage{
-manage_output(out = NULL, plot = NULL, output = NULL)
+manage_output(out = NULL, plot = NULL, output = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{out}{Controls whether output should be written to file.}
@@ -12,6 +13,8 @@ manage_output(out = NULL, plot = NULL, output = NULL)
 \item{plot}{Controls whether plots should be generated.}
 
 \item{output}{Output object.}
+
+\item{verbose}{Logical. If TRUE, algorithm will print progress to console.}
 }
 \value{
 Returns output object and prints output files if necessary.

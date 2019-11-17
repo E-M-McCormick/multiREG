@@ -214,7 +214,7 @@ network_visualization = network_vis = function(output = NULL, finalpaths = NULL,
   groupcut = output[["function_parameters"]][["groupcutoff"]] 
   temp_counts = output[["group"]][["group_paths_proportions"]] + id_subpaths_all # ID subgroup-level paths; zero if no subgroups
   if(output$function_parameters$subgroup && output$function_parameters$heuristic == 'GIMME'){
-    temp_counts = temp_counts*ifelse(rowSums((moderated_group_by_subgroup < 0), dim=2),-1,1)
+    temp_counts = temp_counts*ifelse(rowSums((moderated_group_by_subgroup < 0), dims=2),-1,1)
   }
   contemp = temp_counts[!grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]
   lagged = temp_counts[grepl('Lag', rownames(temp_counts)) & !grepl('_by_', rownames(temp_counts)),]

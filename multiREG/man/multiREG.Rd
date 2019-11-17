@@ -15,17 +15,19 @@ multiREG(data                       = NULL,
          conv_interval              = 1,
          groupcutoff                = .75,
          alpha                      = .5,
-         model_crit                 = "bic",
+         model_crit                 = 'bic',
          penalties                  = NULL,
          test_penalties             = FALSE,
          exogenous                  = NULL,
          lag_exogenous              = FALSE,
-         interact_exogenous         = NULL,
-         interact_with_exogenous    = NULL,
-         predict_with_interactions  = NULL,
+         interactions               = NULL,
          subgroup                   = FALSE,
-         sub_method                 = "Walktrap",
-         sub_feature                = "count")
+         subgroupcutoff             = .5,
+         sub_method                 = 'Walktrap',
+         sub_feature                = 'count',
+         confirm_subgroup           = NULL,
+         heuristic                  = 'GIMME',
+         verbose                    = TRUE)
 }
 \arguments{
 \item{data}{The path to the directory where individual data files are located,
@@ -56,9 +58,10 @@ To treat conv_vars as exogenous use the exogenous argument. Variables listed in 
 must be binary variables. If there is missing data in the endogenous variables their values 
 will be imputed for the convolution operation only. Defaults to NULL. ### If there are multiple 
 variables listed in conv_vars they are not used in the convolution of additional conv_vars.## 
-You can't do lagged variables.}
+Lagged variables cannot be convolved.}
 
-\item{conv_length}{Expected response length in seconds. For functional MRI BOLD, 16 seconds (default) is typical
+\item{conv_length}{Expected response length in seconds. For functional magnetic resonance imagine (fMRI)
+blood-oxygenation-level-dependent (BOLD) response, 16 seconds (default) is typical
 for the hemodynamic response function.}
 
 \item{conv_interval}{Interval between data acquisition. Currently must be a constant. For 
@@ -75,7 +78,9 @@ the others. The default value (alpha=.5) balances these two considerations, and 
 groups of correlated parameters and shrink other groups towards zero.}
 
 \item{model_crit}{Argument to indicate the model selection criterion to use for model selection.
-Defaults to 'bic' (select on BIC). Options: 'bic', 'aic', 'aicc', 'hqc', 'cv' (cross-validation).}
+Defaults to 'bic' (select on BIC). Options: 'bic', 'aic', 'aicc', 'hqc', 'cv' (cross-validation).
+BIC = Bayesian information criterion, AIC = Akaike information criterion, 
+aicc = Akaike information criterion for small samples, hqc = Hannan-Quinn information criterion}
 
 \item{penalties}{(Optional) A matrix of user-provided penalties to initialize group-model search. 
 Should contain a column for all variables (including lagged versions and interactions) that will 
@@ -96,35 +101,49 @@ the pattern 'V#', where # represents the column number in the original data file
 will be created. If set to TRUE, but exogenous variables are not indicated in the argument
 above, the function will not run properly.}
 
-\item{interact_exogenous}{(Optional) Select which exogenous variables are used to create
-interaction terms with other predictors (excluding other exogenous variables). If 
-lag_exogenous = TRUE, then can specify both contemporaneous and lagged versions of exogenous
-variables (e.g., c('V5', 'V4Lag')). Specify as 'all' to create interactions using all exogenous 
-variables (contemporaneous or lagged) present in the data. Interactions between exogenous variables 
-should be created manually and included as separate columns in the input file or list.}
+\item{interactions}{(Optional) A list of user-specified interaction variables to be created automatically
+by the algorithm. Individual interactions can be specified as: c('V1\*V2', 'V3\*V5Lag', 'V2\*V4Lag\*V5).
+WARNING: If specifying an N-way interaction where N>2, make sure to specify the (N>x>1)-way interactions.
+These lower-order interactions will NOT be created automatically. 
 
-\item{interact_with_exogenous}{(Optional) Select which endogenous variables are combined
-with the exogenous variables specified with interact_exogenous to create interaction variables
-(e.g., c('V1','V2','V2Lag')). Specify as 'all' to create interaction using all endogenous variables
-in the data.}
+For convenience, several shortcuts have been provided.
+Including 'all' in the list will create all possible 2-way interactions (including V^2 polynomials).
+Including 'all_cross' in the list will create all possible 2-way interactions between variables (excluding V^2 polynomials).
+Including 'all_exogenous' will create all 2-way interactions between exogenous variables (excluding V^2 polynomials).
+Including 'all_endogenous' will create all 2-way interactions between endogenous variables (excluding V^2 polynomials).
+Including 'all_endog_by_exog' will create all 2-way interactions between pairs of endogenous and exogenous variables.
+Duplicated interactions are automatically, but caution when using shortcuts is encouraged.
 
-\item{predict_with_interactions}{(Optional) Select which endogenous variables should be predicted
-by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
-are NULL.}
+Shortcuts and specific interactions can be specified at the same time: c('all_endog_by_exog', 'V3\*V4Lag'). However, including 
+the options 'all' or 'all_cross' will cause other user-specified interactions to be ignored.}
 
 \item{subgroup}{Logical. If TRUE, subgroups are generated based on
 similarities in model features using the \code{walktrap.community}
 function from the \code{igraph} package. When ms_allow=TRUE, subgroup
 should be set to FALSE.  Defaults to FALSE.}
 
+\item{subgroupcutoff}{Cutoff value for inclusion of a given path at the subgroup-level.
+For instance, subgroup_cutoff = .5 indicates that a path needs to be estimated for 50% of
+individuals within the subgroup to be included as a subgroup-level path.}
+
 \item{sub_method}{Community detection method used to cluster individuals into subgroups. Options align 
 with those available in the igraph package: "Walktrap" (default), "Infomap", "Louvain", "Edge Betweenness", 
 "Label Prop", "Fast Greedy", "Leading Eigen", and "Spinglass".}
 
-\item{sub_feature}{Features used to generate similartiy matrix for subgrouping individuals if subgroup 
-option invoked. "count" uses the counts of similar paths (default); "PCA" reduces the data to those components 
+\item{sub_feature}{Features used to generate similarity matrix for subgrouping individuals if subgroup 
+option invoked. "count" uses the counts of similar paths (default); "PCA" (principal components analysis) reduces the data to those components 
 that explain at least 95 percent of variance and correlates these for each pair of individuals; "correlation" correlates all paths 
 for each given pair of individuals to arrive at elements in the N-individual by N-individual similarity matrix.}
+
+\item{confirm_subgroup}{Option to specify a priori the subgroup membership. If not NULL, the user should provide a data frame with the first 
+column a string vector of subject names and the second column a vector subgroup assignments.}
+
+\item{heuristic}{Approach for building individual network maps. The default ('GIMME') proceeds using group- and individual
+information. The 'individual' option causes the algorithm to ignore group-level information and estimate individuals independently.
+The 'group' option aggregates across individuals by concatenating all timeseries data; note that no individual-level results will
+be generated in this case and subgroup search will be disabled.}
+
+\item{verbose}{Logical. If TRUE, algorithm will print progress to console.}
 }
 \value{
 Object containing individual regression matrices as well as plots if desired.
@@ -134,11 +153,7 @@ This function utilizes regression with regularization to build models for indivi
 consisting of individual and group-level paths.
 }
 \examples{
- \dontrun{
-   init_penalties = matrix(Inf, nrow=5, ncol=4)
-   init_penalties[1,1] = 0
-   output = multiREG(data=examplesim, penalties=init_penalties, plot=FALSE)
-}
+output = multiREG(data=examplesim, exogenous='V5', plot=FALSE)
 
 }
 \author{

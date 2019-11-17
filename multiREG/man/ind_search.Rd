@@ -4,26 +4,20 @@
 \alias{ind_search}
 \title{Find individual-level solutions using final patterns.}
 \usage{
-ind_search(subdata, yvarnames, interact_exogenous,
-  predict_with_interactions, interactnames, interact_exogvars, grppen,
-  output)
+ind_search(subdata, yvarnames, interactnames, grppen, output, verbose)
 }
 \arguments{
 \item{subdata}{Data from previous step.}
 
 \item{yvarnames}{Endogenous variable names.}
 
-\item{interact_exogenous}{Exogenous variable to use as moderators.}
-
-\item{predict_with_interactions}{Endogenous variables to be predicted by interactions.}
-
 \item{interactnames}{Names of interaction variables.}
-
-\item{interact_exogvars}{Exogenous variable to use as moderators.}
 
 \item{grppen}{Group path penalties.}
 
 \item{output}{Output object}
+
+\item{verbose}{Logical. If TRUE, algorithm will print progress to console.}
 }
 \value{
 Returns final paths for all individuals.

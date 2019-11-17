@@ -4,7 +4,7 @@
 \alias{subgroup_search}
 \title{Find subgroup solutions using final patterns.}
 \usage{
-subgroup_search(subdata, indpaths, output)
+subgroup_search(subdata, indpaths, output, verbose)
 }
 \arguments{
 \item{subdata}{Data from previous step.}
@@ -12,6 +12,8 @@ subgroup_search(subdata, indpaths, output)
 \item{indpaths}{Results from individual-level path search.}
 
 \item{output}{Output object.}
+
+\item{verbose}{Logical. If TRUE, algorithm will print progress to console.}
 }
 \value{
 Returns subgroup membership, similarity matrix, modularity, and number of subgroups.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/check_variability.R
 \name{check_variability}
 \alias{check_variability}
-\title{multiREG Check Variability}
+\title{Check Variability}
 \usage{
 check_variability(data = NULL)
 }
@@ -13,6 +13,6 @@ check_variability(data = NULL)
 Returns variability check.
 }
 \description{
-multiREG Check Variability
+Check Variability
 }
 \keyword{internal}

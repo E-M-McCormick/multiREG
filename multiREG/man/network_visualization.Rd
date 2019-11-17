@@ -4,10 +4,15 @@
 \alias{network_visualization}
 \title{Network Visualization}
 \usage{
-network_visualization(output = NULL)
+network_visualization(output = NULL, finalpaths = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{output}{Output object.}
+
+\item{finalpaths}{Matrix of final coefficients for each path.}
+
+\item{verbose}{Logical. If TRUE, algorithm will print progress to console.}
 }
 \value{
 Returns network plots.

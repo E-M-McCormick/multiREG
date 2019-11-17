@@ -7,7 +7,7 @@
 #' @param grppen Group path penalties.
 #' @param initial_penalties User-set penalties.
 #' @param verbose Logical. If TRUE, algorithm will print progress to console.
-#' @return Returns subgroup membership, similarity matrix, modularity, and number of subgroups.
+#' @return Returns a matrix to identify group paths.
 #' @keywords internal  
 group_search = function(subdata,
                         groupcutoff,

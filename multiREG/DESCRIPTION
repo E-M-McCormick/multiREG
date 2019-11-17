@@ -2,8 +2,8 @@ Package: multiREG
 Type: Package
 Title: Multiple Model Estimation using Regularization
 Version: 0.1.0
-Date: 2019-10-12
-Authors: Ethan M. McCormick [aut, cre],
+Date: 2019-11-12
+Author: Ethan M. McCormick [aut, cre],
     Kathleen M. Gates [aut]
 Maintainer: EM McCormick <emccormick@unc.edu>
 Depends: R (>= 3.6.0)

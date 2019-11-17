@@ -4,9 +4,8 @@
 \alias{group_search}
 \title{Find subgroup solutions using final patterns.}
 \usage{
-group_search(subdata, groupcutoff, yvarnames, interact_exogenous,
-  predict_with_interactions, interactnames, interact_exogvars, output,
-  grppen = NULL, initial_penalties = NULL)
+group_search(subdata, groupcutoff, yvarnames, interactnames, output,
+  grppen = NULL, initial_penalties = NULL, verbose)
 }
 \arguments{
 \item{subdata}{Data from previous step.}
@@ -15,19 +14,15 @@ group_search(subdata, groupcutoff, yvarnames, interact_exogenous,
 
 \item{yvarnames}{Endogenous variable names.}
 
-\item{interact_exogenous}{Exogenous variable to use as moderators.}
-
-\item{predict_with_interactions}{Endogenous variables to be predicted by interactions.}
-
 \item{interactnames}{Names of interaction variables.}
-
-\item{interact_exogvars}{Exogenous variable to use as moderators.}
 
 \item{output}{Output object}
 
 \item{grppen}{Group path penalties.}
 
 \item{initial_penalties}{User-set penalties.}
+
+\item{verbose}{Logical. If TRUE, algorithm will print progress to console.}
 }
 \value{
 Returns subgroup membership, similarity matrix, modularity, and number of subgroups.

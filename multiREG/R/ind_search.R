@@ -38,7 +38,7 @@ ind_search = function(subdata,
                                     y = tempdata[, colnames(tempdata) %in% varname],
                                     selection_crit = model_crit,
                                     alpha = alpha,
-                                    penalty.factor = initial_penalties[subset_index, varname])
+                                    penalty.factor = grppen[subset_index, varname])
       
       for (predictor in rownames(final_coefs)[!rownames(final_coefs) %in% '(Intercept)']){
         if (final_coefs[predictor,] != 0){
