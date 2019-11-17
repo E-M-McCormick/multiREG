@@ -98,21 +98,21 @@
 #' will be created. If set to TRUE, but exogenous variables are not indicated in the argument
 #' above, the function will not run properly.
 #'
-#' @param interact_exogenous (Optional) Select which exogenous variables are used to create
-#' interaction terms with other predictors (excluding other exogenous variables). If 
-#' lag_exogenous = TRUE, then can specify both contemporaneous and lagged versions of exogenous
-#' variables (e.g., c('V5', 'V4Lag')). Specify as 'all' to create interactions using all exogenous 
-#' variables (contemporaneous or lagged) present in the data. Interactions between exogenous variables 
-#' should be created manually and included as separate columns in the input file or list.
+#' @param interactions (Optional) A list of user-specified interaction variables to be created automatically
+#' by the algorithm. Individual interactions can be specified as: c('V1\*V2', 'V3\*V5Lag', 'V2\*V4Lag\*V5).
+#' WARNING: If specifying an N-way interaction where N>2, make sure to specify the (N>x>1)-way interactions.
+#' These lower-order interactions will NOT be created automatically. 
 #' 
-#' @param interact_with_exogenous (Optional) Select which endogenous variables are combined
-#' with the exogenous variables specified with interact_exogenous to create interaction variables
-#' (e.g., c('V1','V2','V2Lag')). Specify as 'all' to create interaction using all endogenous variables
-#' in the data.
+#' For convenience, several shortcuts have been provided.
+#' Including 'all' in the list will create all possible 2-way interactions (including V^2 polynomials).
+#' Including 'all_cross' in the list will create all possible 2-way interactions between variables (excluding V^2 polynomials).
+#' Including 'all_exogenous' will create all 2-way interactions between exogenous variables (excluding V^2 polynomials).
+#' Including 'all_endogenous' will create all 2-way interactions between endogeous variables (excluding V^2 polynomials).
+#' Including 'all_endog_by_exog' will create all 2-way interactions between pairs of endogenous and exogenous variables.
+#' Duplicated interactions are automatically, but caution when using shortcuts is encouraged.
 #' 
-#' @param predict_with_interactions (Optional) Select which endogenous variables should be predicted
-#' by interaction variables. This option cannot be used if interact_exogenous or interact_with_exogenous
-#' are NULL.
+#' Shortcuts and specific interactions can be specified at the same time: c('all_endog_by_exog', 'V3\*V4Lag'). However, including 
+#' the options 'all' or 'all_cross' will cause other user-specified interactions to be ignored.
 #' 
 #' @param subgroup Logical. If TRUE, subgroups are generated based on
 #' similarities in model features using the \code{walktrap.community}
@@ -169,9 +169,7 @@ multiREG = function(data                       = NULL,
                     test_penalties             = FALSE,
                     exogenous                  = NULL,
                     lag_exogenous              = FALSE,
-                    interact_exogenous         = NULL,
-                    interact_with_exogenous    = NULL,
-                    predict_with_interactions  = NULL,
+                    interactions               = NULL,
                     subgroup                   = FALSE,
                     subgroupcutoff             = .5,
                     sub_method                 = "Walktrap",
