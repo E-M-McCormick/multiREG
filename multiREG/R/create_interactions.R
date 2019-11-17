@@ -76,6 +76,10 @@ create_interactions = function(endog = NULL, exog = NULL, interactions = NULL){
     }
     interact_vars = cbind(interact_vars, int_vars)
   }
-  new_vars = cbind(endog, exog, int_vars)
+  
+  # Check for and Remove Duplicated Interaction Vars
+  interact_vars = interact_vars[, !duplicated(interact_vars, MARGIN = 2), drop = FALSE]
+  
+  new_vars = cbind(endog, exog, interact_vars)
   return(new_vars)
 }
