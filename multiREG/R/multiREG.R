@@ -178,7 +178,7 @@ multiREG = function(data                       = NULL,
                     heuristic                  = 'GIMME',
                     verbose                    = TRUE){
 
-  # Create Output Directory if Needed
+  #### Create Output Directory if Needed ####
   if (!is.null(out)){
     if (!dir.exists(out)){
       if(verbose){print('Creating output directories', quote = FALSE)}
@@ -186,14 +186,14 @@ multiREG = function(data                       = NULL,
       }
   }
   
-  # Add Function Parameters to Output
+  #### Add Function Parameters to Output ####
   output = list()
   output[['function_parameters']] = as.list(sys.frame(which = 1))
   
-  # Adjust Group Threshold if Heuristic == Individual
+  #### Adjust Group Threshold if Heuristic == Individual ####
   if (heuristic == 'individual') {output$function_parameters$groupcutoff = 1.1}
   
-  # Wrangle Data into List
+  #### Wrangle Data into List ####
   if(verbose){print('Reading in data.', quote = FALSE)}
   if (!is.list(data)){
     subdata = list()
@@ -206,7 +206,7 @@ multiREG = function(data                       = NULL,
       subdata = data
   }
   
-  # Generate Variable Names as Needed
+  #### Generate Variable Names as Needed ####
   varnames = colnames(subdata[[1]])
   if(is.null(varnames)){
     varnames = c(paste0('V', seq(1, length(subdata[[1]][1,]))))
@@ -254,14 +254,14 @@ multiREG = function(data                       = NULL,
   output[['variablenames']][['exogenous_vars']] = exognames
   output[['variablenames']][['interaction_vars']] = interactnames
   
-  # Check for Data Variability
+  #### Check for Data Variability ####
   variability = check_variability(data = subdata)
   if (variability[['flag']]){
     return(variability)
     stop('Zero-variability variable detected, see variability object for details.')
   }
   
-  # Calculate Data Thresholds
+  #### Calculate Data Thresholds ####
   nsubs = length(subdata)
   numvars = ncol(subdata[[1]])
   if (is.null(penalties)){
@@ -276,20 +276,20 @@ multiREG = function(data                       = NULL,
   }
   diag(initial_penalties) = NA
   
-  # Free AR Paths if Desired
+  #### Free AR Paths if Desired ####
   for (varname in yvarnames){
     if (ar == TRUE){
       initial_penalties[paste0(varname,'Lag'), varname] = 0 
     }
   }
   
-  # Return Sample Penalty Matrix and Exit if Needed
+  #### Return Sample Penalty Matrix and Exit if Needed ####
   if (test_penalties == TRUE){
     return(initial_penalties)
     stop('Returning sample penatly matrix and exiting.')
   }
   
-  # Concatenate Subdata for Group-Search Only
+  #### Concatenate Subdata for Group-Search Only ####
   if (heuristic == 'group'){
     if(verbose){print('Aggregating data across subjects.', quote = FALSE)}
     aggsub = array()
@@ -303,7 +303,7 @@ multiREG = function(data                       = NULL,
     subgroup = output$function_parameters$subgroup = FALSE
   }
   
-  # Group level search 
+  #### Group level search ####
   if (heuristic == 'GIMME'){
     grppaths = group_search(subdata,
                             groupcutoff,
@@ -327,7 +327,7 @@ multiREG = function(data                       = NULL,
                                                               c(colnames(subdata[[1]])))))
   }
   
-  # Loop Through Subjects Again with the Group Level Information
+  #### Loop Through Subjects Again with the Group Level Information ####
   finalpaths = ind_search(subdata,
                           yvarnames,
                           interactnames,
@@ -335,7 +335,7 @@ multiREG = function(data                       = NULL,
                           output,
                           verbose)
   
-  # Optional search for subgroups using results from above.
+  #### Optional search for subgroups using results from above. ####
   if(subgroup && heuristic != 'group'){
     subgroup_results = subgroup_search(subdata, 
                                        indpaths = finalpaths, 
@@ -373,7 +373,7 @@ multiREG = function(data                       = NULL,
   }
 
   
-  # Organize Output
+  #### Organize Output ####
   binfinalpaths = finalpaths
   binfinalpaths[which(abs(binfinalpaths)>0)] = 1
   countmatrix = matrix(0,length(binfinalpaths[,1,1]), length(binfinalpaths[1,,1]))
@@ -416,16 +416,17 @@ multiREG = function(data                       = NULL,
     output[[sub]][['regression_matrix']] = finalpaths[, , sub]
   }
   
-  # Add Visualization
+  #### Add Visualization ####
   if (plot){
     output = network_vis(output, finalpaths, verbose)
   }
   
-  # Save Output to Files
+  #### Save Output to Files ####
   if (!is.null(out)){
     manage_output(out = out, plot = plot, output = output, verbose)
   }
   
+  #### End Algorithm ####
   if(verbose){print('Algorithm successfully completed.', quote = FALSE)}
   return(output)
 }
