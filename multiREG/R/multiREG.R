@@ -215,7 +215,7 @@ multiREG = function(data                       = NULL,
     subdata = lapply(subdata, function(x){ colnames(x) = varnames; x })
   }
 
-  # Convolve if indicated.
+  #### Convolve if indicated. ####
   if(!is.null(conv_vars)){
     varLabels <- list(
       conv = conv_vars, # variables to be convolved
@@ -231,7 +231,7 @@ multiREG = function(data                       = NULL,
     )
   }
   
-  # Categorize Variables. & Omit NaN Rows
+  #### Categorize Variables. & Omit NaN Rows ####
   for (i in 1:length(subdata)){
     yvar = subdata[[i]][, !colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
     yvarnames = colnames(yvar)
@@ -251,7 +251,7 @@ multiREG = function(data                       = NULL,
     interactnames = colnames(subdata[[i]])[grepl('_by_', colnames(subdata[[i]]))]
   }
   
-  #### TO BE DELETED #####
+  #### TO BE DELETED ####
   for (i in 1:length(subdata)){
     yvar = subdata[[i]][, !colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
     yvarnames = colnames(yvar)
@@ -321,7 +321,7 @@ multiREG = function(data                       = NULL,
       exognames = colnames(exogvar)
     }
   }
-  #### TO BE DELETED #####
+  #### TO BE DELETED ####
   
   if(verbose){print('Data successfully read in.', quote = FALSE)}
   output[['variablenames']][['y_vars']] = yvarnames
@@ -382,10 +382,7 @@ multiREG = function(data                       = NULL,
     grppaths = group_search(subdata,
                             groupcutoff,
                             yvarnames,
-                            interact_exogenous,
-                            predict_with_interactions,
                             interactnames,
-                            interact_exogvars, 
                             output,
                             grppen = NULL,
                             initial_penalties,
@@ -407,10 +404,7 @@ multiREG = function(data                       = NULL,
   # Loop Through Subjects Again with the Group Level Information
   finalpaths = ind_search(subdata,
                           yvarnames,
-                          interact_exogenous,
-                          predict_with_interactions,
                           interactnames,
-                          interact_exogvars, 
                           grppen = grppaths$group_penalties,
                           output,
                           verbose)
@@ -433,20 +427,14 @@ multiREG = function(data                       = NULL,
         subgrouppaths[[j]] = group_search(subdata = subgroupdata,
                                           subgroupcutoff,
                                           yvarnames,
-                                          interact_exogenous,
-                                          predict_with_interactions,
                                           interactnames,
-                                          interact_exogvars, 
                                           output, 
                                           grppen = grppaths$group_penalties,
                                           verbose = verbose)
         
         indpaths_sub[[j]] = ind_search(subdata = subgroupdata,
                                        yvarnames,
-                                       interact_exogenous,
-                                       predict_with_interactions,
                                        interactnames,
-                                       interact_exogvars, 
                                        grppen = subgrouppaths[[j]]$group_penalties,
                                        output,
                                        verbose)  
