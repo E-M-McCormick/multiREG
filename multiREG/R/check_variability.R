@@ -1,4 +1,4 @@
-#' multiREG Check Variability
+#' Check Variability
 #' @param data raw data files
 #' @return Returns variability check.
 #' @keywords internal 

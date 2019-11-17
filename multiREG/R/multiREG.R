@@ -238,6 +238,26 @@ multiREG = function(data                       = NULL,
     lagvar = rbind(rep(NA, ncol(yvar)), yvar[1:(nrow(yvar)-1),])
     colnames(lagvar) = paste(colnames(lagvar), 'Lag', sep='')
     exogvar = subdata[[i]][, colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
+    exognames = colnames(exogvar)
+    if (lag_exogenous){
+      lagexogvar = rbind(rep(NA, ncol(exogvar)), exogvar[1:(nrow(exogvar)-1), , drop=FALSE])
+      colnames(lagexogvar) = paste(colnames(exogvar), 'Lag', sep='')
+      exognames = c(exognames, colnames(lagexogvar))
+      subdata[[i]] = create_interactions(endog = cbind(yvar, lagvar), exog = cbind(exogvar, lagexogvar), interactions = interactions)
+    } else {
+      subdata[[i]] = create_interactions(endog = cbind(yvar, lagvar), exog = exogvar, interactions = interactions)
+    }
+    subdata[[i]] = na.omit(subdata[[i]])
+    interactnames = colnames(subdata[[i]])[grepl('_by_', colnames(subdata[[i]]))]
+  }
+  
+  #### TO BE DELETED #####
+  for (i in 1:length(subdata)){
+    yvar = subdata[[i]][, !colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
+    yvarnames = colnames(yvar)
+    lagvar = rbind(rep(NA, ncol(yvar)), yvar[1:(nrow(yvar)-1),])
+    colnames(lagvar) = paste(colnames(lagvar), 'Lag', sep='')
+    exogvar = subdata[[i]][, colnames(subdata[[i]]) %in% exogenous, drop=FALSE]
     
     # Set Endogenous to be Interacted
     if (!is.null(interact_with_exogenous) && interact_with_exogenous == 'all'){
@@ -301,6 +321,8 @@ multiREG = function(data                       = NULL,
       exognames = colnames(exogvar)
     }
   }
+  #### TO BE DELETED #####
+  
   if(verbose){print('Data successfully read in.', quote = FALSE)}
   output[['variablenames']][['y_vars']] = yvarnames
   output[['variablenames']][['exogenous_vars']] = exognames
@@ -352,8 +374,7 @@ multiREG = function(data                       = NULL,
     subdata[[1]] = aggsub[2:nrow(aggsub), ]
     names(subdata)[1] = 'aggsub'
     nsubs = length(subdata)
-    subgroup = FALSE
-    output$function_parameters$subgroup = FALSE
+    subgroup = output$function_parameters$subgroup = FALSE
   }
   
   # Group level search 
