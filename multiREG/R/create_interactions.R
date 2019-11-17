@@ -68,9 +68,12 @@ create_interactions = function(endog = NULL, exog = NULL, interactions = NULL){
       colnames(int_vars) = newnames
     } else {
       int_splitnames = unlist(strsplit(interactions[[q]] ,'\\*'))
-      endog[, colnames(endog) %in% int_splitnames, drop = FALSE] = scale(endog[, colnames(endog) %in% int_splitnames, drop = FALSE], center = TRUE, scale = FALSE)
-      exog[, colnames(exog) %in% int_splitnames, drop = FALSE] = scale(exog[, colnames(exog) %in% int_splitnames, drop = FALSE], center = TRUE, scale = FALSE)
-      tempmerg = cbind(endog[, colnames(endog) %in% int_splitnames, drop = FALSE], exog[, colnames(exog) %in% int_splitnames, drop = FALSE])
+      endog[, colnames(endog) %in% int_splitnames] = scale(endog[, colnames(endog) %in% int_splitnames, drop = FALSE], center = TRUE, scale = FALSE)
+      exog[, colnames(exog) %in% int_splitnames] = scale(exog[, colnames(exog) %in% int_splitnames, drop = FALSE], center = TRUE, scale = FALSE)
+      tempmerg = vector()
+      for (r in 1:length(int_splitnames)){
+        tempmerg = cbind(tempmerg, cbind(endog[, colnames(endog) %in% int_splitnames[r], drop = FALSE], exog[, colnames(exog) %in% int_splitnames[r], drop = FALSE]))
+      }
       int_vars = as.matrix(apply(tempmerg, 1, prod))
       colnames(int_vars) = paste(int_splitnames, collapse = '_by_')
     }
@@ -78,7 +81,7 @@ create_interactions = function(endog = NULL, exog = NULL, interactions = NULL){
   }
   
   #### Check for and Remove Duplicated Interaction Vars ####
-  interact_vars = interact_vars[, !duplicated(interact_vars, MARGIN = 2), drop = FALSE]
+  interact_vars = interact_vars[, !duplicated(round(interact_vars, 10), MARGIN = 2), drop = FALSE]
   
   new_vars = cbind(endog, exog, interact_vars)
   return(new_vars)
