@@ -23,6 +23,8 @@ ind_search = function(subdata,
                      dimnames = list(c(colnames(subdata[[1]])),
                                      c(colnames(subdata[[1]])),
                                      c(names(subdata))))
+  
+  #### Loop through Subjects Data for Individual Search ####
   for (sub in names(subdata)){
     if(verbose){print(paste0('Building individual-level model for ', sub, '.'), quote = FALSE)}
     tempdata = subdata[[sub]]

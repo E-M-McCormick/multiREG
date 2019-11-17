@@ -14,14 +14,14 @@ manage_output = function(out = NULL, plot = NULL, output = NULL, verbose = TRUE)
     
     if(verbose){print('Writing output to file.', quote = FALSE)}
     
-    # Write out Function Arguments & Variable Names
+    #### Write out Function Arguments & Variable Names ####
     capture.output(print('Function Arguments', quote = FALSE), 
                    print(output$function_parameters), 
                    print('Variable Names', quote = FALSE), 
                    print(output$variablenames), 
                    file = paste(out, 'function_summary.txt', sep=.Platform$file.sep))
     
-    # Write Group Level Data with Plots if Needed
+    #### Write Group Level Data with Plots if Needed ####
     write.csv(output$group$group_paths_counts[, colnames(output$group$group_paths_counts) %in% yvarnames],
               file = paste(out, 'groupPathCountsMatrix.csv', sep=.Platform$file.sep))
     write.csv(output$group$group_paths_present[, colnames(output$group$group_paths_present) %in% yvarnames],
@@ -37,7 +37,7 @@ manage_output = function(out = NULL, plot = NULL, output = NULL, verbose = TRUE)
       }
     }
     
-    # Write SUbgroup Level Data with Plots if Needed
+    #### Write SUbgroup Level Data with Plots if Needed ####
     if(output[['function_parameters']][['subgroup']] && output[['function_parameters']][['heuristic']] == 'GIMME'){
       write.csv(output$subgroup$membership, file = paste(out, 'subgroupAssignments.csv', sep = .Platform$file.sep))
       write.csv(output$subgroup$similarity_matrix, paste(out, 'similarityMatrix.csv', sep = .Platform$file.sep))
@@ -58,7 +58,7 @@ manage_output = function(out = NULL, plot = NULL, output = NULL, verbose = TRUE)
       }
     }
      
-    # Categorize Path Types
+    #### Categorize Path Types ####
     dir.create(paste(out, 'individual', sep=.Platform$file.sep))
     indpaths = data.frame()
     pathtypes = output[['group']][['group_paths_proportions']]
@@ -71,7 +71,7 @@ manage_output = function(out = NULL, plot = NULL, output = NULL, verbose = TRUE)
     pathtypes[!is.na(pathtypes) & pathtypes > 0 & pathtypes != 'group' & pathtypes != 'subgroup'] = 'individual'
     pathtypes[pathtypes != 'group' & pathtypes != 'subgroup' & pathtypes != 'individual'] = 'none'
     
-    # Write Individual Level Data with Plots if Needed
+    #### Write Individual Level Data with Plots if Needed ####
     subnames = names(output[!names(output) %in% c('group','function_parameters','variablenames')])
     if (output[['function_parameters']][['subgroup']]){subnames = subnames[subnames != 'subgroup']}
     for (sub in subnames){

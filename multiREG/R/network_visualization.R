@@ -6,14 +6,14 @@
 #' @keywords internal 
 network_visualization = network_vis = function(output = NULL, finalpaths = NULL, verbose = TRUE){
   
-  # Determine if Interaction Plots are Needed
+  #### Determine if Interaction Plots are Needed ####
   interaction_flag = TRUE
   if (is.null(output[['function_parameters']][['interact_exogenous']]) & 
       is.null(output[['function_parameters']][['interact_with_exogenous']])) {
     interaction_flag = FALSE
   }
   
-  # Create Individual-Level Figures
+  #### Create Individual-Level Figures ####
   subnames = names(output[!names(output) %in% c('group','function_parameters','variablenames')])
   if (output[['function_parameters']][['subgroup']]){subnames = subnames[subnames != 'subgroup']}
   if (length(output[['variablenames']][['y_vars']]) <= 100) {
@@ -102,6 +102,7 @@ network_visualization = network_vis = function(output = NULL, finalpaths = NULL,
   }
   id_subpaths_all = matrix(0,length(output$group$group_paths_present[,1]), length(output$group$group_paths_present[1,]))
   
+  #### Create Subgroup Plots if Needed ####
   if(output$function_parameters$subgroup && output$subgroup$subgroup_number>1 && length(subnames)>output$subgroup$subgroup_number && output$function_parameters$heuristic == 'GIMME'){
     # Create Subgroup-Level Figures, and get some info to add colors to the group-level plot
     moderated_group_by_subgroup = array(rep(0, nrow(id_subpaths_all)*ncol(id_subpaths_all)*output$subgroup$subgroup_number),
@@ -208,7 +209,7 @@ network_visualization = network_vis = function(output = NULL, finalpaths = NULL,
        }
   }
   
-  # Create Group-Level Figure
+  #### Create Group-Level Figure ####
   if(verbose){print('Creating plots for group.', quote = FALSE)}
   groupcut = output[["function_parameters"]][["groupcutoff"]] 
   temp_counts = output[["group"]][["group_paths_proportions"]] + id_subpaths_all # ID subgroup-level paths; zero if no subgroups

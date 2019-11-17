@@ -5,13 +5,13 @@
 #' @return Returns subject data with new interactions and centered main effects if desired.
 #' @keywords internal 
 create_interactions = function(endog = NULL, exog = NULL, interactions = NULL){
-  # If no interactions specified, will skip everything else.
+  #### If no interactions specified, will skip everything else. ####
   if (is.null(interactions)){
     new_vars = cbind(endog, exog)
     return(new_vars)
   }
   
-  # If 'all' is present, will skip everything else.
+  #### If 'all' is present, will skip everything else. ####
   if (any(interactions == 'all')){
     tempdat = scale(cbind(endog, exog), center = TRUE, scale = FALSE)
     int_vars = vector()
@@ -25,7 +25,7 @@ create_interactions = function(endog = NULL, exog = NULL, interactions = NULL){
     return(new_vars)
   }
   
-  # If 'all_cross' is present, will skip everything else.
+  #### If 'all_cross' is present, will skip everything else. ####
   if (any(interactions == 'all_cross')){
     tempdat = scale(cbind(endog, exog), center = TRUE, scale = FALSE)
     int_vars = vector()
@@ -39,7 +39,7 @@ create_interactions = function(endog = NULL, exog = NULL, interactions = NULL){
     return(new_vars)
   }
   
-  # Loop through desired interactions and create while centering any variable that is used to create an interaction.
+  #### Loop through desired interactions and create while centering any variable that is used to create an interaction. ####
   interact_vars = vector()
   for (q in 1:length(interactions)){
     int_vars = vector()
@@ -77,7 +77,7 @@ create_interactions = function(endog = NULL, exog = NULL, interactions = NULL){
     interact_vars = cbind(interact_vars, int_vars)
   }
   
-  # Check for and Remove Duplicated Interaction Vars
+  #### Check for and Remove Duplicated Interaction Vars ####
   interact_vars = interact_vars[, !duplicated(interact_vars, MARGIN = 2), drop = FALSE]
   
   new_vars = cbind(endog, exog, interact_vars)
