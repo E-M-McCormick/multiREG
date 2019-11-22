@@ -138,10 +138,10 @@ for each given pair of individuals to arrive at elements in the N-individual by 
 \item{confirm_subgroup}{Option to specify a priori the subgroup membership. If not NULL, the user should provide a data frame with the first 
 column a string vector of subject names and the second column a vector subgroup assignments.}
 
-\item{heuristic}{Approach for building individual network maps. The default ('GIMME') proceeds using group- and individual
-information. The 'individual' option causes the algorithm to ignore group-level information and estimate individuals independently.
-The 'group' option aggregates across individuals by concatenating all timeseries data; note that no individual-level results will
-be generated in this case and subgroup search will be disabled.}
+\item{heuristic}{Approach for building individual network maps. The default ('GIMME' or the Group Iterative Multiple Model Estimation approach) 
+proceeds using group- and individual information. For more information on the GIMME heuristic, see Gates & Molenaar, 2012 NeuroImage. The 'individual' 
+option causes the algorithm to ignore group-level information and estimate individuals independently. The 'group' option aggregates across individuals 
+by concatenating all timeseries data; note that no individual-level results will be generated in this case and subgroup search will be disabled.}
 
 \item{verbose}{Logical. If TRUE, algorithm will print progress to console.}
 }
