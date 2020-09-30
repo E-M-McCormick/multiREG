@@ -12,8 +12,6 @@ subgroup_search = function(subdata,
   
   if(verbose){print('Searching for subgroups.', quote = FALSE)}
   
-  confirm_subgroups = output$function_parameters$confirm_subgroups
-  
   binary = ifelse(abs(indpaths)> 0, 1, 0)
   
   sim = matrix(0, ncol = length(subdata), nrow = length(subdata))
@@ -71,7 +69,7 @@ subgroup_search = function(subdata,
   colnames(sim) = rownames(sim) = names(subdata)
   sub_method = output$function_parameters$sub_method 
   subgroup_results = list()
-  if (is.null(confirm_subgroup)){
+  if (is.null(output$function_parameters$confirm_subgroups)){
     g            = igraph::graph.adjacency(sim, mode = "undirected", weighted = TRUE, diag = FALSE)
     weights      = igraph::E(g)$weight
     
