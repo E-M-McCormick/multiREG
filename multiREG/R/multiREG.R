@@ -13,6 +13,7 @@
 #'          conv_vars                  = NULL,
 #'          conv_length                = 16,
 #'          conv_interval              = 1,
+#'          standardize                = FALSE,
 #'          groupcutoff                = .75,
 #'          alpha                      = .5,
 #'          model_crit                 = 'bic',
@@ -64,7 +65,10 @@
 #' for the hemodynamic response function. 
 #' 
 #' @param conv_interval Interval between data acquisition. Currently must be a constant. For 
-#' fMRI studies, this is the repetition time. Defaults to 1. 
+#' fMRI studies, this is the repetition time. Defaults to 1.
+#' 
+#' @param standardize Logical. If TRUE, all variables will be standardized to have a mean of zero and a
+#' standard deviation of one. Defaults to FALSE.
 #' 
 #' @param groupcutoff Cutoff value for inclusion of a given path at the group-level.
 #' For instance, group_cutoff = .75 indicates that a path needs to be estimated for 75% of
@@ -103,7 +107,8 @@
 #' @param interactions (Optional) A list of user-specified interaction variables to be created automatically
 #' by the algorithm. Individual interactions can be specified as: c('V1\*V2', 'V3\*V5Lag', 'V2\*V4Lag\*V5).
 #' WARNING: If specifying an N-way interaction where N>2, make sure to specify the (N>x>1)-way interactions.
-#' These lower-order interactions will NOT be created automatically. 
+#' These lower-order interactions will NOT be created automatically. Variables are automatically centered 
+#' before creating interaction.
 #' 
 #' For convenience, several shortcuts have been provided.
 #' Including 'all' in the list will create all possible 2-way interactions (including V^2 polynomials).
@@ -111,7 +116,7 @@
 #' Including 'all_exogenous' will create all 2-way interactions between exogenous variables (excluding V^2 polynomials).
 #' Including 'all_endogenous' will create all 2-way interactions between endogenous variables (excluding V^2 polynomials).
 #' Including 'all_endog_by_exog' will create all 2-way interactions between pairs of endogenous and exogenous variables.
-#' Duplicated interactions are automatically, but caution when using shortcuts is encouraged.
+#' Duplicated interactions are removed automatically, but caution when using shortcuts is encouraged.
 #' 
 #' Shortcuts and specific interactions can be specified at the same time: c('all_endog_by_exog', 'V3\*V4Lag'). However, including 
 #' the options 'all' or 'all_cross' will cause other user-specified interactions to be ignored.
@@ -164,6 +169,7 @@ multiREG = function(data                       = NULL,
                     conv_vars                  = NULL,
                     conv_length                = 16,
                     conv_interval              = 1,
+                    standardize                = FALSE,
                     groupcutoff                = .75,
                     alpha                      = .5,
                     model_crit                 = 'bic',
@@ -229,7 +235,11 @@ multiREG = function(data                       = NULL,
       conv_length   = conv_length, 
       conv_interval = conv_interval
     )
+    if(!standardize){warning('Recommended standarizing all variables if convolving, but standardize = FALSE. The algorithm will still run, but results may be impacted')}
   }
+  
+  #### Standardize each variable if requested ####
+  if(standardize){subdata = lapply(subdata, function(x){lapply(x, function(y){scale(y, center=TRUE, scale=TRUE)})})}
   
   #### Categorize Variables. & Omit NaN Rows ####
   for (i in 1:length(subdata)){
@@ -259,8 +269,8 @@ multiREG = function(data                       = NULL,
   #### Check for Data Variability ####
   variability = check_variability(data = subdata)
   if (variability[['flag']]){
+    if(verbose){print('Zero-variability variable detected, see output object for details.', quote=FALSE)}
     return(variability)
-    stop('Zero-variability variable detected, see variability object for details.')
   }
   
   #### Calculate Data Thresholds ####
@@ -288,7 +298,7 @@ multiREG = function(data                       = NULL,
   #### Return Sample Penalty Matrix and Exit if Needed ####
   if (test_penalties == TRUE){
     return(initial_penalties)
-    stop('Returning sample penatly matrix and exiting.')
+    if(verbose){print('Returning sample penatly matrix and exiting.', quote=FALSE)}
   }
   
   #### Concatenate Subdata for Group-Search Only ####
