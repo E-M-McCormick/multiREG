@@ -239,7 +239,7 @@ multiREG = function(data                       = NULL,
   }
   
   #### Standardize each variable if requested ####
-  if(standardize){subdata = lapply(subdata, function(x){lapply(x, function(y){scale(y, center=TRUE, scale=TRUE)})})}
+  if(standardize){subdata = lapply(subdata, function(x){scale(x, center=TRUE, scale=TRUE)[,]})}
   
   #### Categorize Variables. & Omit NaN Rows ####
   for (i in 1:length(subdata)){
